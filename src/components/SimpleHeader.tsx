@@ -1,6 +1,7 @@
-import { LogOut, Leaf } from "lucide-react"
+import { LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/contexts/AuthContext"
+import pngEmblem from "@/assets/png-emblem.png"
 
 export function SimpleHeader() {
   const { profile, signOut } = useAuth()
@@ -25,11 +26,11 @@ export function SimpleHeader() {
   }
 
   return (
-    <header className="h-16 border-b border-border bg-card flex items-center justify-between px-6 sticky top-0 z-50">
+    <header className="h-16 border-b border-border bg-card flex items-center justify-between px-6 sticky top-0 z-50 shadow-sm">
       {/* Left Section - Logo */}
       <div className="flex items-center space-x-3">
-        <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-          <Leaf className="w-6 h-6 text-primary-foreground" />
+        <div className="w-12 h-12 flex items-center justify-center">
+          <img src={pngEmblem} alt="PNG Emblem" className="w-full h-full object-contain" />
         </div>
         <div>
           <h1 className="text-base font-semibold text-foreground">PNG Conservation Management System</h1>

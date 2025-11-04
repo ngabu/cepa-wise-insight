@@ -2,87 +2,87 @@
 @tailwind components;
 @tailwind utilities;
 
-/* PNG Conservation Dashboard Design System
-   Professional conservation theme with nature-inspired colors
+/* PNG Government Design System
+   Professional government theme inspired by PNG national colors
    All colors MUST be HSL.
 */
 
 @layer base {
   :root {
-    /* Base colors - Pacific ocean theme */
-    --background: 200 40% 12%;
-    --foreground: 0 0% 98%;
+    /* Base colors - PNG Government theme */
+    --background: 0 0% 97%;
+    --foreground: 0 0% 10%;
 
-    /* Card and surface colors - Glassmorphic */
-    --card: 200 20% 95%;
-    --card-foreground: 220 15% 25%;
+    /* Card and surface colors */
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 15%;
 
-    /* Popover colors - Glassmorphic */
-    --popover: 200 20% 98%;
-    --popover-foreground: 220 15% 25%;
+    /* Popover colors */
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 15%;
 
-    /* Primary - Ocean teal for buttons/icons */
-    --primary: 180 70% 35%;
+    /* Primary - PNG Green (from national colors) */
+    --primary: 145 65% 35%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 180 65% 45%;
+    --primary-glow: 145 60% 45%;
 
-    /* Secondary - Soft gray */
-    --secondary: 220 10% 80%;
-    --secondary-foreground: 220 15% 25%;
+    /* Secondary - Neutral gray */
+    --secondary: 0 0% 90%;
+    --secondary-foreground: 0 0% 15%;
 
     /* Muted tones */
-    --muted: 220 10% 82%;
-    --muted-foreground: 220 10% 45%;
+    --muted: 0 0% 92%;
+    --muted-foreground: 0 0% 45%;
 
-    /* Accent - Blue for stat icons */
-    --accent: 215 85% 60%;
+    /* Accent - PNG Red (from bird of paradise) */
+    --accent: 15 75% 50%;
     --accent-foreground: 0 0% 100%;
 
-    /* Status colors with ocean theme */
-    --success: 160 70% 40%;
+    /* Status colors */
+    --success: 145 65% 40%;
     --success-foreground: 0 0% 100%;
     --warning: 40 95% 55%;
-    --warning-foreground: 220 15% 25%;
-    --destructive: 15 85% 55%;
+    --warning-foreground: 0 0% 15%;
+    --destructive: 0 75% 50%;
     --destructive-foreground: 0 0% 100%;
-    --info: 200 80% 50%;
+    --info: 200 75% 45%;
     --info-foreground: 0 0% 100%;
 
     /* Borders and inputs */
-    --border: 220 15% 78%;
-    --input: 220 15% 82%;
-    --ring: 145 80% 42%;
+    --border: 0 0% 85%;
+    --input: 0 0% 90%;
+    --ring: 145 65% 40%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
 
-    /* Sidebar colors - Darker green for active states */
-    --sidebar-background: 0 0% 95%;
-    --sidebar-foreground: 220 15% 25%;
-    --sidebar-primary: 145 75% 32%;
+    /* Sidebar colors - Dark charcoal like PNG government style */
+    --sidebar-background: 0 0% 12%;
+    --sidebar-foreground: 0 0% 90%;
+    --sidebar-primary: 145 65% 45%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 10% 88%;
-    --sidebar-accent-foreground: 220 15% 25%;
-    --sidebar-border: 220 15% 82%;
-    --sidebar-ring: 145 75% 32%;
+    --sidebar-accent: 0 0% 20%;
+    --sidebar-accent-foreground: 0 0% 90%;
+    --sidebar-border: 0 0% 20%;
+    --sidebar-ring: 145 65% 45%;
 
-    /* Custom gradients - Pacific ocean theme */
-    --gradient-primary: linear-gradient(135deg, hsl(180 70% 35%), hsl(200 65% 45%));
-    --gradient-success: linear-gradient(135deg, hsl(160 70% 40%), hsl(170 65% 45%));
-    --gradient-accent: linear-gradient(135deg, hsl(200 85% 50%), hsl(210 80% 60%));
-    --gradient-ocean: linear-gradient(180deg, hsl(200 60% 20%), hsl(190 50% 30%), hsl(180 45% 40%));
+    /* Custom gradients - PNG theme */
+    --gradient-primary: linear-gradient(135deg, hsl(145 65% 35%), hsl(145 60% 45%));
+    --gradient-success: linear-gradient(135deg, hsl(145 65% 40%), hsl(160 60% 45%));
+    --gradient-accent: linear-gradient(135deg, hsl(15 75% 50%), hsl(30 70% 55%));
+    --gradient-government: linear-gradient(180deg, hsl(0 0% 12%), hsl(0 0% 18%), hsl(0 0% 15%));
     
-    /* Glassmorphic effects */
-    --glass-bg: hsl(200 30% 98% / 0.65);
-    --glass-bg-dark: hsl(200 40% 15% / 0.4);
-    --glass-border: hsl(200 50% 85% / 0.3);
-    --glass-shadow: 0 8px 32px 0 hsl(200 40% 10% / 0.37);
-    --glass-shadow-soft: 0 4px 16px 0 hsl(200 40% 10% / 0.15);
+    /* Professional effects */
+    --glass-bg: hsl(0 0% 100% / 0.8);
+    --glass-bg-dark: hsl(0 0% 12% / 0.95);
+    --glass-border: hsl(0 0% 85% / 0.5);
+    --glass-shadow: 0 4px 20px 0 hsl(0 0% 0% / 0.1);
+    --glass-shadow-soft: 0 2px 10px 0 hsl(0 0% 0% / 0.05);
     
     /* Shadows and glows */
-    --shadow-primary: 0 4px 16px hsl(180 70% 40% / 0.2);
-    --shadow-card: 0 8px 32px 0 hsl(200 40% 10% / 0.25);
-    --glow-primary: 0 0 24px hsl(180 70% 50% / 0.3);
-    --glow-accent: 0 0 20px hsl(200 80% 60% / 0.25);
+    --shadow-primary: 0 2px 12px hsl(145 65% 35% / 0.15);
+    --shadow-card: 0 4px 20px 0 hsl(0 0% 0% / 0.08);
+    --glow-primary: 0 0 20px hsl(145 65% 45% / 0.25);
+    --glow-accent: 0 0 16px hsl(15 75% 50% / 0.2);
   }
 
   .dark {
@@ -132,18 +132,15 @@
   body {
     @apply bg-background text-foreground;
     background-image: 
-      /* Topographic contour lines effect */
-      repeating-linear-gradient(0deg, transparent, transparent 50px, hsl(200 50% 30% / 0.03) 50px, hsl(200 50% 30% / 0.03) 51px),
-      repeating-linear-gradient(90deg, transparent, transparent 50px, hsl(200 50% 30% / 0.03) 50px, hsl(200 50% 30% / 0.03) 51px),
-      /* Ocean gradient layers */
-      radial-gradient(ellipse at 20% 30%, hsl(200 60% 20% / 0.8) 0%, transparent 50%),
-      radial-gradient(ellipse at 80% 20%, hsl(190 55% 25% / 0.6) 0%, transparent 50%),
-      radial-gradient(ellipse at 50% 80%, hsl(180 50% 30% / 0.7) 0%, transparent 50%),
-      radial-gradient(ellipse at 30% 70%, hsl(170 45% 28% / 0.5) 0%, transparent 50%),
-      /* Base ocean gradient */
-      linear-gradient(180deg, hsl(200 50% 15%), hsl(190 45% 18%), hsl(180 40% 22%));
+      /* Subtle grid pattern for professional look */
+      repeating-linear-gradient(0deg, transparent, transparent 40px, hsl(0 0% 0% / 0.02) 40px, hsl(0 0% 0% / 0.02) 41px),
+      repeating-linear-gradient(90deg, transparent, transparent 40px, hsl(0 0% 0% / 0.02) 40px, hsl(0 0% 0% / 0.02) 41px),
+      /* Subtle gradient overlay */
+      radial-gradient(ellipse at 50% 0%, hsl(145 30% 90% / 0.3) 0%, transparent 50%),
+      /* Base background */
+      linear-gradient(180deg, hsl(0 0% 97%), hsl(0 0% 95%));
     background-attachment: fixed;
-    background-size: 100px 100px, 100px 100px, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
-    background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
+    background-size: 40px 40px, 40px 40px, 100% 100%, 100% 100%;
+    background-position: 0 0, 0 0, 0 0, 0 0;
   }
 }
