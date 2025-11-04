@@ -93,7 +93,7 @@ const Index = () => {
               <div className="space-y-6">
                 <div className="flex gap-4">
                   <div className="flex-shrink-0">
-                    <FileText className="w-6 h-6 text-destructive" />
+                    <FileText className="w-6 h-6 text-primary" />
                   </div>
                   <div>
                     <h3 className="font-bold text-foreground mb-1">Digital Permit Applications</h3>
@@ -105,7 +105,7 @@ const Index = () => {
 
                 <div className="flex gap-4">
                   <div className="flex-shrink-0">
-                    <CheckCircle2 className="w-6 h-6 text-destructive" />
+                    <CheckCircle2 className="w-6 h-6 text-primary" />
                   </div>
                   <div>
                     <h3 className="font-bold text-foreground mb-1">Automated Assessment Workflows</h3>
@@ -117,7 +117,7 @@ const Index = () => {
 
                 <div className="flex gap-4">
                   <div className="flex-shrink-0">
-                    <CreditCard className="w-6 h-6 text-destructive" />
+                    <CreditCard className="w-6 h-6 text-primary" />
                   </div>
                   <div>
                     <h3 className="font-bold text-foreground mb-1">Fee Management Integration</h3>
@@ -129,7 +129,7 @@ const Index = () => {
 
                 <div className="flex gap-4">
                   <div className="flex-shrink-0">
-                    <TrendingUp className="w-6 h-6 text-destructive" />
+                    <TrendingUp className="w-6 h-6 text-primary" />
                   </div>
                   <div>
                     <h3 className="font-bold text-foreground mb-1">Analytics & Reporting</h3>
@@ -141,7 +141,7 @@ const Index = () => {
 
                 <div className="flex gap-4">
                   <div className="flex-shrink-0">
-                    <Shield className="w-6 h-6 text-destructive" />
+                    <Shield className="w-6 h-6 text-primary" />
                   </div>
                   <div>
                     <h3 className="font-bold text-foreground mb-1">Secure & Compliant</h3>
@@ -157,7 +157,7 @@ const Index = () => {
             <div className="lg:pt-8">
               <Card className="shadow-card">
                 <CardHeader className="space-y-1 pb-6">
-                  <div className="flex items-center gap-2 text-destructive mb-2">
+                  <div className="flex items-center gap-2 text-primary mb-2">
                     <Lock className="w-5 h-5" />
                     <h3 className="text-xl font-bold">User Login</h3>
                   </div>
@@ -172,7 +172,6 @@ const Index = () => {
                       id="email"
                       type="email"
                       placeholder="your.email@cepa.gov.pg"
-                      disabled
                     />
                   </div>
                   <div className="space-y-2">
@@ -181,11 +180,10 @@ const Index = () => {
                       id="password"
                       type="password"
                       placeholder="Enter your password"
-                      disabled
                     />
                   </div>
                   <Button 
-                    className="w-full bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
                     size="lg"
                     onClick={() => navigate('/auth')}
                   >
@@ -194,7 +192,7 @@ const Index = () => {
                   <div className="text-center">
                     <button
                       onClick={() => navigate('/auth?tab=signup')}
-                      className="text-sm text-destructive hover:underline"
+                      className="text-sm text-primary hover:underline"
                     >
                       Need an account? Sign up
                     </button>
