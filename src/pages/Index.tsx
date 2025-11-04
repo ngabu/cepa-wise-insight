@@ -62,7 +62,7 @@ const Index = () => {
   // Show landing page for non-authenticated users
   if (!profile) {
     return (
-      <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#f5f5f5' }}>
+      <div className="min-h-screen flex flex-col bg-background">
         {/* Header */}
         <header className="bg-card border-b border-border py-4">
           <div className="container mx-auto px-6">
@@ -70,7 +70,7 @@ const Index = () => {
               <img src={pngEmblem} alt="PNG Emblem" className="h-16 w-16 object-contain" />
               <div>
                 <h1 className="text-xl font-bold text-foreground">Independent State of Papua New Guinea</h1>
-                <p className="text-sm text-muted-foreground">Department of Finance</p>
+                <p className="text-sm text-muted-foreground">Conservation and Environment Protection Authority</p>
               </div>
             </div>
           </div>
@@ -83,7 +83,7 @@ const Index = () => {
             <div className="space-y-8">
               <div>
                 <h2 className="text-5xl font-bold text-foreground mb-4">
-                  PNG Conservation & Environment Protection Authority
+                  CEPA
                 </h2>
                 <p className="text-lg text-muted-foreground">
                   Streamline permit applications, manage compliance, and protect Papua New Guinea's natural resources with our comprehensive digital platform.
@@ -159,10 +159,10 @@ const Index = () => {
                 <CardHeader className="space-y-1 pb-6">
                   <div className="flex items-center gap-2 text-destructive mb-2">
                     <Lock className="w-5 h-5" />
-                    <h3 className="text-xl font-bold">Agency Login</h3>
+                    <h3 className="text-xl font-bold">User Login</h3>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    Access the permit management system with your agency credentials
+                    Access the permit management system with your user credentials
                   </p>
                 </CardHeader>
                 <CardContent className="space-y-4">
