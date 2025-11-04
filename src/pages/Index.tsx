@@ -2,8 +2,11 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Leaf, Users, FileText, BarChart3 } from 'lucide-react';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { FileText, CheckCircle2, CreditCard, TrendingUp, Shield, Lock } from 'lucide-react';
+import pngEmblem from '@/assets/png-emblem.png';
 
 const Index = () => {
   const { profile, loading } = useAuth();
@@ -59,108 +62,157 @@ const Index = () => {
   // Show landing page for non-authenticated users
   if (!profile) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#f5f5f5' }}>
         {/* Header */}
-        <header className="bg-card/80 backdrop-blur-sm border-b border-border">
-          <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <div className="p-2 bg-gradient-primary rounded-lg shadow-primary">
-                <Leaf className="w-6 h-6 text-primary-foreground" />
+        <header className="bg-card border-b border-border py-4">
+          <div className="container mx-auto px-6">
+            <div className="flex items-center gap-3">
+              <img src={pngEmblem} alt="PNG Emblem" className="h-16 w-16 object-contain" />
+              <div>
+                <h1 className="text-xl font-bold text-foreground">Independent State of Papua New Guinea</h1>
+                <p className="text-sm text-muted-foreground">Department of Finance</p>
               </div>
-              <h1 className="text-xl font-bold text-foreground">PNG Conservation And Environment Protection Authority</h1>
             </div>
-            <Button 
-              onClick={() => navigate('/auth')}
-              variant="secondary"
-            >
-              Sign In
-            </Button>
           </div>
         </header>
 
-        {/* Hero Section */}
-        <main className="container mx-auto px-4 py-16">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
-              Environmental Management
-              <span className="block text-primary">Made Simple</span>
-            </h2>
-            <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Streamline permit applications, manage compliance, and protect Papua New Guinea's natural resources with our comprehensive digital platform.
-            </p>
-            <Button 
-              size="lg" 
-              onClick={() => navigate('/auth?tab=signup')}
-              variant="gradient"
-              className="text-lg px-8 py-6"
-            >
-              Get Started
-            </Button>
-          </div>
+        {/* Main Content */}
+        <main className="flex-1 container mx-auto px-6 py-16">
+          <div className="grid lg:grid-cols-2 gap-16 items-start max-w-7xl mx-auto">
+            {/* Left Column - Features */}
+            <div className="space-y-8">
+              <div>
+                <h2 className="text-5xl font-bold text-foreground mb-4">
+                  PNG Conservation & Environment Protection Authority
+                </h2>
+                <p className="text-lg text-muted-foreground">
+                  Streamline permit applications, manage compliance, and protect Papua New Guinea's natural resources with our comprehensive digital platform.
+                </p>
+              </div>
 
-          {/* Features Grid */}
-          <div className="grid md:grid-cols-3 gap-8 mb-16">
-            <Card className="hover:shadow-card transition-shadow">
-              <CardHeader>
-                <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center mb-4 shadow-primary">
-                  <FileText className="w-6 h-6 text-primary-foreground" />
+              <div className="space-y-6">
+                <div className="flex gap-4">
+                  <div className="flex-shrink-0">
+                    <FileText className="w-6 h-6 text-destructive" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-foreground mb-1">Digital Permit Applications</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Submit and manage Environmental Permit applications and compliance reports digitally.
+                    </p>
+                  </div>
                 </div>
-                <CardTitle>Digital Applications</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription>
-                  Submit and track permit applications online with our streamlined digital process.
-                </CardDescription>
-              </CardContent>
-            </Card>
 
-            <Card className="hover:shadow-card transition-shadow">
-              <CardHeader>
-                <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center mb-4 shadow-primary">
-                  <Users className="w-6 h-6 text-primary-foreground" />
+                <div className="flex gap-4">
+                  <div className="flex-shrink-0">
+                    <CheckCircle2 className="w-6 h-6 text-destructive" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-foreground mb-1">Automated Assessment Workflows</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Track submissions through technical review, compliance verification, and final approval.
+                    </p>
+                  </div>
                 </div>
-                <CardTitle>Multi-User Access</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription>
-                  Role-based access for public users, staff, and administrators with secure authentication.
-                </CardDescription>
-              </CardContent>
-            </Card>
 
-            <Card className="hover:shadow-card transition-shadow">
-              <CardHeader>
-                <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center mb-4 shadow-primary">
-                  <BarChart3 className="w-6 h-6 text-primary-foreground" />
+                <div className="flex gap-4">
+                  <div className="flex-shrink-0">
+                    <CreditCard className="w-6 h-6 text-destructive" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-foreground mb-1">Fee Management Integration</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Automated fee calculation and payment tracking with revenue reconciliation.
+                    </p>
+                  </div>
                 </div>
-                <CardTitle>Real-time Monitoring</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription>
-                  Track compliance, monitor progress, and generate reports with comprehensive analytics.
-                </CardDescription>
-              </CardContent>
-            </Card>
-          </div>
 
-          {/* About Section */}
-          <div className="text-center max-w-4xl mx-auto">
-            <h3 className="text-3xl font-bold text-foreground mb-6">
-              About the Conservation & Environment Protection Authority
-            </h3>
-            <div className="space-y-4 text-muted-foreground text-lg leading-relaxed">
-              <p>
-                The PNG Conservation and Environment Protection Authority is the primary regulatory body responsible for environmental management and protection across Papua New Guinea. Our digital platform facilitates the entire lifecycle of environmental permit applications, assessments, and compliance monitoring.
-              </p>
-              <p>
-                Through this system, businesses and individuals can submit permit applications for various environmental activities, track their application status, manage compliance requirements, and communicate with regulatory officers. Our multi-unit approach ensures specialized handling across Registry, Compliance, Revenue, and Finance departments for efficient processing and oversight.
-              </p>
-              <p>
-                The platform supports transparent governance, statutory deadline tracking, comprehensive reporting, and real-time monitoring to safeguard Papua New Guinea&apos;s rich natural resources while enabling sustainable development.
-              </p>
+                <div className="flex gap-4">
+                  <div className="flex-shrink-0">
+                    <TrendingUp className="w-6 h-6 text-destructive" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-foreground mb-1">Analytics & Reporting</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Generate compliance reports and statutory deadline tracking with comprehensive analytics.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-4">
+                  <div className="flex-shrink-0">
+                    <Shield className="w-6 h-6 text-destructive" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-foreground mb-1">Secure & Compliant</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Full compliance with PNG's Environment Act with encrypted data storage and audit trails.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column - Login Card */}
+            <div className="lg:pt-8">
+              <Card className="shadow-card">
+                <CardHeader className="space-y-1 pb-6">
+                  <div className="flex items-center gap-2 text-destructive mb-2">
+                    <Lock className="w-5 h-5" />
+                    <h3 className="text-xl font-bold">Agency Login</h3>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Access the permit management system with your agency credentials
+                  </p>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email Address</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="your.email@cepa.gov.pg"
+                      disabled
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="password">Password</Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder="Enter your password"
+                      disabled
+                    />
+                  </div>
+                  <Button 
+                    className="w-full bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                    size="lg"
+                    onClick={() => navigate('/auth')}
+                  >
+                    Sign In
+                  </Button>
+                  <div className="text-center">
+                    <button
+                      onClick={() => navigate('/auth?tab=signup')}
+                      className="text-sm text-destructive hover:underline"
+                    >
+                      Need an account? Sign up
+                    </button>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </main>
+
+        {/* Footer */}
+        <footer className="border-t border-border py-6 bg-card">
+          <div className="container mx-auto px-6">
+            <p className="text-center text-sm text-muted-foreground">
+              © 2025 Independent State of Papua New Guinea - Conservation & Environment Protection Authority. All rights reserved.
+            </p>
+          </div>
+        </footer>
       </div>
     );
   }
