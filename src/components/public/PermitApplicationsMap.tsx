@@ -64,8 +64,8 @@ export function PermitApplicationsMap({ onPermitClick }: PermitApplicationsMapPr
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/satellite-streets-v12',
-        center: [143.95555, -6.314993], // PNG center
-        zoom: 6,
+        center: [147, -6], // PNG center
+        zoom: 5.2,
         dragPan: false,
         scrollZoom: false,
         boxZoom: false,
@@ -73,6 +73,7 @@ export function PermitApplicationsMap({ onPermitClick }: PermitApplicationsMapPr
         keyboard: false,
         doubleClickZoom: false,
         touchZoomRotate: false,
+        interactive: false,
       });
     }
 
@@ -119,15 +120,12 @@ export function PermitApplicationsMap({ onPermitClick }: PermitApplicationsMapPr
         </svg>
       `;
       el.style.cursor = 'pointer';
-      el.style.transition = 'transform 0.2s';
 
       // Add hover effect
       el.addEventListener('mouseenter', () => {
-        el.style.transform = 'scale(1.15)';
         popup.addTo(map.current!);
       });
       el.addEventListener('mouseleave', () => {
-        el.style.transform = 'scale(1)';
         popup.remove();
       });
 
@@ -171,20 +169,6 @@ export function PermitApplicationsMap({ onPermitClick }: PermitApplicationsMapPr
 
       markers.current.push(marker);
     });
-
-    // Fit map to show all markers if we have any
-    if (markers.current.length > 0) {
-      const bounds = new mapboxgl.LngLatBounds();
-      markers.current.forEach(marker => {
-        const lngLat = marker.getLngLat();
-        bounds.extend([lngLat.lng, lngLat.lat]);
-      });
-      
-      map.current?.fitBounds(bounds, {
-        padding: 50,
-        maxZoom: 12
-      });
-    }
 
     return () => {
       // Don't remove the map on cleanup, just the markers
