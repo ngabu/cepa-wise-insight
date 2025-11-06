@@ -154,7 +154,7 @@ export function PermitApplicationsMap({ onPermitClick }: PermitApplicationsMapPr
         closeButton: false,
         closeOnClick: false,
         className: 'permit-popup'
-      }).setHTML(popupContent);
+      }).setLngLat([lng, lat]).setHTML(popupContent);
 
       const marker = new mapboxgl.Marker(el)
         .setLngLat([lng, lat])
