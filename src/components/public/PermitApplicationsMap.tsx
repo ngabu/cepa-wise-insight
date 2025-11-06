@@ -66,9 +66,14 @@ export function PermitApplicationsMap({ onPermitClick }: PermitApplicationsMapPr
         style: 'mapbox://styles/mapbox/satellite-streets-v12',
         center: [143.95555, -6.314993], // PNG center
         zoom: 6,
+        dragPan: false,
+        scrollZoom: false,
+        boxZoom: false,
+        dragRotate: false,
+        keyboard: false,
+        doubleClickZoom: false,
+        touchZoomRotate: false,
       });
-
-      map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
     }
 
     // Clear existing markers
@@ -119,9 +124,11 @@ export function PermitApplicationsMap({ onPermitClick }: PermitApplicationsMapPr
       // Add hover effect
       el.addEventListener('mouseenter', () => {
         el.style.transform = 'scale(1.15)';
+        popup.addTo(map.current!);
       });
       el.addEventListener('mouseleave', () => {
         el.style.transform = 'scale(1)';
+        popup.remove();
       });
 
       // Create popup content
@@ -147,12 +154,12 @@ export function PermitApplicationsMap({ onPermitClick }: PermitApplicationsMapPr
       const popup = new mapboxgl.Popup({
         offset: 25,
         closeButton: false,
+        closeOnClick: false,
         className: 'permit-popup'
       }).setHTML(popupContent);
 
       const marker = new mapboxgl.Marker(el)
         .setLngLat([lng, lat])
-        .setPopup(popup)
         .addTo(map.current!);
 
       // Add click handler
