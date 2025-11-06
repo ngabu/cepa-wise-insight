@@ -121,18 +121,13 @@ export function PermitApplicationsMap({ onPermitClick }: PermitApplicationsMapPr
       `;
       el.style.cursor = 'pointer';
 
-      // Add hover effect
-      el.addEventListener('mouseenter', () => {
-        popup.addTo(map.current!);
-      });
-      el.addEventListener('mouseleave', () => {
-        popup.remove();
-      });
-
       // Create popup content
       const popupContent = `
         <div style="padding: 8px; min-width: 200px;">
           <h4 style="font-weight: 600; margin-bottom: 8px; color: #1f2937;">${app.title || 'Untitled Project'}</h4>
+          <p style="font-size: 12px; color: #6b7280; margin-bottom: 4px;">
+            <strong>Status:</strong> ${statusLabel}
+          </p>
           ${app.entity?.name ? `
             <p style="font-size: 12px; color: #6b7280; margin-bottom: 4px;">
               <strong>Entity:</strong> ${app.entity.name}
@@ -140,7 +135,7 @@ export function PermitApplicationsMap({ onPermitClick }: PermitApplicationsMapPr
           ` : ''}
           ${app.details?.activity_location ? `
             <p style="font-size: 12px; color: #6b7280; margin-bottom: 4px;">
-              <strong>Address:</strong> ${app.details.activity_location}
+              <strong>Location:</strong> ${app.details.activity_location}
             </p>
           ` : ''}
           <p style="font-size: 11px; color: #9ca3af; margin-top: 6px; font-style: italic;">
@@ -152,13 +147,20 @@ export function PermitApplicationsMap({ onPermitClick }: PermitApplicationsMapPr
       const popup = new mapboxgl.Popup({
         offset: 25,
         closeButton: false,
-        closeOnClick: false,
-        className: 'permit-popup'
-      }).setLngLat([lng, lat]).setHTML(popupContent);
+        closeOnClick: false
+      }).setHTML(popupContent);
 
       const marker = new mapboxgl.Marker(el)
         .setLngLat([lng, lat])
         .addTo(map.current!);
+
+      // Add hover effect with popup
+      el.addEventListener('mouseenter', () => {
+        popup.setLngLat([lng, lat]).addTo(map.current!);
+      });
+      el.addEventListener('mouseleave', () => {
+        popup.remove();
+      });
 
       // Add click handler
       el.addEventListener('click', () => {
