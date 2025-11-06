@@ -67,14 +67,15 @@ export function PermitApplicationsMap({ onPermitClick }: PermitApplicationsMapPr
         center: [147, -6], // PNG center
         zoom: 5.2,
         dragPan: false,
-        scrollZoom: false,
-        boxZoom: false,
+        scrollZoom: true,
+        boxZoom: true,
         dragRotate: false,
         keyboard: false,
-        doubleClickZoom: false,
-        touchZoomRotate: false,
-        interactive: false,
+        doubleClickZoom: true,
+        touchZoomRotate: true,
       });
+
+      map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
     }
 
     // Clear existing markers
