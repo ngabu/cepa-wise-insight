@@ -66,16 +66,39 @@ export function PermitApplicationsMap({ onPermitClick }: PermitApplicationsMapPr
         style: 'mapbox://styles/mapbox/satellite-streets-v12',
         center: [147, -6], // PNG center
         zoom: 5.2,
-        dragPan: false,
+        interactive: true,
+        dragPan: true,
         scrollZoom: true,
         boxZoom: true,
-        dragRotate: false,
-        keyboard: false,
+        dragRotate: true,
+        keyboard: true,
         doubleClickZoom: true,
         touchZoomRotate: true,
+        touchPitch: true,
       });
 
       map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
+
+      // Ensure all interaction handlers are enabled after map load
+      const enableInteractions = () => {
+        map.current?.dragPan.enable();
+        map.current?.scrollZoom.enable();
+        map.current?.boxZoom.enable();
+        map.current?.keyboard.enable();
+        map.current?.doubleClickZoom.enable();
+        map.current?.dragRotate.enable();
+        map.current?.touchZoomRotate.enable();
+      };
+      if (map.current.loaded()) {
+        enableInteractions();
+      } else {
+        map.current.on('load', enableInteractions);
+      }
+
+      // Debug any map interaction issues
+      map.current.on('error', (e) => {
+        console.error('Mapbox GL JS error:', e?.error || e);
+      });
     }
 
     // Clear existing markers
@@ -221,13 +244,14 @@ export function PermitApplicationsMap({ onPermitClick }: PermitApplicationsMapPr
           )}
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="relative">
         <div 
           ref={mapContainer} 
-          className="h-96 w-full rounded-lg border border-border overflow-hidden"
+          className="h-96 w-full rounded-lg border border-border overflow-hidden cursor-grab active:cursor-grabbing pointer-events-auto select-none"
+          style={{ touchAction: 'none' }}
         />
         {applications.length === 0 && (
-          <div className="absolute inset-0 flex items-center justify-center bg-background/80 rounded-lg">
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-background/80 rounded-lg">
             <div className="text-center text-muted-foreground">
               <MapPin className="w-12 h-12 mx-auto mb-2 opacity-50" />
               <p>No permit applications to display</p>
