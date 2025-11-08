@@ -571,7 +571,7 @@ export function ComprehensivePermitForm({ permitId, onSuccess, onCancel, isStand
         </div>
         <ActivityClassificationStep 
           data={formData} 
-          onChange={() => {}} // Disabled for public users
+          onChange={(updates) => setFormData(prev => ({ ...prev, ...updates }))}
         />
       </div>
     ),

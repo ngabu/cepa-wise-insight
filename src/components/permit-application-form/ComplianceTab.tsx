@@ -232,6 +232,55 @@ const ComplianceTab: React.FC<ComplianceTabProps> = ({ formData, handleComplianc
 
   return (
     <div className="space-y-6">
+      {/* Prerequisite Check Messages */}
+      {!formData.entity_type && (
+        <Card className="border-amber-500 bg-amber-50/50">
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5" />
+              <div>
+                <h4 className="font-medium text-amber-800">Entity Selection Required</h4>
+                <p className="text-sm text-amber-700 mt-1">
+                  Please select an entity in the <strong>Project</strong> tab before viewing compliance requirements.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+      
+      {!formData.permit_category && !formData.permit_type_specific && (
+        <Card className="border-amber-500 bg-amber-50/50">
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5" />
+              <div>
+                <h4 className="font-medium text-amber-800">Permit Type Selection Required</h4>
+                <p className="text-sm text-amber-700 mt-1">
+                  Please select a permit category and type in the <strong>Permit Details</strong> tab to view assessment fields.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+      
+      {!formData.activity_level && (
+        <Card className="border-amber-500 bg-amber-50/50">
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5" />
+              <div>
+                <h4 className="font-medium text-amber-800">Activity Classification Required</h4>
+                <p className="text-sm text-amber-700 mt-1">
+                  Please complete the <strong>Classification</strong> tab to view document requirements.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Dynamic Assessment Fields based on Permit Type */}
       {formData.permit_category && formData.permit_type_specific && (
         <Card>
