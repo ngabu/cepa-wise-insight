@@ -614,7 +614,8 @@ export function ComprehensivePermitForm({ permitId, onSuccess, onCancel, isStand
         </div>
         <ComplianceTab 
           formData={formData} 
-          handleComplianceChange={() => {}} // Disabled for public users
+          handleComplianceChange={handleComplianceChange}
+          handleInputChange={handleInputChange}
         />
       </div>
     ),
