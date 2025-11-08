@@ -14,9 +14,10 @@ interface ComplianceTabProps {
   formData: any;
   handleComplianceChange: (field: string, checked: boolean) => void;
   handleInputChange?: (field: string, value: any) => void;
+  onNavigateToTab?: (tab: string) => void;
 }
 
-const ComplianceTab: React.FC<ComplianceTabProps> = ({ formData, handleComplianceChange, handleInputChange }) => {
+const ComplianceTab: React.FC<ComplianceTabProps> = ({ formData, handleComplianceChange, handleInputChange, onNavigateToTab }) => {
   // Fetch dynamic permit type fields for assessments
   const { fields: permitTypeFields, loading: fieldsLoading } = usePermitTypeFields(formData.permit_type_specific);
   
@@ -230,52 +231,130 @@ const ComplianceTab: React.FC<ComplianceTabProps> = ({ formData, handleComplianc
     }
   };
 
+  // Check prerequisites completion
+  const hasEntity = !!formData.entity_type;
+  const hasPermitType = !!formData.permit_category && !!formData.permit_type_specific;
+  const hasActivityLevel = !!formData.activity_level;
+  const allPrerequisitesMet = hasEntity && hasPermitType && hasActivityLevel;
+
   return (
     <div className="space-y-6">
-      {/* Prerequisite Check Messages */}
-      {!formData.entity_type && (
-        <Card className="border-amber-500 bg-amber-50/50">
-          <CardContent className="pt-6">
-            <div className="flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5" />
-              <div>
-                <h4 className="font-medium text-amber-800">Entity Selection Required</h4>
-                <p className="text-sm text-amber-700 mt-1">
-                  Please select an entity in the <strong>Project</strong> tab before viewing compliance requirements.
-                </p>
+      {/* Prerequisite Summary Card */}
+      {allPrerequisitesMet && (
+        <Card className="border-primary/20 bg-primary/5">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <CheckCircle className="w-5 h-5 text-primary" />
+              Prerequisites Complete
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground font-medium">Entity Type</p>
+                <Badge variant="secondary" className="text-sm">
+                  {formData.entity_type?.toUpperCase()}
+                </Badge>
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground font-medium">Permit Information</p>
+                <div className="flex flex-col gap-1">
+                  <Badge variant="secondary" className="text-sm w-fit">
+                    {formData.permit_category}
+                  </Badge>
+                  <span className="text-xs text-muted-foreground">{formData.permit_type_specific}</span>
+                </div>
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground font-medium">Activity Classification</p>
+                <Badge variant="secondary" className="text-sm">
+                  {formData.activity_level}
+                </Badge>
+                {formData.activity_description && (
+                  <p className="text-xs text-muted-foreground line-clamp-2 mt-1">
+                    {formData.activity_description}
+                  </p>
+                )}
               </div>
             </div>
           </CardContent>
         </Card>
       )}
-      
-      {!formData.permit_category && !formData.permit_type_specific && (
+
+      {/* Prerequisite Check Messages with Navigation */}
+      {!hasEntity && (
         <Card className="border-amber-500 bg-amber-50/50">
           <CardContent className="pt-6">
-            <div className="flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5" />
-              <div>
-                <h4 className="font-medium text-amber-800">Permit Type Selection Required</h4>
-                <p className="text-sm text-amber-700 mt-1">
-                  Please select a permit category and type in the <strong>Permit Details</strong> tab to view assessment fields.
-                </p>
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-start gap-3 flex-1">
+                <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                <div>
+                  <h4 className="font-medium text-amber-800">Entity Selection Required</h4>
+                  <p className="text-sm text-amber-700 mt-1">
+                    Please select an entity in the Project tab before viewing compliance requirements.
+                  </p>
+                </div>
               </div>
+              {onNavigateToTab && (
+                <button
+                  onClick={() => onNavigateToTab('project')}
+                  className="px-4 py-2 bg-amber-600 text-white rounded-md hover:bg-amber-700 transition-colors text-sm font-medium whitespace-nowrap"
+                >
+                  Go to Project
+                </button>
+              )}
             </div>
           </CardContent>
         </Card>
       )}
       
-      {!formData.activity_level && (
+      {!hasPermitType && (
         <Card className="border-amber-500 bg-amber-50/50">
           <CardContent className="pt-6">
-            <div className="flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5" />
-              <div>
-                <h4 className="font-medium text-amber-800">Activity Classification Required</h4>
-                <p className="text-sm text-amber-700 mt-1">
-                  Please complete the <strong>Classification</strong> tab to view document requirements.
-                </p>
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-start gap-3 flex-1">
+                <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                <div>
+                  <h4 className="font-medium text-amber-800">Permit Type Selection Required</h4>
+                  <p className="text-sm text-amber-700 mt-1">
+                    Please select a permit category and type in the Permit Details tab to view assessment fields.
+                  </p>
+                </div>
               </div>
+              {onNavigateToTab && (
+                <button
+                  onClick={() => onNavigateToTab('permitspecific')}
+                  className="px-4 py-2 bg-amber-600 text-white rounded-md hover:bg-amber-700 transition-colors text-sm font-medium whitespace-nowrap"
+                >
+                  Go to Permit Details
+                </button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+      
+      {!hasActivityLevel && (
+        <Card className="border-amber-500 bg-amber-50/50">
+          <CardContent className="pt-6">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-start gap-3 flex-1">
+                <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                <div>
+                  <h4 className="font-medium text-amber-800">Activity Classification Required</h4>
+                  <p className="text-sm text-amber-700 mt-1">
+                    Please complete the Classification tab to view document requirements.
+                  </p>
+                </div>
+              </div>
+              {onNavigateToTab && (
+                <button
+                  onClick={() => onNavigateToTab('classification')}
+                  className="px-4 py-2 bg-amber-600 text-white rounded-md hover:bg-amber-700 transition-colors text-sm font-medium whitespace-nowrap"
+                >
+                  Go to Classification
+                </button>
+              )}
             </div>
           </CardContent>
         </Card>

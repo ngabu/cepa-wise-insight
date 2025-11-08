@@ -616,6 +616,7 @@ export function ComprehensivePermitForm({ permitId, onSuccess, onCancel, isStand
           formData={formData} 
           handleComplianceChange={handleComplianceChange}
           handleInputChange={handleInputChange}
+          onNavigateToTab={setActiveTab}
         />
       </div>
     ),
