@@ -2110,7 +2110,7 @@ export type Database = {
         Args: {
           p_activity_id: string
           p_custom_processing_days?: number
-          p_permit_type: string
+          p_permit_type?: string
         }
         Returns: number
       }
