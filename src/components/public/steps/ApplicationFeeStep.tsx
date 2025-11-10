@@ -109,7 +109,7 @@ export function ApplicationFeeStep({ data, onChange }: ApplicationFeeStepProps) 
                     <div className="flex justify-between items-center p-4 bg-primary/10 rounded-lg border border-primary/20">
                       <span className="font-bold text-foreground">Application Fee</span>
                       <span className="font-bold text-lg text-primary">
-                        PGK {calculatedFees?.totalFee?.toLocaleString() || '0'}
+                        PGK {calculatedFees?.totalFee?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',') || '0.00'}
                       </span>
                     </div>
 
