@@ -1376,6 +1376,7 @@ export type Database = {
           entity_type: string | null
           environmental_impact: string | null
           estimated_cost_kina: number | null
+          existing_permit_id: string | null
           existing_permits_details: string | null
           expiry_date: string | null
           fee_amount: number | null
@@ -1473,6 +1474,7 @@ export type Database = {
           entity_type?: string | null
           environmental_impact?: string | null
           estimated_cost_kina?: number | null
+          existing_permit_id?: string | null
           existing_permits_details?: string | null
           expiry_date?: string | null
           fee_amount?: number | null
@@ -1570,6 +1572,7 @@ export type Database = {
           entity_type?: string | null
           environmental_impact?: string | null
           estimated_cost_kina?: number | null
+          existing_permit_id?: string | null
           existing_permits_details?: string | null
           expiry_date?: string | null
           fee_amount?: number | null
@@ -1660,6 +1663,13 @@ export type Database = {
             columns: ["entity_id"]
             isOneToOne: false
             referencedRelation: "entities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "permit_applications_existing_permit_id_fkey"
+            columns: ["existing_permit_id"]
+            isOneToOne: false
+            referencedRelation: "permit_applications"
             referencedColumns: ["id"]
           },
           {

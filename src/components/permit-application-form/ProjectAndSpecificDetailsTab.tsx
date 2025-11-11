@@ -3,8 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Building, Activity } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Building, Activity, FileCheck } from 'lucide-react';
 import { EntityDropdownSelector } from '@/components/public/EntityDropdownSelector';
+import { useEntityPermits } from '@/hooks/useEntityPermits';
 
 interface ProjectAndSpecificDetailsTabProps {
   formData: any;
@@ -15,6 +17,8 @@ const ProjectAndSpecificDetailsTab: React.FC<ProjectAndSpecificDetailsTabProps> 
   formData, 
   handleInputChange 
 }) => {
+  const { permits, loading: permitsLoading } = useEntityPermits(formData.entity_id);
+  
   return (
     <div className="space-y-6">
       {/* Project Overview */}
@@ -48,6 +52,35 @@ const ProjectAndSpecificDetailsTab: React.FC<ProjectAndSpecificDetailsTabProps> 
               console.log('Entity created successfully');
             }}
           />
+
+          {/* Existing Permit Selection */}
+          {formData.entity_id && permits.length > 0 && (
+            <div>
+              <Label htmlFor="existing_permit_id" className="flex items-center gap-2">
+                <FileCheck className="w-4 h-4" />
+                Related Existing Permit (Optional)
+              </Label>
+              <Select
+                value={formData.existing_permit_id || 'none'}
+                onValueChange={(value) => handleInputChange('existing_permit_id', value === 'none' ? null : value)}
+              >
+                <SelectTrigger id="existing_permit_id">
+                  <SelectValue placeholder="Select existing permit..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">None</SelectItem>
+                  {permits.map((permit) => (
+                    <SelectItem key={permit.id} value={permit.id}>
+                      {permit.permit_number || permit.title} - {permit.permit_type}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground mt-1">
+                Select an existing permit if this application is related to an amendment, renewal, or transfer
+              </p>
+            </div>
+          )}
 
           <div>
             <Label htmlFor="applicationTitle">Application Title *</Label>

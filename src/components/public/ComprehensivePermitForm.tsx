@@ -76,6 +76,7 @@ export function ComprehensivePermitForm({ permitId, onSuccess, onCancel, isStand
     entity_type: '', // Add this field for document requirements
     entity_id: '', // Add entity_id field
     entity_name: '', // Add entity_name field
+    existing_permit_id: null, // Add existing permit reference
     permit_category: '',
     permit_type_id: '',
     // PNG Environment Act 2000 fields - Public Consultation
@@ -151,6 +152,7 @@ export function ComprehensivePermitForm({ permitId, onSuccess, onCancel, isStand
               entity_type: data.entity_type || '', // Add entity_type mapping
               entity_id: data.entity_id || '', // Add entity_id mapping
               entity_name: data.entity_name || '', // Add entity_name mapping
+              existing_permit_id: data.existing_permit_id || null, // Add existing permit mapping
               permit_category: data.permit_category || '',
               permit_type_id: data.permit_type_id || '',
               public_consultation_proof: Array.isArray(data.public_consultation_proof) ? data.public_consultation_proof : [],
@@ -272,6 +274,7 @@ export function ComprehensivePermitForm({ permitId, onSuccess, onCancel, isStand
         entity_id: formData.entity_id || null,
         entity_name: formData.entity_name || formData.organizationName,
         entity_type: formData.entity_type || (formData.organizationName ? 'COMPANY' : 'INDIVIDUAL'),
+        existing_permit_id: formData.existing_permit_id || null,
         // Project details - use correct database columns
         project_description: formData.projectDescription,
         project_start_date: formData.projectStartDate || null,
