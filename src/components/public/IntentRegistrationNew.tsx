@@ -899,6 +899,7 @@ export function IntentRegistrationNew() {
                         landowner_negotiation_status: '',
                         estimated_cost_kina: '',
                         prescribed_activity_id: '',
+                        existing_permit_id: '',
                       });
                       setDraftDocuments([]);
                       setCurrentDraftId(undefined);

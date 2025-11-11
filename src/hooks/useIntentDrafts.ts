@@ -47,7 +47,7 @@ export function useIntentDrafts(userId?: string) {
         .order('updated_at', { ascending: false });
 
       if (error) throw error;
-      setDrafts(data || []);
+      setDrafts((data || []) as IntentDraft[]);
     } catch (error) {
       console.error('Error fetching drafts:', error);
       toast({
@@ -79,7 +79,7 @@ export function useIntentDrafts(userId?: string) {
 
         if (error) throw error;
 
-        setDrafts(prev => prev.map(d => d.id === draftId ? data : d));
+        setDrafts(prev => prev.map(d => d.id === draftId ? data as IntentDraft : d));
         
         toast({
           title: "Draft Updated",
@@ -101,7 +101,7 @@ export function useIntentDrafts(userId?: string) {
 
         if (error) throw error;
 
-        setDrafts(prev => [data, ...prev]);
+        setDrafts(prev => [data as IntentDraft, ...prev]);
         
         toast({
           title: "Draft Saved",
