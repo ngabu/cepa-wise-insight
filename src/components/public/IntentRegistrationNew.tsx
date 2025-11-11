@@ -13,7 +13,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useDocuments, DocumentInfo } from '@/hooks/useDocuments';
 import { useIntentDrafts } from '@/hooks/useIntentDrafts';
 import { usePrescribedActivities } from '@/hooks/usePrescribedActivities';
-import { Building, User, Calendar, AlertCircle, FileText, Upload, Trash2, Download, Save, FolderOpen, HelpCircle } from 'lucide-react';
+import { useEntityPermits } from '@/hooks/useEntityPermits';
+import { Building, User, Calendar, AlertCircle, FileText, Upload, Trash2, Download, Save, FolderOpen, HelpCircle, FileCheck } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -42,7 +43,10 @@ export function IntentRegistrationNew() {
     landowner_negotiation_status: '',
     estimated_cost_kina: '',
     prescribed_activity_id: '',
+    existing_permit_id: '',
   });
+  
+  const { permits, loading: permitsLoading } = useEntityPermits(formData.entity_id || null);
   
   const [submitting, setSubmitting] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -70,6 +74,7 @@ export function IntentRegistrationNew() {
         landowner_negotiation_status: formData.landowner_negotiation_status || null,
         estimated_cost_kina: formData.estimated_cost_kina ? parseFloat(formData.estimated_cost_kina) : null,
         prescribed_activity_id: formData.prescribed_activity_id || null,
+        existing_permit_id: formData.existing_permit_id || null,
       }, currentDraftId);
       
       if (!currentDraftId) {
@@ -99,6 +104,7 @@ export function IntentRegistrationNew() {
         landowner_negotiation_status: draft.landowner_negotiation_status || '',
         estimated_cost_kina: draft.estimated_cost_kina?.toString() || '',
         prescribed_activity_id: draft.prescribed_activity_id || '',
+        existing_permit_id: draft.existing_permit_id || '',
       });
       setCurrentDraftId(draft.id);
       setShowDrafts(false);
@@ -165,6 +171,7 @@ export function IntentRegistrationNew() {
           landowner_negotiation_status: formData.landowner_negotiation_status,
           estimated_cost_kina: formData.estimated_cost_kina ? parseFloat(formData.estimated_cost_kina) : null,
           prescribed_activity_id: formData.prescribed_activity_id || null,
+          existing_permit_id: formData.existing_permit_id || null,
           status: 'pending',
         })
         .select()
@@ -203,6 +210,7 @@ export function IntentRegistrationNew() {
         landowner_negotiation_status: '',
         estimated_cost_kina: '',
         prescribed_activity_id: '',
+        existing_permit_id: '',
       });
       setDraftDocuments([]);
       setCurrentDraftId(undefined);
@@ -412,6 +420,45 @@ export function IntentRegistrationNew() {
                     </SelectContent>
                   </Select>
                 </div>
+
+                {/* Existing Permit Selection */}
+                {formData.entity_id && permits.length > 0 && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="existing_permit_id">
+                        <FileCheck className="w-4 h-4 inline mr-1" />
+                        Related Existing Permit (Optional)
+                      </Label>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <HelpCircle className="w-4 h-4 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p>Select an existing permit if this intent is related to an amendment, renewal, or transfer.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
+                    <Select
+                      value={formData.existing_permit_id || 'none'}
+                      onValueChange={(value) => setFormData({ ...formData, existing_permit_id: value === 'none' ? '' : value })}
+                    >
+                      <SelectTrigger id="existing_permit_id" className="bg-glass/50">
+                        <SelectValue placeholder="Select existing permit..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">None</SelectItem>
+                        {permits.map((permit) => (
+                          <SelectItem key={permit.id} value={permit.id}>
+                            {permit.permit_number || permit.title} - {permit.permit_type}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground">
+                      Select an existing permit if this intent is related to an amendment, renewal, or transfer
+                    </p>
+                  </div>
+                )}
 
                 <div className="space-y-2">
                   <Label htmlFor="activity_level">Activity Level *</Label>
