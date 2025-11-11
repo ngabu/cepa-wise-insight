@@ -244,9 +244,8 @@ const RegistryDashboard = () => {
               </div>
             )}
 
-            {activeTab === 'assessments' && <InitialAssessmentsList />}
             {activeTab === 'intent-reviews' && <IntentApplicationReview />}
-            {activeTab === 'permit-reviews' && <PermitApplicationsList />}
+            {activeTab === 'permit-reviews' && <InitialAssessmentsList />}
             {activeTab === 'reports' && <RegistryReports />}
             {activeTab === 'team' && isManager && <TeamManagement />}
             {activeTab === 'profile' && <ProfileSettings />}

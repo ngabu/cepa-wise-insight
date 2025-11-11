@@ -67,7 +67,7 @@ export const useFeeCalculation = () => {
 
   const validateParameters = (params: FeeCalculationParams): { isValid: boolean; errors: string[] } => {
     const errors: string[] = [];
-    const requiredFields = ['activityType', 'activitySubCategory', 'permitType', 'activityLevel'];
+    const requiredFields = ['activityType', 'activitySubCategory', 'activityLevel'];
     
     requiredFields.forEach(field => {
       if (!params[field as keyof FeeCalculationParams]) {
@@ -124,7 +124,7 @@ export const useFeeCalculation = () => {
       // Call Supabase function - processing days are now handled by the database function
       const { data, error } = await supabase.rpc('calculate_application_fee', {
         p_activity_id: activityId,
-        p_permit_type: params.permitType || 'Other',
+        p_permit_type: null,
         p_custom_processing_days: null // Let the database determine based on fee_category
       });
 

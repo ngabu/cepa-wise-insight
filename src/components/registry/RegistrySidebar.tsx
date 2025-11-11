@@ -42,7 +42,6 @@ interface RegistryNavigationItem {
 
 const registryNavigationItems: RegistryNavigationItem[] = [
   { title: "Dashboard", value: "dashboard", icon: LayoutDashboard },
-  { title: "Assessments", value: "assessments", icon: ClipboardList },
   { title: "Team Management", value: "team", icon: Users, managerOnly: true },
   { title: "Reports", value: "reports", icon: BarChart3 },
   { title: "Notifications", value: "notifications", icon: Bell },
