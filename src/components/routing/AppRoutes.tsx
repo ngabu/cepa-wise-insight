@@ -7,6 +7,7 @@ import Dashboard from "@/pages/Dashboard";
 import PublicDashboard from "@/pages/PublicDashboard";
 import StaffDashboard from "@/pages/StaffDashboard";
 import AdminDashboard from "@/pages/AdminDashboard";
+import SuperAdminDashboard from "@/pages/SuperAdminDashboard";
 import RegistryDashboard from "@/pages/RegistryDashboard";
 import RevenueDashboard from "@/pages/RevenueDashboard";
 import ComplianceDashboard from "@/pages/ComplianceDashboard";
@@ -183,12 +184,22 @@ export const AppRoutes = () => {
         } 
       />
       
-      {/* Admin dashboard - only for admin and system_admin */}
+      {/* Admin dashboard - only for admin and super_admin */}
       <Route 
         path="/admin-dashboard" 
         element={
-          <RoleBasedRoute allowedRoles={['admin']}>
+          <RoleBasedRoute allowedRoles={['admin', 'super_admin']}>
             <AdminDashboard />
+          </RoleBasedRoute>
+        }
+      />
+      
+      {/* Super Admin dashboard - only for super_admin */}
+      <Route 
+        path="/super-admin-dashboard" 
+        element={
+          <RoleBasedRoute allowedRoles={['super_admin']}>
+            <SuperAdminDashboard />
           </RoleBasedRoute>
         }
       />
