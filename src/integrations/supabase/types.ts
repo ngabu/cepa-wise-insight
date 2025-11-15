@@ -929,6 +929,72 @@ export type Database = {
           },
         ]
       }
+      inspections: {
+        Row: {
+          accommodation_cost: number | null
+          completed_date: string | null
+          created_at: string
+          created_by: string | null
+          daily_allowance: number | null
+          findings: string | null
+          id: string
+          inspection_type: string
+          inspector_id: string | null
+          notes: string | null
+          number_of_days: number | null
+          permit_application_id: string
+          permit_category: string | null
+          province: string | null
+          scheduled_date: string
+          status: string
+          total_travel_cost: number | null
+          transportation_cost: number | null
+          updated_at: string
+        }
+        Insert: {
+          accommodation_cost?: number | null
+          completed_date?: string | null
+          created_at?: string
+          created_by?: string | null
+          daily_allowance?: number | null
+          findings?: string | null
+          id?: string
+          inspection_type: string
+          inspector_id?: string | null
+          notes?: string | null
+          number_of_days?: number | null
+          permit_application_id: string
+          permit_category?: string | null
+          province?: string | null
+          scheduled_date: string
+          status?: string
+          total_travel_cost?: number | null
+          transportation_cost?: number | null
+          updated_at?: string
+        }
+        Update: {
+          accommodation_cost?: number | null
+          completed_date?: string | null
+          created_at?: string
+          created_by?: string | null
+          daily_allowance?: number | null
+          findings?: string | null
+          id?: string
+          inspection_type?: string
+          inspector_id?: string | null
+          notes?: string | null
+          number_of_days?: number | null
+          permit_application_id?: string
+          permit_category?: string | null
+          province?: string | null
+          scheduled_date?: string
+          status?: string
+          total_travel_cost?: number | null
+          transportation_cost?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       intent_registration_drafts: {
         Row: {
           activity_description: string | null
