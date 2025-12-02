@@ -11,6 +11,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 
 interface Entity {
   id: string;
@@ -36,6 +37,8 @@ export function EntityManagement() {
   const [suspendDialogOpen, setSuspendDialogOpen] = useState(false);
   const [entityToSuspend, setEntityToSuspend] = useState<Entity | null>(null);
   const [suspendAction, setSuspendAction] = useState<'suspend' | 'activate'>('suspend');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     fetchEntities();
@@ -107,24 +110,14 @@ export function EntityManagement() {
     try {
       const isSuspending = suspendAction === 'suspend';
 
-      // Update entity suspension status (we'll need to add this column)
-      const { error: entityError } = await supabase
-        .from('entities')
-        .update({ is_suspended: isSuspending })
-        .eq('id', entityToSuspend.id);
+      // Call the database function to freeze/unfreeze all entity records
+      const { error } = await supabase.rpc('freeze_entity_records', {
+        entity_id_param: entityToSuspend.id,
+        should_freeze: isSuspending,
+        freeze_reason: isSuspending ? 'Entity suspended by administrator' : null
+      });
 
-      if (entityError) throw entityError;
-
-      // Suspend/activate user's permits and applications
-      const { error: permitError } = await supabase
-        .from('permit_applications')
-        .update({ 
-          is_frozen: isSuspending,
-          frozen_reason: isSuspending ? 'Entity suspended by admin' : null
-        })
-        .eq('entity_id', entityToSuspend.id);
-
-      if (permitError) throw permitError;
+      if (error) throw error;
 
       toast({
         title: "Success",
@@ -208,14 +201,14 @@ export function EntityManagement() {
             <Card>
               <CardContent className="p-4">
                 <div className="text-sm text-muted-foreground">Total Entities</div>
-                <div className="text-2xl font-bold">{entities.length}</div>
+                <div className="text-2xl font-bold">{loading ? '...' : entities.length}</div>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-4">
                 <div className="text-sm text-muted-foreground">Companies</div>
                 <div className="text-2xl font-bold">
-                  {entities.filter(e => e.entity_type === 'COMPANY').length}
+                  {loading ? '...' : entities.filter(e => e.entity_type?.toLowerCase() === 'company').length}
                 </div>
               </CardContent>
             </Card>
@@ -223,7 +216,7 @@ export function EntityManagement() {
               <CardContent className="p-4">
                 <div className="text-sm text-muted-foreground">Individuals</div>
                 <div className="text-2xl font-bold">
-                  {entities.filter(e => e.entity_type === 'INDIVIDUAL').length}
+                  {loading ? '...' : entities.filter(e => e.entity_type?.toLowerCase() === 'individual').length}
                 </div>
               </CardContent>
             </Card>
@@ -231,15 +224,16 @@ export function EntityManagement() {
               <CardContent className="p-4">
                 <div className="text-sm text-muted-foreground">Suspended</div>
                 <div className="text-2xl font-bold text-destructive">
-                  {entities.filter(e => e.is_suspended).length}
+                  {loading ? '...' : entities.filter(e => e.is_suspended).length}
                 </div>
               </CardContent>
             </Card>
           </div>
 
           {/* Entities Table */}
-          <div className="border rounded-lg">
-            <Table>
+          <div className="space-y-4">
+            <div className="border rounded-lg">
+              <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Entity Name</TableHead>
@@ -259,7 +253,7 @@ export function EntityManagement() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredEntities.map((entity) => (
+                  filteredEntities.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((entity) => (
                     <TableRow key={entity.id}>
                       <TableCell className="font-medium">{entity.name}</TableCell>
                       <TableCell>
@@ -323,6 +317,38 @@ export function EntityManagement() {
                 )}
               </TableBody>
             </Table>
+            </div>
+
+            {/* Pagination */}
+            {Math.ceil(filteredEntities.length / itemsPerPage) > 1 && (
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious 
+                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                      className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                    />
+                  </PaginationItem>
+                  {Array.from({ length: Math.ceil(filteredEntities.length / itemsPerPage) }, (_, i) => i + 1).map((page) => (
+                    <PaginationItem key={page}>
+                      <PaginationLink
+                        onClick={() => setCurrentPage(page)}
+                        isActive={currentPage === page}
+                        className="cursor-pointer"
+                      >
+                        {page}
+                      </PaginationLink>
+                    </PaginationItem>
+                  ))}
+                  <PaginationItem>
+                    <PaginationNext 
+                      onClick={() => setCurrentPage(p => Math.min(Math.ceil(filteredEntities.length / itemsPerPage), p + 1))}
+                      className={currentPage === Math.ceil(filteredEntities.length / itemsPerPage) ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            )}
           </div>
         </CardContent>
       </Card>
