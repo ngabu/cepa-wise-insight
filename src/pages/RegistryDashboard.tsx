@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { RegistrySidebar } from "@/components/registry/RegistrySidebar";
 import { InitialAssessmentsList } from "@/components/registry/InitialAssessmentsList";
@@ -30,6 +30,7 @@ import { PermitEnforcementReview } from "@/components/registry/PermitEnforcement
 import { PermitApplicationsMap } from "@/components/public/PermitApplicationsMap";
 import { RegistryComplianceReporting } from "@/components/registry/RegistryComplianceReporting";
 import { UnitNotificationsPanel } from "@/components/notifications/UnitNotificationsPanel";
+import { supabase } from "@/integrations/supabase/client";
 
 const RegistryDashboard = () => {
   const { profile } = useAuth();
@@ -37,25 +38,66 @@ const RegistryDashboard = () => {
   const { staff } = useRegistryStaff();
   const [allocationDialogOpen, setAllocationDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [dashboardStats, setDashboardStats] = useState({
+    pendingIntents: 0,
+    pendingPermits: 0,
+    reviewTotal: 0,
+    approvedTotal: 0
+  });
   
   const isManager = profile?.staff_position && ['manager', 'director', 'managing_director'].includes(profile.staff_position);
 
-  // Memoize stats calculation to avoid re-computing on every render
-  const stats = useMemo(() => {
-    const pending = assessments.filter(a => a.assessment_status === 'pending').length;
-    const passed = assessments.filter(a => a.assessment_status === 'passed').length;
-    const failed = assessments.filter(a => a.assessment_status === 'failed').length;
-    const clarification = assessments.filter(a => a.assessment_status === 'requires_clarification').length;
-    
-    return {
-      pendingAssessments: pending,
-      passedAssessments: passed,
-      failedAssessments: failed,
-      clarificationAssessments: clarification,
-      forwardedAssessments: 0, // No forwarded status in current schema
-      totalAssessments: assessments.length
+  // Fetch dashboard statistics
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        // Pending Intents
+        const { count: pendingIntents } = await supabase
+          .from('intent_registrations')
+          .select('*', { count: 'exact', head: true })
+          .eq('status', 'pending');
+
+        // Pending Permits
+        const { count: pendingPermits } = await supabase
+          .from('permit_applications')
+          .select('*', { count: 'exact', head: true })
+          .eq('status', 'pending');
+
+        // Review (under_review) - both intents and permits
+        const { count: reviewIntents } = await supabase
+          .from('intent_registrations')
+          .select('*', { count: 'exact', head: true })
+          .eq('status', 'under_review');
+
+        const { count: reviewPermits } = await supabase
+          .from('permit_applications')
+          .select('*', { count: 'exact', head: true })
+          .eq('status', 'under_review');
+
+        // Approved - both intents and permits
+        const { count: approvedIntents } = await supabase
+          .from('intent_registrations')
+          .select('*', { count: 'exact', head: true })
+          .eq('status', 'approved');
+
+        const { count: approvedPermits } = await supabase
+          .from('permit_applications')
+          .select('*', { count: 'exact', head: true })
+          .eq('status', 'approved');
+
+        setDashboardStats({
+          pendingIntents: pendingIntents || 0,
+          pendingPermits: pendingPermits || 0,
+          reviewTotal: (reviewIntents || 0) + (reviewPermits || 0),
+          approvedTotal: (approvedIntents || 0) + (approvedPermits || 0)
+        });
+      } catch (error) {
+        console.error('Error fetching dashboard stats:', error);
+      }
     };
-  }, [assessments]);
+
+    fetchStats();
+  }, []);
 
   return (
     <SidebarProvider defaultOpen={true}>
@@ -89,86 +131,60 @@ const RegistryDashboard = () => {
           <main className="flex-1 p-4 md:p-6 overflow-auto">
             {activeTab === 'dashboard' && (
               <div className="space-y-4 md:space-y-6">
-                {/* Status-based Stats */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4">
-          <Card>
-            <CardHeader className="pb-2 md:pb-3">
-              <CardTitle className="flex items-center text-xs md:text-sm text-card-foreground">
-                <Clock className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2 text-blue-500" />
-                Pending
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-xl md:text-2xl font-bold text-blue-600">{stats.pendingAssessments}</div>
-              <p className="text-[10px] md:text-xs text-muted-foreground">Awaiting</p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="pb-2 md:pb-3">
-              <CardTitle className="flex items-center text-xs md:text-sm text-card-foreground">
-                <CheckCircle className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2 text-green-500" />
-                Passed
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-xl md:text-2xl font-bold text-green-600">{stats.passedAssessments}</div>
-              <p className="text-[10px] md:text-xs text-muted-foreground">Approved</p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="pb-2 md:pb-3">
-              <CardTitle className="flex items-center text-xs md:text-sm text-card-foreground">
-                <AlertCircle className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2 text-red-500" />
-                Failed
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-xl md:text-2xl font-bold text-red-600">{stats.failedAssessments}</div>
-              <p className="text-[10px] md:text-xs text-muted-foreground">Rejected</p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="pb-2 md:pb-3">
-              <CardTitle className="flex items-center text-xs md:text-sm text-card-foreground">
-                <Clock className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2 text-amber-500" />
-                Clarify
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-xl md:text-2xl font-bold text-amber-600">{stats.clarificationAssessments}</div>
-              <p className="text-[10px] md:text-xs text-muted-foreground">Needs info</p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="pb-2 md:pb-3">
-              <CardTitle className="flex items-center text-xs md:text-sm text-card-foreground">
-                <Users className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2 text-purple-500" />
-                Forward
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-xl md:text-2xl font-bold text-purple-600">{stats.forwardedAssessments}</div>
-              <p className="text-[10px] md:text-xs text-muted-foreground">Sent</p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="pb-2 md:pb-3">
-              <CardTitle className="flex items-center text-xs md:text-sm text-card-foreground">
-                <ClipboardList className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2 text-gray-500" />
-                Total
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-xl md:text-2xl font-bold text-gray-600">{stats.totalAssessments}</div>
-              <p className="text-[10px] md:text-xs text-muted-foreground">All</p>
-            </CardContent>
-          </Card>
-                 </div>
+                {/* Dashboard KPI Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="flex items-center text-sm text-card-foreground">
+                        <FileText className="w-4 h-4 mr-2 text-blue-500" />
+                        Pending Intents
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-3xl font-bold text-blue-600">{dashboardStats.pendingIntents}</div>
+                      <p className="text-xs text-muted-foreground mt-1">Awaiting review</p>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="flex items-center text-sm text-card-foreground">
+                        <FileCheck className="w-4 h-4 mr-2 text-amber-500" />
+                        Pending Permits
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-3xl font-bold text-amber-600">{dashboardStats.pendingPermits}</div>
+                      <p className="text-xs text-muted-foreground mt-1">Awaiting review</p>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="flex items-center text-sm text-card-foreground">
+                        <Clock className="w-4 h-4 mr-2 text-purple-500" />
+                        Under Review
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-3xl font-bold text-purple-600">{dashboardStats.reviewTotal}</div>
+                      <p className="text-xs text-muted-foreground mt-1">Total applications</p>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="flex items-center text-sm text-card-foreground">
+                        <CheckCircle className="w-4 h-4 mr-2 text-green-500" />
+                        Approved
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-3xl font-bold text-green-600">{dashboardStats.approvedTotal}</div>
+                      <p className="text-xs text-muted-foreground mt-1">Total applications</p>
+                    </CardContent>
+                  </Card>
+                </div>
 
                  {/* Permit Applications Map */}
                  <PermitApplicationsMap 
