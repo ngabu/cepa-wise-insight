@@ -17,7 +17,6 @@ import * as XLSX from 'xlsx';
 import { useToast } from '@/hooks/use-toast';
 import { IntentRegistrationReadOnlyView } from '@/components/public/IntentRegistrationReadOnlyView';
 import { PermitApplicationsMap } from '@/components/public/PermitApplicationsMap';
-
 interface IntentRegistration {
   id: string;
   user_id: string;
@@ -59,9 +58,10 @@ interface IntentRegistration {
     email: string;
   };
 }
-
 export function IntentRegistrationsList() {
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const [intents, setIntents] = useState<IntentRegistration[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -71,7 +71,6 @@ export function IntentRegistrationsList() {
   const [expandedIntentId, setExpandedIntentId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<string>('details');
   const ITEMS_PER_PAGE = 10;
-
   const getStatusBadge = (status: string) => {
     const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
       submitted: 'secondary',
@@ -79,117 +78,100 @@ export function IntentRegistrationsList() {
       rejected: 'destructive',
       under_review: 'outline'
     };
-    return (
-      <Badge variant={variants[status] || 'outline'} className="capitalize">
+    return <Badge variant={variants[status] || 'outline'} className="capitalize">
         {status.replace('_', ' ')}
-      </Badge>
-    );
+      </Badge>;
   };
-
   useEffect(() => {
     fetchIntents();
   }, []);
-
   const fetchIntents = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('intent_registrations')
-        .select(`
+      const {
+        data,
+        error
+      } = await supabase.from('intent_registrations').select(`
           *,
           entity:entities(id, name, entity_type)
-        `)
-        .order('created_at', { ascending: false });
-
+        `).order('created_at', {
+        ascending: false
+      });
       if (error) throw error;
-      
+
       // Process data to ensure proper typing
       const processedData = (data || []).map(intent => ({
         ...intent,
-        official_feedback_attachments: intent.official_feedback_attachments 
-          ? (Array.isArray(intent.official_feedback_attachments) 
-            ? intent.official_feedback_attachments 
-            : [])
-          : null,
-        project_boundary: intent.project_boundary || null,
+        official_feedback_attachments: intent.official_feedback_attachments ? Array.isArray(intent.official_feedback_attachments) ? intent.official_feedback_attachments : [] : null,
+        project_boundary: intent.project_boundary || null
       }));
-      
       setIntents(processedData);
     } catch (error) {
       console.error('Error fetching intent registrations:', error);
       toast({
         title: 'Error',
         description: 'Failed to load intent registrations',
-        variant: 'destructive',
+        variant: 'destructive'
       });
     } finally {
       setLoading(false);
     }
   };
-
   const filteredIntents = useMemo(() => {
-    return intents.filter((intent) => {
-      const matchesSearch = 
-        intent.activity_description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        intent.entity?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        intent.province?.toLowerCase().includes(searchTerm.toLowerCase());
-      
+    return intents.filter(intent => {
+      const matchesSearch = intent.activity_description.toLowerCase().includes(searchTerm.toLowerCase()) || intent.entity?.name?.toLowerCase().includes(searchTerm.toLowerCase()) || intent.province?.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesStatus = statusFilter === 'all' || intent.status === statusFilter;
       const matchesLevel = levelFilter === 'all' || intent.activity_level === levelFilter;
-      
       return matchesSearch && matchesStatus && matchesLevel;
     });
   }, [intents, searchTerm, statusFilter, levelFilter]);
-
   const totalPages = Math.ceil(filteredIntents.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const paginatedIntents = filteredIntents.slice(startIndex, endIndex);
-
   useMemo(() => {
     setCurrentPage(1);
   }, [searchTerm, statusFilter, levelFilter]);
-
   const activityLevels = useMemo(() => {
     return Array.from(new Set(intents.map(i => i.activity_level)));
   }, [intents]);
-
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'approved': return 'default';
-      case 'pending': return 'secondary';
-      case 'rejected': return 'destructive';
-      case 'under_review': return 'outline';
-      default: return 'outline';
+      case 'approved':
+        return 'default';
+      case 'pending':
+        return 'secondary';
+      case 'rejected':
+        return 'destructive';
+      case 'under_review':
+        return 'outline';
+      default:
+        return 'outline';
     }
   };
-
   const handleAcceptIntent = async (intentId: string, e: React.MouseEvent) => {
     e.stopPropagation();
     try {
-      const { error } = await supabase
-        .from('intent_registrations')
-        .update({ status: 'under_review' })
-        .eq('id', intentId);
-
+      const {
+        error
+      } = await supabase.from('intent_registrations').update({
+        status: 'under_review'
+      }).eq('id', intentId);
       if (error) throw error;
-
       toast({
         title: 'Success',
-        description: 'Intent registration accepted and moved to under review',
+        description: 'Intent registration accepted and moved to under review'
       });
-      
       fetchIntents();
     } catch (error) {
       console.error('Error accepting intent:', error);
       toast({
         title: 'Error',
         description: 'Failed to accept intent registration',
-        variant: 'destructive',
+        variant: 'destructive'
       });
     }
   };
-
   const exportToExcel = () => {
     const exportData = filteredIntents.map(intent => ({
       'Entity': intent.entity?.name || '-',
@@ -211,24 +193,56 @@ export function IntentRegistrationsList() {
       'Status': intent.status,
       'Created Date': format(new Date(intent.created_at), 'MMM dd, yyyy'),
       'Reviewed Date': intent.reviewed_at ? format(new Date(intent.reviewed_at), 'MMM dd, yyyy') : '-',
-      'Review Notes': intent.review_notes || '-',
+      'Review Notes': intent.review_notes || '-'
     }));
-
     const worksheet = XLSX.utils.json_to_sheet(exportData);
     const workbook = XLSX.utils.book_new();
-    
-    // Set column widths
-    worksheet['!cols'] = [
-      { wch: 25 }, { wch: 15 }, { wch: 40 }, { wch: 40 }, { wch: 15 },
-      { wch: 15 }, { wch: 30 }, { wch: 15 }, { wch: 15 }, { wch: 40 },
-      { wch: 30 }, { wch: 20 }, { wch: 30 }, { wch: 30 }, { wch: 20 },
-      { wch: 15 }, { wch: 12 }, { wch: 15 }, { wch: 15 }, { wch: 40 }
-    ];
 
+    // Set column widths
+    worksheet['!cols'] = [{
+      wch: 25
+    }, {
+      wch: 15
+    }, {
+      wch: 40
+    }, {
+      wch: 40
+    }, {
+      wch: 15
+    }, {
+      wch: 15
+    }, {
+      wch: 30
+    }, {
+      wch: 15
+    }, {
+      wch: 15
+    }, {
+      wch: 40
+    }, {
+      wch: 30
+    }, {
+      wch: 20
+    }, {
+      wch: 30
+    }, {
+      wch: 30
+    }, {
+      wch: 20
+    }, {
+      wch: 15
+    }, {
+      wch: 12
+    }, {
+      wch: 15
+    }, {
+      wch: 15
+    }, {
+      wch: 40
+    }];
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Intent Registrations');
     XLSX.writeFile(workbook, `Intent_Registrations_${format(new Date(), 'yyyy-MM-dd')}.xlsx`);
   };
-
   const exportToCSV = () => {
     const exportData = filteredIntents.map(intent => ({
       'Entity': intent.entity?.name || '-',
@@ -250,28 +264,24 @@ export function IntentRegistrationsList() {
       'Status': intent.status,
       'Created Date': format(new Date(intent.created_at), 'MMM dd, yyyy'),
       'Reviewed Date': intent.reviewed_at ? format(new Date(intent.reviewed_at), 'MMM dd, yyyy') : '-',
-      'Review Notes': intent.review_notes || '-',
+      'Review Notes': intent.review_notes || '-'
     }));
-
     const worksheet = XLSX.utils.json_to_sheet(exportData);
     const csv = XLSX.utils.sheet_to_csv(worksheet);
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob([csv], {
+      type: 'text/csv;charset=utf-8;'
+    });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
     link.download = `Intent_Registrations_${format(new Date(), 'yyyy-MM-dd')}.csv`;
     link.click();
   };
-
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
+    return <div className="flex items-center justify-center h-64">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <Card className="print:border-none print:shadow-none print:bg-transparent">
+  return <Card className="print:border-none print:shadow-none print:bg-transparent">
       <CardHeader className="print:hidden">
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
@@ -291,12 +301,7 @@ export function IntentRegistrationsList() {
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search by activity, entity name, or province..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-9"
-              />
+              <Input placeholder="Search by activity, entity name, or province..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-9" />
             </div>
             
             <div className="flex gap-2">
@@ -321,11 +326,9 @@ export function IntentRegistrationsList() {
                 </SelectTrigger>
                 <SelectContent className="bg-background border border-border z-50">
                   <SelectItem value="all">All Levels</SelectItem>
-                  {activityLevels.map((level) => (
-                    <SelectItem key={level} value={level}>
+                  {activityLevels.map(level => <SelectItem key={level} value={level}>
                       {level}
-                    </SelectItem>
-                  ))}
+                    </SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
@@ -346,37 +349,21 @@ export function IntentRegistrationsList() {
               <TableHead>Activity Description</TableHead>
               <TableHead>Province</TableHead>
               <TableHead>Created Date</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead>      Status</TableHead>
               <TableHead className="w-24 text-center">Accept</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredIntents.length === 0 ? (
-              <TableRow className="print:hidden">
+            {filteredIntents.length === 0 ? <TableRow className="print:hidden">
                 <TableCell colSpan={8} className="text-center text-muted-foreground">
-                  {searchTerm || statusFilter !== 'all' || levelFilter !== 'all'
-                    ? 'No intent registrations match your search criteria'
-                    : 'No intent registrations found'}
+                  {searchTerm || statusFilter !== 'all' || levelFilter !== 'all' ? 'No intent registrations match your search criteria' : 'No intent registrations found'}
                 </TableCell>
-              </TableRow>
-            ) : (
-              paginatedIntents.map((intent) => {
-                const isExpanded = expandedIntentId === intent.id;
-                return (
-                  <>
-                    <TableRow 
-                      key={intent.id}
-                      className={`cursor-pointer transition-colors print:hidden ${
-                        isExpanded ? 'bg-accent hover:bg-accent/90' : 'hover:bg-muted/50'
-                      }`}
-                      onClick={() => setExpandedIntentId(isExpanded ? null : intent.id)}
-                    >
+              </TableRow> : paginatedIntents.map(intent => {
+            const isExpanded = expandedIntentId === intent.id;
+            return <>
+                    <TableRow key={intent.id} className={`cursor-pointer transition-colors print:hidden ${isExpanded ? 'bg-accent hover:bg-accent/90' : 'hover:bg-muted/50'}`} onClick={() => setExpandedIntentId(isExpanded ? null : intent.id)}>
                       <TableCell>
-                        {isExpanded ? (
-                          <ChevronDown className="w-4 h-4 text-primary" />
-                        ) : (
-                          <ChevronsUpDown className="w-4 h-4 text-muted-foreground hover:text-primary transition-colors" />
-                        )}
+                        {isExpanded ? <ChevronDown className="w-4 h-4 text-primary" /> : <ChevronsUpDown className="w-4 h-4 text-muted-foreground hover:text-primary transition-colors" />}
                       </TableCell>
                       <TableCell className="font-medium">{intent.entity?.name || '-'}</TableCell>
                       <TableCell>{intent.activity_level}</TableCell>
@@ -388,24 +375,14 @@ export function IntentRegistrationsList() {
                           {intent.status.replace('_', ' ')}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-center" onClick={(e) => e.stopPropagation()}>
-                        {intent.status === 'pending' ? (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="h-8 gap-2"
-                            onClick={(e) => handleAcceptIntent(intent.id, e)}
-                          >
+                      <TableCell className="text-center" onClick={e => e.stopPropagation()}>
+                        {intent.status === 'pending' ? <Button size="sm" variant="outline" className="h-8 gap-2" onClick={e => handleAcceptIntent(intent.id, e)}>
                             <CheckCircle className="w-4 h-4" />
                             Accept
-                          </Button>
-                        ) : (
-                          <span className="text-muted-foreground text-sm">-</span>
-                        )}
+                          </Button> : <span className="text-muted-foreground text-sm">-</span>}
                       </TableCell>
                     </TableRow>
-                    {isExpanded && (
-                      <TableRow key={`${intent.id}-details`} className="bg-glass/50 backdrop-blur-md hover:bg-glass/50 print:bg-transparent">
+                    {isExpanded && <TableRow key={`${intent.id}-details`} className="bg-glass/50 backdrop-blur-md hover:bg-glass/50 print:bg-transparent">
                         <TableCell colSpan={8} className="p-0 print:p-0">
                           <div className="border-t border-glass/30 bg-white/80 dark:bg-primary/5 backdrop-blur-md p-6 print:border-none print:p-0 print:bg-transparent print:block">
                             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full print:hidden">
@@ -415,17 +392,10 @@ export function IntentRegistrationsList() {
                               </TabsList>
 
                               <TabsContent value="mapping" className="mt-4">
-                                <PermitApplicationsMap
-                                  showAllApplications={false}
-                                  existingBoundary={intent.project_boundary}
-                                  onBoundarySave={() => {}}
-                                  coordinates={{ 
-                                    lat: intent.project_boundary?.coordinates?.[0]?.[0]?.[1] || -6.314993, 
-                                    lng: intent.project_boundary?.coordinates?.[0]?.[0]?.[0] || 147.1494 
-                                  }}
-                                  onCoordinatesChange={() => {}}
-                                  readOnly={true}
-                                />
+                                <PermitApplicationsMap showAllApplications={false} existingBoundary={intent.project_boundary} onBoundarySave={() => {}} coordinates={{
+                          lat: intent.project_boundary?.coordinates?.[0]?.[0]?.[1] || -6.314993,
+                          lng: intent.project_boundary?.coordinates?.[0]?.[0]?.[0] || 147.1494
+                        }} onCoordinatesChange={() => {}} readOnly={true} />
                               </TabsContent>
 
                               <TabsContent value="details" className="space-y-4 mt-4">
@@ -446,33 +416,27 @@ export function IntentRegistrationsList() {
                                   <CardTitle className="text-lg">Official Feedback from CEPA</CardTitle>
                                 </CardHeader>
                                 <CardContent className="space-y-4 pt-4">
-                                  {intent.status === 'pending' ? (
-                                    <Alert>
+                                  {intent.status === 'pending' ? <Alert>
                                       <Clock className="h-4 w-4" />
                                       <AlertDescription>
                                         This submission is currently under review. Any feedback from CEPA will be displayed here once the review is complete.
                                       </AlertDescription>
-                                    </Alert>
-                                  ) : (
-                                    <>
+                                    </Alert> : <>
                                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
                                           <Label className="text-muted-foreground mb-1">Status</Label>
                                           <div className="mt-1">{getStatusBadge(intent.status)}</div>
                                         </div>
-                                        {intent.reviewed_at && (
-                                          <div>
+                                        {intent.reviewed_at && <div>
                                             <Label className="text-muted-foreground mb-1">Review Date</Label>
                                             <div className="flex items-center gap-2 mt-1">
                                               <Calendar className="w-4 h-4 text-muted-foreground" />
                                               <p className="text-sm">{format(new Date(intent.reviewed_at), 'PPP p')}</p>
                                             </div>
-                                          </div>
-                                        )}
+                                          </div>}
                                       </div>
 
-                                      {intent.reviewer && (
-                                        <div className="bg-background/50 p-4 rounded-lg">
+                                      {intent.reviewer && <div className="bg-background/50 p-4 rounded-lg">
                                           <Label className="text-muted-foreground mb-2">Reviewed By</Label>
                                           <div className="space-y-1 mt-2">
                                             <div className="flex items-center gap-2">
@@ -481,77 +445,53 @@ export function IntentRegistrationsList() {
                                                 {intent.reviewer?.first_name} {intent.reviewer?.last_name}
                                               </p>
                                             </div>
-                                            {intent.reviewer?.email && (
-                                              <div className="flex items-center gap-2">
+                                            {intent.reviewer?.email && <div className="flex items-center gap-2">
                                                 <Mail className="w-4 h-4 text-muted-foreground" />
                                                 <p className="text-sm text-muted-foreground">{intent.reviewer.email}</p>
-                                              </div>
-                                            )}
+                                              </div>}
                                           </div>
-                                        </div>
-                                      )}
+                                        </div>}
 
-                                      {intent.review_notes && (
-                                        <div>
+                                      {intent.review_notes && <div>
                                           <Label className="text-muted-foreground mb-2">Official Review Notes</Label>
                                           <div className="bg-background/50 p-4 rounded-lg mt-2">
                                             <p className="text-sm whitespace-pre-wrap">{intent.review_notes}</p>
                                           </div>
-                                        </div>
-                                      )}
+                                        </div>}
 
-                                      {!intent.review_notes && !intent.reviewer && (
-                                        <Alert>
+                                      {!intent.review_notes && !intent.reviewer && <Alert>
                                           <AlertCircle className="h-4 w-4" />
                                           <AlertDescription>
                                             The Registry team has updated the status but has not yet provided detailed feedback.
                                           </AlertDescription>
-                                        </Alert>
-                                      )}
-                                    </>
-                                  )}
+                                        </Alert>}
+                                    </>}
                                 </CardContent>
                               </Card>
                             </div>
                           </div>
                         </TableCell>
-                      </TableRow>
-                    )}
-                  </>
-                );
-              })
-            )}
+                      </TableRow>}
+                  </>;
+          })}
           </TableBody>
         </Table>
 
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between mt-4 print:hidden">
+        {totalPages > 1 && <div className="flex items-center justify-between mt-4 print:hidden">
             <p className="text-sm text-muted-foreground">
               Page {currentPage} of {totalPages}
             </p>
             <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                disabled={currentPage === 1}
-              >
+              <Button variant="outline" size="sm" onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))} disabled={currentPage === 1}>
                 <ChevronLeft className="h-4 w-4 mr-1" />
                 Previous
               </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                disabled={currentPage === totalPages}
-              >
+              <Button variant="outline" size="sm" onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))} disabled={currentPage === totalPages}>
                 Next
                 <ChevronRight className="h-4 w-4 ml-1" />
               </Button>
             </div>
-          </div>
-        )}
+          </div>}
       </CardContent>
-    </Card>
-  );
+    </Card>;
 }
