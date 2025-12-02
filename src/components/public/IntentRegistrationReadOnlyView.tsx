@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Label } from '@/components/ui/label';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { exportIntentRegistrationPDF } from '@/utils/pdfExport';
+import { IntentBoundaryMapDisplay } from '@/components/registry/read-only/IntentBoundaryMapDisplay';
 
 interface IntentRegistrationReadOnlyViewProps {
   intent: IntentRegistration;
@@ -496,6 +497,16 @@ export function IntentRegistrationReadOnlyView({ intent, showFeedbackWithBlueHea
                   <p className="text-sm whitespace-pre-wrap">{intent.site_ownership_details || 'Not provided'}</p>
                 </div>
               </div>
+
+              {/* Project Boundary Map */}
+              {intent.project_boundary && (
+                <div className="mt-6 print:hidden">
+                  <IntentBoundaryMapDisplay 
+                    projectBoundary={intent.project_boundary}
+                    activityLocation={intent.project_site_address || undefined}
+                  />
+                </div>
+              )}
             </CollapsibleContent>
           </Collapsible>
 
