@@ -29,6 +29,7 @@ import { PermitComplianceReview } from "@/components/registry/PermitComplianceRe
 import { PermitEnforcementReview } from "@/components/registry/PermitEnforcementReview";
 import { PermitApplicationsMap } from "@/components/public/PermitApplicationsMap";
 import { RegistryComplianceReporting } from "@/components/registry/RegistryComplianceReporting";
+import { UnitNotificationsPanel } from "@/components/notifications/UnitNotificationsPanel";
 
 const RegistryDashboard = () => {
   const { profile } = useAuth();
@@ -278,6 +279,7 @@ const RegistryDashboard = () => {
             {activeTab === 'permit-renewal' && <PermitRenewalReview />}
             {activeTab === 'permit-surrender' && <PermitSurrenderReview />}
             {activeTab === 'permit-transfer' && <PermitTransferReview />}
+            {activeTab === 'notifications' && <UnitNotificationsPanel unit="registry" />}
             {activeTab === 'reports' && <RegistryReports />}
             {activeTab === 'team' && isManager && <TeamManagement />}
             {activeTab === 'profile' && <ProfileSettings />}
