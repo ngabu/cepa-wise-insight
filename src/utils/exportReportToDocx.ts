@@ -144,6 +144,24 @@ const createHorizontalBarChart = (
   data: Array<{ label: string; value: number; color?: string }>,
   maxValue?: number
 ) => {
+  // Return just a title with "No data" message if data is empty
+  if (!data || data.length === 0) {
+    return [
+      new Paragraph({
+        spacing: { before: 200, after: 100 },
+        children: [
+          new TextRun({ text: title, bold: true, size: 22, color: "1B5E20" }),
+        ],
+      }),
+      new Paragraph({
+        spacing: { before: 50, after: 100 },
+        children: [
+          new TextRun({ text: "No data available", italics: true, size: 18, color: "666666" }),
+        ],
+      }),
+    ];
+  }
+  
   const max = maxValue || Math.max(...data.map(d => d.value), 1);
   const barColors = ["4CAF50", "2196F3", "FF9800", "9C27B0", "00BCD4", "E91E63"];
   
@@ -229,6 +247,24 @@ const createPieChartLegend = (
   title: string,
   data: Array<{ name: string; value: number; percentage: number }>
 ) => {
+  // Return just a title with "No data" message if data is empty
+  if (!data || data.length === 0) {
+    return [
+      new Paragraph({
+        spacing: { before: 200, after: 100 },
+        children: [
+          new TextRun({ text: title, bold: true, size: 22, color: "1B5E20" }),
+        ],
+      }),
+      new Paragraph({
+        spacing: { before: 50, after: 100 },
+        children: [
+          new TextRun({ text: "No data available", italics: true, size: 18, color: "666666" }),
+        ],
+      }),
+    ];
+  }
+
   const colors = ["1B5E20", "2196F3", "FF9800", "9C27B0", "00BCD4", "E91E63"];
   
   const legendItems = data.map((item, index) => {
