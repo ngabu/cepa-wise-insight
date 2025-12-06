@@ -223,66 +223,22 @@ export const exportReportToDocx = async (data: ReportData) => {
     );
   }
 
-  // Organization Header
+  // Organization Header - matching the screenshot design
   headerElements.push(
     new Paragraph({
       alignment: AlignmentType.CENTER,
-      spacing: { after: 50 },
+      spacing: { after: 200 },
       children: [
         new TextRun({
           text: "Conservation & Environment Protection Authority",
           bold: true,
-          size: 32,
+          size: 28,
         }),
       ],
     }),
     new Paragraph({
       alignment: AlignmentType.CENTER,
-      spacing: { after: 30 },
-      children: [
-        new TextRun({
-          text: "Managing Director's Office",
-          size: 24,
-        }),
-      ],
-    }),
-    new Paragraph({
-      alignment: AlignmentType.CENTER,
-      spacing: { after: 30 },
-      children: [
-        new TextRun({
-          text: "EXECUTIVE BRANCH",
-          bold: true,
-          size: 22,
-        }),
-      ],
-    }),
-    new Paragraph({
-      alignment: AlignmentType.CENTER,
-      spacing: { after: 50 },
-      children: [
-        new TextRun({
-          text: "P.O. Box 6601, Boroko, NCD, Papua New Guinea",
-          size: 18,
-          color: "666666",
-        }),
-      ],
-    }),
-    new Paragraph({
-      alignment: AlignmentType.CENTER,
-      spacing: { after: 50 },
-      children: [
-        new TextRun({
-          text: "Tel: +675 301 4500 | Email: info@cepa.gov.pg",
-          size: 18,
-          color: "666666",
-        }),
-      ],
-    }),
-    createSeparator(),
-    new Paragraph({
-      alignment: AlignmentType.CENTER,
-      spacing: { before: 200, after: 100 },
+      spacing: { before: 100, after: 100 },
       children: [
         new TextRun({
           text: "PERMIT MANAGEMENT REPORT",
@@ -294,23 +250,21 @@ export const exportReportToDocx = async (data: ReportData) => {
     }),
     new Paragraph({
       alignment: AlignmentType.CENTER,
-      spacing: { after: 200 },
+      spacing: { after: 50 },
       children: [
         new TextRun({
           text: `Report Generated: ${format(new Date(), 'dd MMMM yyyy, HH:mm')}`,
           size: 20,
-          color: "666666",
         }),
       ],
     }),
     new Paragraph({
       alignment: AlignmentType.CENTER,
-      spacing: { after: 300 },
+      spacing: { after: 200 },
       children: [
         new TextRun({
           text: `Data Period: ${data.dateRange}`,
           size: 20,
-          color: "666666",
         }),
       ],
     }),
