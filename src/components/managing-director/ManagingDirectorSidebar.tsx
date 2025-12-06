@@ -15,11 +15,11 @@ import {
   Building2,
   FileText,
   Shield,
-  TrendingUp,
   ChevronDown,
   ChevronRight,
   FileCheck,
   BarChart3,
+  Bot,
 } from "lucide-react"
 import pngEmblem from "@/assets/png-emblem.png"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
@@ -45,6 +45,7 @@ const navigationItems: NavigationItem[] = [
   },
   { title: "Approvals and Signatures", value: "approvals-signatures", icon: FileCheck },
   { title: "Reports and Analytics", value: "analytics-reporting", icon: BarChart3 },
+  { title: "AI Analytics", value: "ai-analytics", icon: Bot },
 ]
 
 interface ManagingDirectorSidebarProps {
