@@ -44,7 +44,7 @@ const navigationItems: NavigationItem[] = [
     ],
   },
   { title: "Approvals and Signatures", value: "approvals-signatures", icon: FileCheck },
-  { title: "Reports and Analysis", value: "reports-analysis", icon: BarChart3 },
+  { title: "Reports and Analytics", value: "analytics-reporting", icon: BarChart3 },
 ]
 
 interface ManagingDirectorSidebarProps {

@@ -17,6 +17,7 @@ import * as XLSX from 'xlsx';
 import { useToast } from '@/hooks/use-toast';
 import { IntentRegistrationReadOnlyView } from '@/components/public/IntentRegistrationReadOnlyView';
 import { PermitApplicationsMap } from '@/components/public/PermitApplicationsMap';
+import { IntentRegistryReviewTab, IntentComplianceReviewTab, IntentMDReviewTab, IntentInvoicePaymentsTab } from '@/components/registry/intent-review';
 interface IntentRegistration {
   id: string;
   user_id: string;
@@ -29,6 +30,7 @@ interface IntentRegistration {
   project_site_address: string | null;
   district: string | null;
   province: string | null;
+  llg: string | null;
   project_site_description: string | null;
   site_ownership_details: string | null;
   government_agreement: string | null;
@@ -46,6 +48,7 @@ interface IntentRegistration {
   prescribed_activity_id: string | null;
   existing_permit_id: string | null;
   project_boundary: any | null;
+  total_area_sqkm: number | null;
   entity?: {
     id: string;
     name: string;
@@ -69,7 +72,7 @@ export function IntentRegistrationsList() {
   const [levelFilter, setLevelFilter] = useState<string>('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [expandedIntentId, setExpandedIntentId] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<string>('details');
+  const [activeTab, setActiveTab] = useState<string>('mapping');
   const ITEMS_PER_PAGE = 10;
   const getStatusBadge = (status: string) => {
     const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
@@ -176,7 +179,7 @@ export function IntentRegistrationsList() {
     const exportData = filteredIntents.map(intent => ({
       'Entity': intent.entity?.name || '-',
       'Activity Level': intent.activity_level,
-      'Activity Description': intent.activity_description,
+      'Project Description': intent.activity_description,
       'Preparatory Work Description': intent.preparatory_work_description,
       'Commencement Date': format(new Date(intent.commencement_date), 'MMM dd, yyyy'),
       'Completion Date': format(new Date(intent.completion_date), 'MMM dd, yyyy'),
@@ -247,7 +250,7 @@ export function IntentRegistrationsList() {
     const exportData = filteredIntents.map(intent => ({
       'Entity': intent.entity?.name || '-',
       'Activity Level': intent.activity_level,
-      'Activity Description': intent.activity_description,
+      'Project Description': intent.activity_description,
       'Preparatory Work Description': intent.preparatory_work_description,
       'Commencement Date': format(new Date(intent.commencement_date), 'MMM dd, yyyy'),
       'Completion Date': format(new Date(intent.completion_date), 'MMM dd, yyyy'),
@@ -346,7 +349,7 @@ export function IntentRegistrationsList() {
               <TableHead className="w-8" />
               <TableHead>Entity</TableHead>
               <TableHead>Activity Level</TableHead>
-              <TableHead>Activity Description</TableHead>
+              <TableHead>Project Description</TableHead>
               <TableHead>Province</TableHead>
               <TableHead>Created Date</TableHead>
               <TableHead>      Status</TableHead>
@@ -386,20 +389,68 @@ export function IntentRegistrationsList() {
                         <TableCell colSpan={8} className="p-0 print:p-0">
                           <div className="border-t border-glass/30 bg-white/80 dark:bg-primary/5 backdrop-blur-md p-6 print:border-none print:p-0 print:bg-transparent print:block">
                             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full print:hidden">
-                              <TabsList className="grid w-full grid-cols-2">
-                                <TabsTrigger value="mapping">Proposed Project Site Mapping</TabsTrigger>
+                              <TabsList className="grid w-full grid-cols-6">
+                                <TabsTrigger value="mapping">Site Mapping</TabsTrigger>
                                 <TabsTrigger value="details">Registration Details</TabsTrigger>
+                                <TabsTrigger value="registry-review">Registry Review</TabsTrigger>
+                                <TabsTrigger value="compliance-review">Compliance Review</TabsTrigger>
+                                <TabsTrigger value="invoice-payments">Invoice & Payments</TabsTrigger>
+                                <TabsTrigger value="md-review">MD Review & Approval</TabsTrigger>
                               </TabsList>
 
                               <TabsContent value="mapping" className="mt-4">
-                                <PermitApplicationsMap showAllApplications={false} existingBoundary={intent.project_boundary} onBoundarySave={() => {}} coordinates={{
-                          lat: intent.project_boundary?.coordinates?.[0]?.[0]?.[1] || -6.314993,
-                          lng: intent.project_boundary?.coordinates?.[0]?.[0]?.[0] || 147.1494
-                        }} onCoordinatesChange={() => {}} readOnly={true} />
+                                <PermitApplicationsMap 
+                                  showAllApplications={false} 
+                                  existingBoundary={intent.project_boundary} 
+                                  onBoundarySave={() => {}} 
+                                  coordinates={{
+                                    lat: intent.project_boundary?.coordinates?.[0]?.[0]?.[1] || -6.314993,
+                                    lng: intent.project_boundary?.coordinates?.[0]?.[0]?.[0] || 147.1494
+                                  }} 
+                                  onCoordinatesChange={() => {}} 
+                                  readOnly={true}
+                                  district={intent.district}
+                                  province={intent.province}
+                                  llg={intent.llg}
+                                  customTitle="Proposed Project Site Map"
+                                  customDescription=""
+                                />
                               </TabsContent>
 
                               <TabsContent value="details" className="space-y-4 mt-4">
                                 <IntentRegistrationReadOnlyView intent={intent} />
+                              </TabsContent>
+
+                              <TabsContent value="registry-review" className="mt-4">
+                                <IntentRegistryReviewTab 
+                                  intentId={intent.id} 
+                                  currentStatus={intent.status}
+                                  onStatusUpdate={fetchIntents}
+                                />
+                              </TabsContent>
+
+                              <TabsContent value="compliance-review" className="mt-4">
+                                <IntentComplianceReviewTab 
+                                  intentId={intent.id} 
+                                  currentStatus={intent.status}
+                                  onStatusUpdate={fetchIntents}
+                                />
+                              </TabsContent>
+
+                              <TabsContent value="invoice-payments" className="mt-4">
+                                <IntentInvoicePaymentsTab 
+                                  intentId={intent.id}
+                                  entityId={intent.entity_id}
+                                  onStatusUpdate={fetchIntents}
+                                />
+                              </TabsContent>
+
+                              <TabsContent value="md-review" className="mt-4">
+                                <IntentMDReviewTab 
+                                  intentId={intent.id} 
+                                  currentStatus={intent.status}
+                                  onStatusUpdate={fetchIntents}
+                                />
                               </TabsContent>
                             </Tabs>
                             

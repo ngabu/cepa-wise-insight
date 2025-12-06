@@ -9,9 +9,12 @@ import { polygon } from '@turf/helpers';
 interface IntentBoundaryMapDisplayProps {
   projectBoundary: any;
   activityLocation?: string;
+  province?: string;
+  district?: string;
+  llg?: string;
 }
 
-export function IntentBoundaryMapDisplay({ projectBoundary, activityLocation }: IntentBoundaryMapDisplayProps) {
+export function IntentBoundaryMapDisplay({ projectBoundary, activityLocation, province, district, llg }: IntentBoundaryMapDisplayProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const [areaInfo, setAreaInfo] = useState<{ sqKm: number; hectares: number } | null>(null);
@@ -50,8 +53,18 @@ export function IntentBoundaryMapDisplay({ projectBoundary, activityLocation }: 
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/satellite-streets-v12',
       center: [center.lng, center.lat],
-      zoom: 14, // Close enough to see street names
+      zoom: 14,
+      interactive: true,
+      cooperativeGestures: false,
     });
+
+    // Explicitly enable all interactions after map init
+    map.current.scrollZoom.enable();
+    map.current.dragPan.enable();
+    map.current.dragRotate.enable();
+    map.current.touchZoomRotate.enable();
+    map.current.keyboard.enable();
+    map.current.doubleClickZoom.enable();
 
     // Add navigation controls
     map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
@@ -94,10 +107,10 @@ export function IntentBoundaryMapDisplay({ projectBoundary, activityLocation }: 
         }
       });
 
-      // Fit map to bounds with padding
+      // Fit map to bounds with padding at street level
       map.current.fitBounds(bounds, {
         padding: 50,
-        maxZoom: 15 // Ensure we stay zoomed in enough to see streets
+        maxZoom: 17 // Ensure we stay zoomed in enough to see streets
       });
 
       // Add center marker
@@ -109,6 +122,12 @@ export function IntentBoundaryMapDisplay({ projectBoundary, activityLocation }: 
         .addTo(map.current);
 
       // Add popup with area information
+      const locationInfo = [
+        province ? `<strong>Province:</strong> ${province}` : null,
+        district ? `<strong>District:</strong> ${district}` : null,
+        llg ? `<strong>LLG:</strong> ${llg}` : null
+      ].filter(Boolean).join('<br/>');
+
       const popup = new mapboxgl.Popup({ 
         offset: 25,
         closeButton: true,
@@ -126,6 +145,13 @@ export function IntentBoundaryMapDisplay({ projectBoundary, activityLocation }: 
                 <div style="margin-bottom: 8px; padding: 8px; background: #f3f4f6; border-radius: 6px;">
                   <p style="margin: 0; font-size: 13px; color: #6b7280;">Location</p>
                   <p style="margin: 4px 0 0 0; font-size: 14px; font-weight: 500; color: #111827;">${activityLocation}</p>
+                </div>
+              ` : ''}
+              ${locationInfo ? `
+                <div style="margin-bottom: 8px; padding: 10px; background: #f3f4f6; border-radius: 6px;">
+                  <p style="margin: 0; font-size: 13px; color: #374151; line-height: 1.6;">
+                    ${locationInfo}
+                  </p>
                 </div>
               ` : ''}
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
@@ -153,7 +179,7 @@ export function IntentBoundaryMapDisplay({ projectBoundary, activityLocation }: 
     return () => {
       map.current?.remove();
     };
-  }, [projectBoundary, activityLocation]);
+  }, [projectBoundary, activityLocation, province, district, llg]);
 
   if (!projectBoundary) {
     return (
@@ -188,6 +214,7 @@ export function IntentBoundaryMapDisplay({ projectBoundary, activityLocation }: 
         <div 
           ref={mapContainer} 
           className="h-96 w-full rounded-lg border border-border overflow-hidden"
+          style={{ touchAction: 'none' }}
         />
         {areaInfo && (
           <div className="mt-3 grid grid-cols-2 gap-4 text-sm">
