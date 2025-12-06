@@ -138,183 +138,6 @@ const createDataTable = (headers: string[], rows: string[][]) => {
   });
 };
 
-// Create a visual horizontal bar chart using table cells with colored fills
-const createHorizontalBarChart = (
-  title: string,
-  data: Array<{ label: string; value: number; color?: string }>,
-  maxValue?: number
-) => {
-  const max = maxValue || Math.max(...data.map(d => d.value), 1);
-  const barColors = ["4CAF50", "2196F3", "FF9800", "9C27B0", "00BCD4", "E91E63"];
-  
-  const chartRows = data.map((item, index) => {
-    const barWidth = Math.round((item.value / max) * 100);
-    const color = item.color || barColors[index % barColors.length];
-    
-    return new TableRow({
-      children: [
-        // Label column
-        new TableCell({
-          width: { size: 30, type: WidthType.PERCENTAGE },
-          verticalAlign: "center",
-          children: [
-            new Paragraph({
-              alignment: AlignmentType.RIGHT,
-              spacing: { before: 50, after: 50 },
-              children: [
-                new TextRun({ text: item.label, size: 18 }),
-              ],
-            }),
-          ],
-        }),
-        // Bar column
-        new TableCell({
-          width: { size: 50, type: WidthType.PERCENTAGE },
-          children: [
-            new Paragraph({
-              spacing: { before: 50, after: 50 },
-              children: [
-                new TextRun({ 
-                  text: "█".repeat(Math.max(1, Math.round(barWidth / 5))), 
-                  color: color,
-                  size: 20,
-                  bold: true,
-                }),
-              ],
-            }),
-          ],
-        }),
-        // Value column
-        new TableCell({
-          width: { size: 20, type: WidthType.PERCENTAGE },
-          verticalAlign: "center",
-          children: [
-            new Paragraph({
-              alignment: AlignmentType.LEFT,
-              spacing: { before: 50, after: 50 },
-              children: [
-                new TextRun({ text: ` ${item.value}`, bold: true, size: 18 }),
-              ],
-            }),
-          ],
-        }),
-      ],
-    });
-  });
-
-  return [
-    new Paragraph({
-      spacing: { before: 200, after: 100 },
-      children: [
-        new TextRun({ text: title, bold: true, size: 22, color: "1B5E20" }),
-      ],
-    }),
-    new Table({
-      width: { size: 100, type: WidthType.PERCENTAGE },
-      borders: {
-        top: { style: BorderStyle.NONE },
-        bottom: { style: BorderStyle.NONE },
-        left: { style: BorderStyle.NONE },
-        right: { style: BorderStyle.NONE },
-        insideHorizontal: { style: BorderStyle.NONE },
-        insideVertical: { style: BorderStyle.NONE },
-      },
-      rows: chartRows,
-    }),
-  ];
-};
-
-// Create a visual pie chart legend with colored blocks
-const createPieChartLegend = (
-  title: string,
-  data: Array<{ name: string; value: number; percentage: number }>
-) => {
-  const colors = ["1B5E20", "2196F3", "FF9800", "9C27B0", "00BCD4", "E91E63"];
-  
-  const legendItems = data.map((item, index) => {
-    const color = colors[index % colors.length];
-    return new TableRow({
-      children: [
-        // Color block
-        new TableCell({
-          width: { size: 10, type: WidthType.PERCENTAGE },
-          shading: { fill: color, type: ShadingType.CLEAR },
-          children: [
-            new Paragraph({
-              alignment: AlignmentType.CENTER,
-              children: [new TextRun({ text: " ", size: 20 })],
-            }),
-          ],
-        }),
-        // Label
-        new TableCell({
-          width: { size: 50, type: WidthType.PERCENTAGE },
-          children: [
-            new Paragraph({
-              spacing: { before: 30, after: 30 },
-              children: [
-                new TextRun({ text: `  ${item.name}`, size: 20 }),
-              ],
-            }),
-          ],
-        }),
-        // Value
-        new TableCell({
-          width: { size: 20, type: WidthType.PERCENTAGE },
-          children: [
-            new Paragraph({
-              alignment: AlignmentType.RIGHT,
-              spacing: { before: 30, after: 30 },
-              children: [
-                new TextRun({ text: String(item.value), bold: true, size: 20 }),
-              ],
-            }),
-          ],
-        }),
-        // Percentage
-        new TableCell({
-          width: { size: 20, type: WidthType.PERCENTAGE },
-          children: [
-            new Paragraph({
-              alignment: AlignmentType.RIGHT,
-              spacing: { before: 30, after: 30 },
-              children: [
-                new TextRun({ text: `${item.percentage.toFixed(1)}%`, size: 20, color: "666666" }),
-              ],
-            }),
-          ],
-        }),
-      ],
-    });
-  });
-
-  // Create ASCII pie representation
-  const pieSymbols = ["●", "◐", "◑", "○", "◒", "◓"];
-  const pieRepresentation = data.slice(0, 6).map((item, i) => 
-    `${pieSymbols[i]} ${item.name}: ${item.percentage.toFixed(0)}%`
-  ).join("   ");
-
-  return [
-    new Paragraph({
-      spacing: { before: 200, after: 100 },
-      children: [
-        new TextRun({ text: title, bold: true, size: 22, color: "1B5E20" }),
-      ],
-    }),
-    new Paragraph({
-      alignment: AlignmentType.CENTER,
-      spacing: { before: 100, after: 150 },
-      children: [
-        new TextRun({ text: pieRepresentation, size: 18, color: "333333" }),
-      ],
-    }),
-    new Table({
-      width: { size: 100, type: WidthType.PERCENTAGE },
-      rows: legendItems,
-    }),
-  ];
-};
-
 // Create section heading
 const createSectionHeading = (text: string) => {
   return new Paragraph({
@@ -400,28 +223,37 @@ export const exportReportToDocx = async (data: ReportData) => {
     );
   }
 
-  // Organization Header - matching the official format
+  // Organization Header
   headerElements.push(
     new Paragraph({
       alignment: AlignmentType.CENTER,
-      spacing: { after: 150 },
+      spacing: { after: 50 },
       children: [
         new TextRun({
           text: "Conservation & Environment Protection Authority",
           bold: true,
-          size: 28,
+          size: 32,
         }),
       ],
     }),
     new Paragraph({
       alignment: AlignmentType.CENTER,
-      spacing: { before: 100, after: 50 },
+      spacing: { after: 30 },
       children: [
         new TextRun({
-          text: "PERMIT MANAGEMENT REPORT",
+          text: "Managing Director's Office",
+          size: 24,
+        }),
+      ],
+    }),
+    new Paragraph({
+      alignment: AlignmentType.CENTER,
+      spacing: { after: 30 },
+      children: [
+        new TextRun({
+          text: "EXECUTIVE BRANCH",
           bold: true,
-          size: 32,
-          color: "1B5E20",
+          size: 22,
         }),
       ],
     }),
@@ -430,41 +262,60 @@ export const exportReportToDocx = async (data: ReportData) => {
       spacing: { after: 50 },
       children: [
         new TextRun({
-          text: `Report Generated: ${format(new Date(), 'dd MMMM yyyy, HH:mm')}`,
-          size: 20,
+          text: "P.O. Box 6601, Boroko, NCD, Papua New Guinea",
+          size: 18,
+          color: "666666",
         }),
       ],
     }),
     new Paragraph({
       alignment: AlignmentType.CENTER,
-      spacing: { after: 150 },
+      spacing: { after: 50 },
+      children: [
+        new TextRun({
+          text: "Tel: +675 301 4500 | Email: info@cepa.gov.pg",
+          size: 18,
+          color: "666666",
+        }),
+      ],
+    }),
+    createSeparator(),
+    new Paragraph({
+      alignment: AlignmentType.CENTER,
+      spacing: { before: 200, after: 100 },
+      children: [
+        new TextRun({
+          text: "PERMIT MANAGEMENT REPORT",
+          bold: true,
+          size: 36,
+          color: "1B5E20",
+        }),
+      ],
+    }),
+    new Paragraph({
+      alignment: AlignmentType.CENTER,
+      spacing: { after: 200 },
+      children: [
+        new TextRun({
+          text: `Report Generated: ${format(new Date(), 'dd MMMM yyyy, HH:mm')}`,
+          size: 20,
+          color: "666666",
+        }),
+      ],
+    }),
+    new Paragraph({
+      alignment: AlignmentType.CENTER,
+      spacing: { after: 300 },
       children: [
         new TextRun({
           text: `Data Period: ${data.dateRange}`,
           size: 20,
+          color: "666666",
         }),
       ],
     }),
     createSeparator()
   );
-
-  // Calculate totals for percentages
-  const totalStatusCount = data.statusDistribution.reduce((sum, item) => sum + item.value, 0);
-  const totalEntityCount = data.entityTypeDistribution.reduce((sum, item) => sum + item.value, 0);
-  const totalPermitTypeCount = data.permitTypeDistribution.reduce((sum, item) => sum + item.value, 0);
-
-  // Prepare pie chart data with percentages
-  const statusPieData = data.statusDistribution.map(item => ({
-    name: item.name,
-    value: item.value,
-    percentage: totalStatusCount > 0 ? (item.value / totalStatusCount) * 100 : 0,
-  }));
-
-  const entityTypePieData = data.entityTypeDistribution.map(item => ({
-    name: item.name,
-    value: item.value,
-    percentage: totalEntityCount > 0 ? (item.value / totalEntityCount) * 100 : 0,
-  }));
 
   // Executive Overview Section
   const executiveOverviewSection = [
@@ -485,30 +336,34 @@ export const exportReportToDocx = async (data: ReportData) => {
       { label: "Pending Applications", value: data.executiveKPIs.pendingApplications },
     ]),
     new Paragraph({ spacing: { before: 300 } }),
-    
-    // Application Status Distribution - PIE CHART
-    ...createPieChartLegend(
-      "📊 Application Status Distribution",
-      statusPieData
+    createSubsectionHeading("Application Status Distribution"),
+    createDataTable(
+      ["Status", "Count", "Percentage"],
+      data.statusDistribution.map(item => [
+        item.name,
+        String(item.value),
+        `${data.executiveKPIs.totalApplications > 0 ? ((item.value / data.executiveKPIs.totalApplications) * 100).toFixed(1) : 0}%`
+      ])
     ),
-    
     new Paragraph({ spacing: { before: 300 } }),
-    
-    // Permit Type Distribution - BAR CHART
-    ...createHorizontalBarChart(
-      "📈 Top Permit Types by Volume",
-      data.permitTypeDistribution.slice(0, 8).map(item => ({
-        label: item.name.length > 25 ? item.name.substring(0, 22) + "..." : item.name,
-        value: item.value,
-      }))
+    createSubsectionHeading("Applications by Permit Type"),
+    createDataTable(
+      ["Permit Type", "Count", "Percentage"],
+      data.permitTypeDistribution.slice(0, 10).map(item => [
+        item.name,
+        String(item.value),
+        `${data.executiveKPIs.totalApplications > 0 ? ((item.value / data.executiveKPIs.totalApplications) * 100).toFixed(1) : 0}%`
+      ])
     ),
-    
     new Paragraph({ spacing: { before: 300 } }),
-    
-    // Entity Type Distribution - PIE CHART
-    ...createPieChartLegend(
-      "🏢 Entity Type Distribution",
-      entityTypePieData
+    createSubsectionHeading("Entity Type Distribution"),
+    createDataTable(
+      ["Entity Type", "Count", "Percentage"],
+      data.entityTypeDistribution.map(item => [
+        item.name,
+        String(item.value),
+        `${data.executiveKPIs.totalEntities > 0 ? ((item.value / data.executiveKPIs.totalEntities) * 100).toFixed(1) : 0}%`
+      ])
     ),
   ];
 
@@ -517,24 +372,6 @@ export const exportReportToDocx = async (data: ReportData) => {
     createSectionHeading("2. Investment Value Analysis"),
     createDescriptionPlaceholder("Analysis of project investment values by activity level"),
     createSubsectionHeading(`Investment Summary for ${data.investmentYear}`),
-    
-    // Investment by Level - BAR CHART
-    ...createHorizontalBarChart(
-      "📊 Investment Value by Activity Level",
-      [
-        { label: "Level 2 Activities", value: Math.round(data.investmentByLevel.level2.value / 1000000), color: "2196F3" },
-        { label: "Level 3 Activities", value: Math.round(data.investmentByLevel.level3.value / 1000000), color: "4CAF50" },
-      ]
-    ),
-    new Paragraph({
-      spacing: { before: 50, after: 100 },
-      alignment: AlignmentType.CENTER,
-      children: [
-        new TextRun({ text: "(Values in Millions PGK)", size: 16, color: "888888", italics: true }),
-      ],
-    }),
-    
-    new Paragraph({ spacing: { before: 200 } }),
     createDataTable(
       ["Activity Level", "Investment Value", "Number of Permits"],
       [
@@ -545,23 +382,11 @@ export const exportReportToDocx = async (data: ReportData) => {
     ),
   ];
 
-  // Geographic Analysis Section - BAR CHART
-  const activeProvinces = data.provincialData.filter(p => p.activePermits > 0).slice(0, 10);
+  // Geographic Analysis Section
   const geographicSection = [
     createSectionHeading("3. Geographic Analysis"),
     createDescriptionPlaceholder("Provincial distribution of active permits across Papua New Guinea"),
-    
-    // Provincial Distribution - BAR CHART
-    ...createHorizontalBarChart(
-      "📍 Active Permits by Province (Top 10)",
-      activeProvinces.map(item => ({
-        label: item.province.replace(' Province', '').substring(0, 20),
-        value: item.activePermits,
-      }))
-    ),
-    
-    new Paragraph({ spacing: { before: 300 } }),
-    createSubsectionHeading("Complete Provincial Breakdown"),
+    createSubsectionHeading("Active Permits by Province"),
     createDataTable(
       ["Province", "Active Permits"],
       data.provincialData.filter(p => p.activePermits > 0).map(item => [
@@ -571,14 +396,7 @@ export const exportReportToDocx = async (data: ReportData) => {
     ),
   ];
 
-  // Compliance & Enforcement Section - PIE + BAR
-  const totalSectorCount = data.complianceTabData.permitsBySector.reduce((sum, item) => sum + item.count, 0);
-  const sectorPieData = data.complianceTabData.permitsBySector.slice(0, 6).map(item => ({
-    name: item.sector,
-    value: item.count,
-    percentage: totalSectorCount > 0 ? (item.count / totalSectorCount) * 100 : 0,
-  }));
-
+  // Compliance & Enforcement Section
   const complianceSection = [
     createSectionHeading("4. Compliance & Enforcement"),
     createDescriptionPlaceholder("Overview of compliance monitoring and enforcement activities"),
@@ -589,33 +407,19 @@ export const exportReportToDocx = async (data: ReportData) => {
       { label: "Inspections Carried Out", value: data.complianceTabData.totalInspectionsCarried },
       { label: "Violations Reported", value: data.complianceTabData.violationsReported },
     ]),
-    
     new Paragraph({ spacing: { before: 300 } }),
-    
-    // Permits by Sector - PIE CHART
-    ...createPieChartLegend(
-      "🏭 Permits by Sector/Industry",
-      sectorPieData
-    ),
-    
-    new Paragraph({ spacing: { before: 300 } }),
-    
-    // Sector Bar Chart
-    ...createHorizontalBarChart(
-      "📊 Sector Volume Comparison",
-      data.complianceTabData.permitsBySector.slice(0, 8).map(item => ({
-        label: item.sector.substring(0, 20),
-        value: item.count,
-      }))
+    createSubsectionHeading("Permits by Sector"),
+    createDataTable(
+      ["Sector", "Count", "Percentage"],
+      data.complianceTabData.permitsBySector.slice(0, 10).map(item => [
+        item.sector,
+        String(item.count),
+        `${data.complianceTabData.totalPermits > 0 ? ((item.count / data.complianceTabData.totalPermits) * 100).toFixed(1) : 0}%`
+      ])
     ),
   ];
 
-  // Financial Performance Section - with charts
-  const revenueData = [
-    { name: "Collected", value: data.executiveKPIs.collectedRevenue, percentage: data.executiveKPIs.totalRevenue > 0 ? (data.executiveKPIs.collectedRevenue / data.executiveKPIs.totalRevenue) * 100 : 0 },
-    { name: "Outstanding", value: data.executiveKPIs.pendingRevenue, percentage: data.executiveKPIs.totalRevenue > 0 ? (data.executiveKPIs.pendingRevenue / data.executiveKPIs.totalRevenue) * 100 : 0 },
-  ];
-
+  // Financial Performance Section
   const financialSection = [
     createSectionHeading("5. Financial Performance"),
     createDescriptionPlaceholder("Revenue collection and financial performance metrics"),
@@ -626,35 +430,8 @@ export const exportReportToDocx = async (data: ReportData) => {
       { label: "Outstanding", value: formatCurrency(data.executiveKPIs.pendingRevenue) },
       { label: "Collection Rate", value: `${data.executiveKPIs.collectionRate}%` },
     ]),
-    
     new Paragraph({ spacing: { before: 300 } }),
-    
-    // Revenue Status - PIE CHART
-    ...createPieChartLegend(
-      "💰 Revenue Collection Status",
-      revenueData
-    ),
-    
-    new Paragraph({ spacing: { before: 300 } }),
-    
-    // Monthly Revenue Trend - BAR CHART
-    ...createHorizontalBarChart(
-      "📈 Monthly Revenue Trend (Last 6 Months)",
-      data.monthlyTrends.slice(-6).map(item => ({
-        label: item.month,
-        value: Math.round(item.revenue / 1000),
-      }))
-    ),
-    new Paragraph({
-      spacing: { before: 50, after: 100 },
-      alignment: AlignmentType.CENTER,
-      children: [
-        new TextRun({ text: "(Values in Thousands PGK)", size: 16, color: "888888", italics: true }),
-      ],
-    }),
-    
-    new Paragraph({ spacing: { before: 200 } }),
-    createSubsectionHeading("Monthly Revenue Detail"),
+    createSubsectionHeading("Monthly Revenue Trend"),
     createDataTable(
       ["Month", "Revenue Collected"],
       data.monthlyTrends.slice(-6).map(item => [
@@ -664,34 +441,11 @@ export const exportReportToDocx = async (data: ReportData) => {
     ),
   ];
 
-  // Trends & Forecasting Section - with charts
+  // Trends & Forecasting Section
   const trendsSection = [
     createSectionHeading("6. Trends & Forecasting"),
     createDescriptionPlaceholder("Historical trends and forecasting analysis for strategic planning"),
-    
-    // Applications vs Approvals - BAR CHART
-    ...createHorizontalBarChart(
-      "📊 Monthly Applications Volume",
-      data.monthlyTrends.slice(-6).map(item => ({
-        label: item.month,
-        value: item.applications,
-        color: "2196F3",
-      }))
-    ),
-    
-    new Paragraph({ spacing: { before: 200 } }),
-    
-    ...createHorizontalBarChart(
-      "✅ Monthly Approvals Volume",
-      data.monthlyTrends.slice(-6).map(item => ({
-        label: item.month,
-        value: item.approvals,
-        color: "4CAF50",
-      }))
-    ),
-    
-    new Paragraph({ spacing: { before: 300 } }),
-    createSubsectionHeading("Monthly Application & Approval Details"),
+    createSubsectionHeading("Monthly Application & Approval Trends"),
     createDataTable(
       ["Month", "Applications", "Approvals", "Revenue"],
       data.monthlyTrends.slice(-6).map(item => [
@@ -707,10 +461,9 @@ export const exportReportToDocx = async (data: ReportData) => {
       spacing: { before: 100, after: 100 },
       children: [
         new TextRun({
-          text: "✅ Positive Indicators:",
+          text: "Positive Indicators:",
           bold: true,
           size: 22,
-          color: "1B5E20",
         }),
       ],
     }),
@@ -745,10 +498,9 @@ export const exportReportToDocx = async (data: ReportData) => {
       spacing: { before: 200, after: 100 },
       children: [
         new TextRun({
-          text: "⚠️ Areas Requiring Attention:",
+          text: "Areas Requiring Attention:",
           bold: true,
           size: 22,
-          color: "FF6F00",
         }),
       ],
     }),
