@@ -1,0 +1,13 @@
+project_id = "mkjugoonmpxsofbasjux"
+
+[functions.convertToGeoJSON]
+verify_jwt = false
+
+[functions.create-checkout-session]
+verify_jwt = false
+
+[functions.create-user]
+verify_jwt = false
+
+[functions.stripe-webhook]
+verify_jwt = false
