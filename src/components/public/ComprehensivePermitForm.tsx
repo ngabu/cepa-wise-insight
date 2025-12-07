@@ -722,7 +722,7 @@ export function ComprehensivePermitForm({ permitId, onSuccess, onCancel, isStand
     project: <ProjectAndSpecificDetailsTab formData={formData} handleInputChange={handleInputChange} hasLinkedIntent={hasLinkedIntent} />,
     location: <LocationTab formData={formData} handleInputChange={handleInputChange} hasLinkedIntent={hasLinkedIntent} />,
     consultation: <PublicConsultationStep data={formData} onChange={(updates) => setFormData(prev => ({ ...prev, ...updates }))} hasLinkedIntent={hasLinkedIntent} />,
-    documents: <DocumentsTab formData={formData} handleInputChange={handleInputChange} handleFileUpload={handleFileUpload} removeFile={removeFile} formatFileSize={formatFileSize} permitId={permitId || lastSavedDraftId} />,
+    documents: <DocumentsTab formData={formData} handleInputChange={handleInputChange} handleFileUpload={handleFileUpload} removeFile={removeFile} formatFileSize={formatFileSize} permitId={permitId || lastSavedDraftId} activityLevel={formData.activity_level} />,
     fees: (
       <ApplicationFeeStep 
         data={formData} 
