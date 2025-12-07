@@ -1473,56 +1473,6 @@ export type Database = {
         }
         Relationships: []
       }
-      initial_assessments: {
-        Row: {
-          assessed_by: string
-          assessment_date: string
-          assessment_notes: string
-          assessment_outcome: string
-          assessment_status: string
-          created_at: string
-          feedback_provided: string | null
-          id: string
-          permit_activity_type: string | null
-          permit_application_id: string
-          updated_at: string
-        }
-        Insert: {
-          assessed_by: string
-          assessment_date?: string
-          assessment_notes: string
-          assessment_outcome: string
-          assessment_status?: string
-          created_at?: string
-          feedback_provided?: string | null
-          id?: string
-          permit_activity_type?: string | null
-          permit_application_id: string
-          updated_at?: string
-        }
-        Update: {
-          assessed_by?: string
-          assessment_date?: string
-          assessment_notes?: string
-          assessment_outcome?: string
-          assessment_status?: string
-          created_at?: string
-          feedback_provided?: string | null
-          id?: string
-          permit_activity_type?: string | null
-          permit_application_id?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "initial_assessments_permit_application_id_fkey"
-            columns: ["permit_application_id"]
-            isOneToOne: false
-            referencedRelation: "permit_applications"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       inspections: {
         Row: {
           accommodation_cost: number | null
@@ -1751,6 +1701,7 @@ export type Database = {
           created_at: string
           departments_approached: string | null
           district: string | null
+          docusign_envelope_id: string | null
           entity_id: string
           estimated_cost_kina: number | null
           existing_permit_id: string | null
@@ -1781,6 +1732,7 @@ export type Database = {
           review_notes: string | null
           reviewed_at: string | null
           reviewed_by: string | null
+          signed_document_path: string | null
           site_ownership_details: string | null
           status: string
           total_area_sqkm: number | null
@@ -1804,6 +1756,7 @@ export type Database = {
           created_at?: string
           departments_approached?: string | null
           district?: string | null
+          docusign_envelope_id?: string | null
           entity_id: string
           estimated_cost_kina?: number | null
           existing_permit_id?: string | null
@@ -1834,6 +1787,7 @@ export type Database = {
           review_notes?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
+          signed_document_path?: string | null
           site_ownership_details?: string | null
           status?: string
           total_area_sqkm?: number | null
@@ -1857,6 +1811,7 @@ export type Database = {
           created_at?: string
           departments_approached?: string | null
           district?: string | null
+          docusign_envelope_id?: string | null
           entity_id?: string
           estimated_cost_kina?: number | null
           existing_permit_id?: string | null
@@ -1887,6 +1842,7 @@ export type Database = {
           review_notes?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
+          signed_document_path?: string | null
           site_ownership_details?: string | null
           status?: string
           total_area_sqkm?: number | null
@@ -2508,71 +2464,6 @@ export type Database = {
           },
         ]
       }
-      permit_assessments: {
-        Row: {
-          additional_requirements: Json | null
-          assessed_by: string
-          assessment_date: string
-          assessment_notes: string
-          assessment_status: string
-          created_at: string
-          eia_due_date: string | null
-          feedback_provided: string | null
-          forwarded_to_compliance: boolean
-          id: string
-          permit_application_id: string
-          recommendations: string | null
-          requires_eia: boolean
-          requires_workplan: boolean
-          updated_at: string
-          workplan_due_date: string | null
-        }
-        Insert: {
-          additional_requirements?: Json | null
-          assessed_by: string
-          assessment_date?: string
-          assessment_notes?: string
-          assessment_status?: string
-          created_at?: string
-          eia_due_date?: string | null
-          feedback_provided?: string | null
-          forwarded_to_compliance?: boolean
-          id?: string
-          permit_application_id: string
-          recommendations?: string | null
-          requires_eia?: boolean
-          requires_workplan?: boolean
-          updated_at?: string
-          workplan_due_date?: string | null
-        }
-        Update: {
-          additional_requirements?: Json | null
-          assessed_by?: string
-          assessment_date?: string
-          assessment_notes?: string
-          assessment_status?: string
-          created_at?: string
-          eia_due_date?: string | null
-          feedback_provided?: string | null
-          forwarded_to_compliance?: boolean
-          id?: string
-          permit_application_id?: string
-          recommendations?: string | null
-          requires_eia?: boolean
-          requires_workplan?: boolean
-          updated_at?: string
-          workplan_due_date?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "permit_assessments_permit_application_id_fkey"
-            columns: ["permit_application_id"]
-            isOneToOne: false
-            referencedRelation: "permit_applications"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       permit_type_fields: {
         Row: {
           created_at: string
@@ -2864,13 +2755,6 @@ export type Database = {
           previous_status?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "registry_audit_trail_assessment_id_fkey"
-            columns: ["assessment_id"]
-            isOneToOne: false
-            referencedRelation: "initial_assessments"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "registry_audit_trail_permit_application_id_fkey"
             columns: ["permit_application_id"]

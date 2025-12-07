@@ -1796,11 +1796,20 @@ export function PermitApplicationsMap({
       return;
     }
 
-    // Non read-only mode - use draw control
-    if (!draw.current) return;
+    // Non read-only mode - handle boundary display with or without draw control
+    // First, remove existing edit-mode boundary layers if they exist
+    if (map.current.getLayer('edit-boundary-fill')) {
+      map.current.removeLayer('edit-boundary-fill');
+    }
+    if (map.current.getLayer('edit-boundary-outline')) {
+      map.current.removeLayer('edit-boundary-outline');
+    }
+    if (map.current.getSource('edit-boundary')) {
+      map.current.removeSource('edit-boundary');
+    }
 
-    // Clear previous boundary when existingBoundary changes or is null
-    if (uploadedAOIFeatureId) {
+    // Clear previous boundary from draw control when existingBoundary changes or is null
+    if (draw.current && uploadedAOIFeatureId) {
       try {
         draw.current.delete(uploadedAOIFeatureId);
       } catch (error) {
@@ -1823,27 +1832,66 @@ export function PermitApplicationsMap({
       setUploadedAOI(existingBoundary);
       setUploadedAOIFeatureId(featureId);
       
-      const feature = {
-        type: 'Feature',
-        id: featureId,
-        properties: {},
-        geometry: existingBoundary
-      };
-      
-      // Add the boundary to the map
-      draw.current.add(feature);
+      // Add a visible GeoJSON layer for the boundary (similar to read-only mode)
+      // This ensures the boundary is always visible regardless of draw control state
+      map.current.addSource('edit-boundary', {
+        type: 'geojson',
+        data: {
+          type: 'Feature',
+          properties: {},
+          geometry: existingBoundary
+        }
+      });
+
+      // Add fill layer with visible red color
+      map.current.addLayer({
+        id: 'edit-boundary-fill',
+        type: 'fill',
+        source: 'edit-boundary',
+        paint: {
+          'fill-color': '#ef4444',
+          'fill-opacity': 0.2
+        }
+      });
+
+      // Add outline layer with solid red line
+      map.current.addLayer({
+        id: 'edit-boundary-outline',
+        type: 'line',
+        source: 'edit-boundary',
+        paint: {
+          'line-color': '#dc2626',
+          'line-width': 3
+        }
+      });
+
+      // Also add to draw control if available for editing capability
+      if (draw.current) {
+        const feature = {
+          type: 'Feature',
+          id: featureId,
+          properties: {},
+          geometry: existingBoundary
+        };
+        draw.current.add(feature);
+      }
       
       // Zoom to boundary
-      if (existingBoundary.type === 'Polygon') {
+      if (existingBoundary.type === 'Polygon' && existingBoundary.coordinates?.[0]) {
         const bounds = new mapboxgl.LngLatBounds();
         existingBoundary.coordinates[0].forEach((coord: [number, number]) => {
           bounds.extend(coord);
         });
         map.current.fitBounds(bounds, { padding: 80, duration: 1000, maxZoom: 17 });
         
+        // Add a center marker
+        const center = bounds.getCenter();
+        new mapboxgl.Marker({ color: '#dc2626', scale: 1.0 })
+          .setLngLat([center.lng, center.lat])
+          .addTo(map.current);
+        
         // Place marker at center if marker exists
         if (marker.current && onCoordinatesChange) {
-          const center = bounds.getCenter();
           marker.current.setLngLat([center.lng, center.lat]);
           onCoordinatesChange({
             lat: parseFloat(center.lat.toFixed(6)),
@@ -2110,39 +2158,26 @@ export function PermitApplicationsMap({
         </div>
       </CardHeader>
       <CardContent className="relative space-y-4">
-        {/* Drawing Tool Info and File Upload - Hidden when hideDrawingTools is true or readOnly */}
+        {/* File Upload - Hidden when hideDrawingTools is true or readOnly */}
         {!hideDrawingTools && !readOnly && (
-          <div className="grid md:grid-cols-2 gap-4">
-            <div className="p-3 bg-primary/5 rounded-lg border border-primary/20">
-              <div className="flex items-start gap-2 text-sm">
-                <Edit3 className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                <div className="flex-1">
-                  <span className="font-medium block mb-1">AOI Drawing Tool</span>
-                  <p className="text-xs text-muted-foreground">
-                    Use the polygon tool (top-left of map) to draw your project boundary directly on the map. Click points to create a polygon shape, and double-click or connect back to the starting point to complete.
-                  </p>
+          <div className="p-3 sm:p-4 bg-primary/5 rounded-lg border border-primary/20">
+            <div className="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4">
+              <Upload className="w-5 h-5 text-primary flex-shrink-0 hidden sm:block" />
+              <div className="flex-1 space-y-2">
+                <div className="flex items-center gap-2 sm:block">
+                  <Upload className="w-4 h-4 text-primary sm:hidden" />
+                  <span className="font-medium text-sm sm:text-base">Upload AOI Files</span>
                 </div>
-              </div>
-            </div>
-            
-            <div className="p-3 bg-primary/5 rounded-lg border border-primary/20">
-              <div className="flex items-start gap-2 text-sm">
-                <Upload className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                <div className="flex-1">
-                  <span className="font-medium block mb-1">Upload AOI Files</span>
-                  <p className="text-xs text-muted-foreground mb-2">
-                    Or upload existing geographic files (KML, KMZ, GeoJSON, GPX, CSV, or ZIP containing these formats).
-                  </p>
-                  <div>
-                    <Input
-                      ref={fileInputRef}
-                      type="file"
-                      accept=".kml,.kmz,.json,.geojson,.zip,.gpx,.csv"
-                      onChange={handleFileUpload}
-                      className="h-8 text-xs cursor-pointer"
-                    />
-                  </div>
-                </div>
+                <p className="text-xs sm:text-sm text-muted-foreground">
+                  Upload existing geographic files (KML, KMZ, GeoJSON, GPX, CSV, or ZIP containing these formats).
+                </p>
+                <Input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".kml,.kmz,.json,.geojson,.zip,.gpx,.csv"
+                  onChange={handleFileUpload}
+                  className="h-9 sm:h-10 text-xs sm:text-sm cursor-pointer w-full"
+                />
               </div>
             </div>
           </div>

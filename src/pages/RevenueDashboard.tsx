@@ -11,6 +11,9 @@ import RevenueAnalyticsReports from '@/components/revenue/RevenueAnalyticsReport
 import { RevenueKPIs } from '@/components/revenue/RevenueKPIs';
 import { RevenueEntitiesList } from '@/components/revenue/RevenueEntitiesList';
 import { RevenuePermitsList } from '@/components/revenue/RevenuePermitsList';
+import { RevenueIntentRegistrationsList } from '@/components/revenue/RevenueIntentRegistrationsList';
+import { ProfileSettings } from '@/components/public/ProfileSettings';
+import { AppSettings } from '@/components/public/AppSettings';
 import { useAuth } from '@/contexts/AuthContext';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { RevenueSidebar } from '@/components/revenue/RevenueSidebar';
@@ -48,6 +51,10 @@ export default function RevenueDashboard() {
                 <TabsContent value="dashboard" className="space-y-6">
                   <RevenueKPIs />
                   <RevenueOfficerOperations />
+                </TabsContent>
+
+                <TabsContent value="listings-intents" className="space-y-6">
+                  <RevenueIntentRegistrationsList />
                 </TabsContent>
 
                 <TabsContent value="listings-entities" className="space-y-6">
@@ -90,19 +97,11 @@ export default function RevenueDashboard() {
                 </TabsContent>
 
                 <TabsContent value="profile" className="space-y-6">
-                  <div className="text-center p-12 bg-muted/50 rounded-lg">
-                    <User className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                    <h2 className="text-2xl font-bold mb-2">Profile Settings</h2>
-                    <p className="text-muted-foreground">Profile content will be added here</p>
-                  </div>
+                  <ProfileSettings readOnly />
                 </TabsContent>
 
                 <TabsContent value="app-settings" className="space-y-6">
-                  <div className="text-center p-12 bg-muted/50 rounded-lg">
-                    <Settings className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                    <h2 className="text-2xl font-bold mb-2">Application Settings</h2>
-                    <p className="text-muted-foreground">Settings content will be added here</p>
-                  </div>
+                  <AppSettings />
                 </TabsContent>
               </Tabs>
             </div>

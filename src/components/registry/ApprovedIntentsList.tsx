@@ -48,10 +48,18 @@ interface IntentRegistration {
   latitude: number | null;
   longitude: number | null;
   total_area_sqkm: number | null;
+  signed_document_path?: string | null;
+  docusign_envelope_id?: string | null;
   entity?: {
     id: string;
     name: string;
     entity_type: string;
+  };
+  reviewer?: {
+    id: string;
+    first_name: string | null;
+    last_name: string | null;
+    email: string;
   };
 }
 
@@ -349,6 +357,7 @@ export function ApprovedIntentsList() {
 
                               <TabsContent value="mapping" className="mt-4">
                                 <PermitApplicationsMap 
+                                  key={`map-${intent.id}`}
                                   showAllApplications={false} 
                                   existingBoundary={intent.project_boundary} 
                                   onBoundarySave={() => {}} 
