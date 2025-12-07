@@ -341,7 +341,7 @@ const RegistryDashboard = () => {
             {activeTab === 'notifications' && <UnitNotificationsPanel unit="registry" />}
             {activeTab === 'reports' && <RegistryReports />}
             {activeTab === 'team' && isManager && <TeamManagement />}
-            {activeTab === 'profile' && <ProfileSettings />}
+            {activeTab === 'profile' && <ProfileSettings readOnly />}
             {activeTab === 'settings' && <AppSettings />}
           </main>
         </div>
