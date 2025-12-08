@@ -509,27 +509,27 @@ export function ExecutiveAnalyticsDashboard() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* Header with Executive Branding */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      <div className="flex flex-col gap-4">
         <div>
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary-glow flex items-center justify-center shadow-glow">
-              <BarChart3 className="w-6 h-6 text-white" />
+          <div className="flex items-start sm:items-center gap-3 mb-2">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-primary to-primary-glow flex items-center justify-center shadow-glow shrink-0">
+              <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </div>
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">Reports and Analytics</h1>
-              <p className="text-muted-foreground">Executive Intelligence Dashboard for Strategic Decision Making</p>
+            <div className="min-w-0">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">Reports and Analytics</h1>
+              <p className="text-sm sm:text-base text-muted-foreground">Executive Intelligence Dashboard</p>
             </div>
           </div>
-          <Badge variant="outline" className="mt-2">
+          <Badge variant="outline" className="mt-2 text-xs">
             <Calendar className="w-3 h-3 mr-1" />
             Data as of {format(new Date(), 'dd MMMM yyyy, HH:mm')}
           </Badge>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <Select value={dateRange} onValueChange={setDateRange}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-[140px] sm:w-[180px]">
               <SelectValue placeholder="Select period" />
             </SelectTrigger>
             <SelectContent>
@@ -539,23 +539,33 @@ export function ExecutiveAnalyticsDashboard() {
               <SelectItem value="all-time">All Time</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline" size="sm" onClick={handlePrint}>
+          <Button variant="outline" size="sm" onClick={handlePrint} className="hidden sm:flex">
             <Printer className="w-4 h-4 mr-2" />
             Print
           </Button>
-          <Button size="sm" onClick={handleExportDocx} disabled={isExporting}>
+          <Button variant="outline" size="icon" onClick={handlePrint} className="sm:hidden">
+            <Printer className="w-4 h-4" />
+          </Button>
+          <Button size="sm" onClick={handleExportDocx} disabled={isExporting} className="hidden sm:flex">
             {isExporting ? (
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
             ) : (
               <Download className="w-4 h-4 mr-2" />
             )}
-            {isExporting ? 'Exporting...' : 'Export for Briefing'}
+            {isExporting ? 'Exporting...' : 'Export'}
+          </Button>
+          <Button size="icon" onClick={handleExportDocx} disabled={isExporting} className="sm:hidden">
+            {isExporting ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Download className="w-4 h-4" />
+            )}
           </Button>
         </div>
       </div>
 
       {/* Executive Summary Cards - Top Level KPIs */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-4">
         <Card className="col-span-1 bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-950/30 dark:to-emerald-900/20 border-emerald-200 dark:border-emerald-800">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
@@ -741,12 +751,27 @@ export function ExecutiveAnalyticsDashboard() {
 
       {/* Detailed Analytics Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="executive-summary">Executive Overview</TabsTrigger>
-          <TabsTrigger value="geographic">Geographic Analysis</TabsTrigger>
-          <TabsTrigger value="compliance">Compliance & Enforcement</TabsTrigger>
-          <TabsTrigger value="financial">Financial Performance</TabsTrigger>
-          <TabsTrigger value="trends">Trends & Forecasting</TabsTrigger>
+        <TabsList className="flex flex-wrap h-auto gap-1 p-1 w-full justify-start">
+          <TabsTrigger value="executive-summary" className="text-xs sm:text-sm px-2 sm:px-3 py-1.5">
+            <span className="hidden sm:inline">Executive Overview</span>
+            <span className="sm:hidden">Overview</span>
+          </TabsTrigger>
+          <TabsTrigger value="geographic" className="text-xs sm:text-sm px-2 sm:px-3 py-1.5">
+            <span className="hidden sm:inline">Geographic Analysis</span>
+            <span className="sm:hidden">Geographic</span>
+          </TabsTrigger>
+          <TabsTrigger value="compliance" className="text-xs sm:text-sm px-2 sm:px-3 py-1.5">
+            <span className="hidden sm:inline">Compliance & Enforcement</span>
+            <span className="sm:hidden">Compliance</span>
+          </TabsTrigger>
+          <TabsTrigger value="financial" className="text-xs sm:text-sm px-2 sm:px-3 py-1.5">
+            <span className="hidden sm:inline">Financial Performance</span>
+            <span className="sm:hidden">Financial</span>
+          </TabsTrigger>
+          <TabsTrigger value="trends" className="text-xs sm:text-sm px-2 sm:px-3 py-1.5">
+            <span className="hidden sm:inline">Trends & Forecasting</span>
+            <span className="sm:hidden">Trends</span>
+          </TabsTrigger>
         </TabsList>
 
         {/* Executive Summary Tab */}
