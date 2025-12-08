@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Activity, AlertTriangle, BarChart3, Settings, CreditCard, User } from 'lucide-react';
-import { PaymentProcessing } from '@/components/revenue/PaymentProcessing';
+import { PaymentVerification } from '@/components/revenue/PaymentVerification';
 import { InvoiceManagement } from '@/components/revenue/InvoiceManagement';
 import { OutstandingPaymentsManagement } from '@/components/revenue/OutstandingPaymentsManagement';
 import { RevenueOfficerOperations } from '@/components/revenue/RevenueOfficerOperations';
@@ -69,13 +69,13 @@ export default function RevenueDashboard() {
                   <Tabs defaultValue="invoices" className="space-y-4">
                     <TabsList>
                       <TabsTrigger value="invoices">Invoice Management</TabsTrigger>
-                      <TabsTrigger value="payments">Payment Processing</TabsTrigger>
+                      <TabsTrigger value="verification">Payment Verification</TabsTrigger>
                     </TabsList>
                     <TabsContent value="invoices">
                       <InvoiceManagement />
                     </TabsContent>
-                    <TabsContent value="payments">
-                      <PaymentProcessing />
+                    <TabsContent value="verification">
+                      <PaymentVerification />
                     </TabsContent>
                   </Tabs>
                 </TabsContent>
