@@ -132,7 +132,7 @@ export const ApplicationGuide = () => {
             </li>
             <li className="flex items-start gap-2">
               <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 shrink-0" />
-              <span>Allow sufficient time for each file to upload before attaching another. Files can be up to 25MB each.</span>
+              <span>Allow sufficient time for each file to upload before attaching another.</span>
             </li>
             <li className="flex items-start gap-2">
               <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 shrink-0" />
