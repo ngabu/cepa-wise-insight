@@ -294,7 +294,7 @@ export function InvoiceManagement() {
                   </TableHeader>
                   <TableBody>
                     {filteredInvoices.map((invoice) => {
-                      const canSuspend = !invoice.source_dashboard || invoice.source_dashboard === 'revenue';
+                      const canSuspend = invoice.source_dashboard === 'revenue';
                       const isNotSuspended = invoice.status !== 'suspended';
                       
                       return (
@@ -606,8 +606,6 @@ export function InvoiceManagement() {
                 setViewDialogOpen(false);
                 setSelectedInvoice(null);
               }}
-              onSuspend={() => handleSuspendInvoice(selectedInvoice)}
-              isSuspending={suspendingInvoiceId === selectedInvoice.id}
             />
           )}
         </DialogContent>

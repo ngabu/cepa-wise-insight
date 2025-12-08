@@ -1,8 +1,8 @@
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Download, Printer, Ban, Loader2, AlertCircle } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { ArrowLeft, Download, Printer } from 'lucide-react';
+
 import { format } from 'date-fns';
 import emblem from '@/assets/png-emblem.png';
 import { Invoice } from './types';
@@ -24,15 +24,11 @@ interface RevenueInvoiceDetailViewProps {
     invoice_type?: string;
   };
   onBack: () => void;
-  onSuspend?: () => void;
-  isSuspending?: boolean;
 }
 
 export function RevenueInvoiceDetailView({ 
   invoice, 
-  onBack, 
-  onSuspend,
-  isSuspending = false 
+  onBack
 }: RevenueInvoiceDetailViewProps) {
   
   const handlePrint = () => {
@@ -43,9 +39,6 @@ export function RevenueInvoiceDetailView({
     console.log('Download invoice');
   };
 
-  const canSuspend = !invoice.source_dashboard || invoice.source_dashboard === 'revenue';
-  const isNotSuspended = invoice.status !== 'suspended';
-  const isNotPaid = invoice.status !== 'paid';
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -90,35 +83,8 @@ export function RevenueInvoiceDetailView({
             <Printer className="w-4 h-4 mr-2" />
             Print
           </Button>
-          {canSuspend && isNotSuspended && isNotPaid && onSuspend && (
-            <Button 
-              variant="outline"
-              className="text-orange-600 hover:text-orange-700 hover:bg-orange-50 border-orange-300"
-              onClick={onSuspend}
-              disabled={isSuspending}
-            >
-              {isSuspending ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              ) : (
-                <Ban className="w-4 h-4 mr-2" />
-              )}
-              {isSuspending ? 'Suspending...' : 'Suspend Invoice'}
-            </Button>
-          )}
         </div>
       </div>
-
-      {/* External Invoice Warning */}
-      {!canSuspend && (
-        <Alert variant="destructive" className="print:hidden">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>External Invoice</AlertTitle>
-          <AlertDescription>
-            This invoice was created on the <strong className="capitalize">{invoice.source_dashboard}</strong> dashboard. 
-            To suspend this invoice, please go to the {invoice.source_dashboard} dashboard.
-          </AlertDescription>
-        </Alert>
-      )}
 
       {/* Invoice Document */}
       <Card className="p-8 bg-white">
@@ -391,6 +357,24 @@ export function RevenueInvoiceDetailView({
             {invoice.assigned_officer.full_name || 'N/A'} ({invoice.assigned_officer.email})
           </div>
         )}
+
+        {/* Contact Information */}
+        <div className="mb-8 p-4 border border-border bg-muted/30">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+            <div>
+              <span className="font-semibold text-muted-foreground">Contact:</span>
+              <p className="text-foreground">Kavau Diagoro, Manager Revenue</p>
+            </div>
+            <div>
+              <span className="font-semibold text-muted-foreground">Telephone:</span>
+              <p className="text-foreground">(675) 3014665/3014614</p>
+            </div>
+            <div>
+              <span className="font-semibold text-muted-foreground">Email:</span>
+              <p className="text-foreground">revenuemanager@cepa.gov.pg</p>
+            </div>
+          </div>
+        </div>
 
         {/* Page Number */}
         <div className="text-right text-sm text-muted-foreground">
