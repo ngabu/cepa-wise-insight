@@ -17,7 +17,6 @@ import { AppSettings } from '@/components/public/AppSettings';
 import { ComprehensivePermitForm } from '@/components/public/ComprehensivePermitForm';
 import PermitAmalgamation from '@/pages/permit-management/PermitAmalgamation';
 import PermitAmendment from '@/pages/permit-management/PermitAmendment';
-import PermitCompliance from '@/pages/permit-management/PermitCompliance';
 import PermitRenewal from '@/pages/permit-management/PermitRenewal';
 import PermitSurrender from '@/pages/permit-management/PermitSurrender';
 import PermitTransfer from '@/pages/permit-management/PermitTransfer';
@@ -151,11 +150,6 @@ export default function PublicDashboard() {
             {activeTab === 'permit-amendment' && (
               <div className="max-w-7xl mx-auto">
                 <PermitAmendment />
-              </div>
-            )}
-            {activeTab === 'permit-compliance' && (
-              <div className="max-w-7xl mx-auto">
-                <PermitCompliance />
               </div>
             )}
             {activeTab === 'permit-renewal' && (

@@ -79,7 +79,6 @@ const publicNavigationItems: PublicNavigationItem[] = [
     subItems: [
       { title: "Permit Amalgamation", value: "permit-amalgamation", icon: Merge },
       { title: "Permit Amendment", value: "permit-amendment", icon: Edit },
-      { title: "Permit Compliance", value: "permit-compliance", icon: Shield },
       { title: "Permit Renewal", value: "permit-renewal", icon: RefreshCw },
       { title: "Permit Surrender", value: "permit-surrender", icon: UserX },
       { title: "Permit Transfer", value: "permit-transfer", icon: ArrowRightLeft },
