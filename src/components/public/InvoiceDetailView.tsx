@@ -163,52 +163,56 @@ export function InvoiceDetailView({ invoice, onBack, onPayment }: InvoiceDetailP
 
       {/* Invoice Document */}
       <Card className="p-8 bg-white">
-        {/* Header with Emblem and Authority Info */}
-        <div className="flex justify-between items-start mb-8">
-          <div className="flex items-start gap-4">
-            <img src={emblem} alt="CEPA Emblem" className="w-24 h-24 object-contain" />
-            <div>
-              <h1 className="text-lg font-bold text-foreground">
-                Conservation & Environment Protection Authority
-              </h1>
-              <div className="text-sm text-muted-foreground mt-2 space-y-1">
-                <p>Tower 1, Dynasty Twin Tower</p>
-                <p>Savannah Heights, Waigani</p>
-                <p>P.O. Box 6601/BOROKO, NCD</p>
-                <p>Papua New Guinea</p>
-              </div>
+        {/* Header - Emblem Left, CEPA Info Middle, Invoice Details Right */}
+        <div className="flex justify-between items-start mb-6 pb-4 border-b border-border">
+          {/* Left - Emblem */}
+          <div className="flex-shrink-0">
+            <img src={emblem} alt="CEPA Emblem" className="w-20 h-20 object-contain" />
+          </div>
+          
+          {/* Middle - Authority Info */}
+          <div className="flex-1 px-6">
+            <h1 className="text-lg font-bold text-foreground">
+              Conservation & Environment Protection Authority
+            </h1>
+            <div className="text-sm text-muted-foreground mt-2 space-y-0.5">
+              <p>Tower 1, Dynasty Twin Tower</p>
+              <p>Savannah Heights, Waigani</p>
+              <p>P.O. Box 6601/BOROKO, NCD</p>
+              <p>Papua New Guinea</p>
             </div>
           </div>
           
-          <div className="text-right space-y-2">
+          {/* Right - Invoice Details */}
+          <div className="text-right">
             <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
-              <span className="font-semibold text-muted-foreground">Invoice:</span>
+              <span className="font-semibold text-muted-foreground text-right">Invoice:</span>
               <span className="text-red-600 font-semibold">{invoice.invoice_number}</span>
               
-              <span className="font-semibold text-muted-foreground">Date:</span>
+              <span className="font-semibold text-muted-foreground text-right">Date:</span>
               <span className="font-semibold">{invoice.date}</span>
               
-              <span className="font-semibold text-muted-foreground">Your Ref:</span>
+              <span className="font-semibold text-muted-foreground text-right">Your Ref:</span>
               <span className="font-semibold">{invoice.yourRef}</span>
               
-              <span className="font-semibold text-muted-foreground">Contact:</span>
+              <span className="font-semibold text-muted-foreground text-right">Contact:</span>
               <span className="font-semibold">{invoice.contact}</span>
               
-              <span className="font-semibold text-muted-foreground">Telephone:</span>
+              <span className="font-semibold text-muted-foreground text-right">Telephone:</span>
               <span className="font-semibold">{invoice.telephone}</span>
               
-              <span className="font-semibold text-muted-foreground">Email:</span>
-              <span className="font-semibold text-primary">{invoice.email}</span>
+              <span className="font-semibold text-muted-foreground text-right">Email:</span>
+              <span className="font-semibold text-green-600">{invoice.email}</span>
             </div>
           </div>
         </div>
 
         {/* Client Information */}
-        <div className="mb-8 p-4 border border-border">
+        <div className="mb-6 p-4 border border-border">
           <div className="font-semibold text-foreground mb-2">Client:</div>
-          <div className="text-sm text-muted-foreground">
+          <div className="text-sm">
             <p className="font-semibold text-foreground">{invoice.client}</p>
-            <p>{invoice.clientAddress}</p>
+            <p className="text-muted-foreground">{invoice.clientAddress}</p>
           </div>
         </div>
 

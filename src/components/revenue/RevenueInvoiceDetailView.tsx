@@ -39,19 +39,6 @@ export function RevenueInvoiceDetailView({
     console.log('Download invoice');
   };
 
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'paid': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
-      case 'draft': return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
-      case 'sent': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
-      case 'overdue': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
-      case 'cancelled': return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
-      case 'suspended': return 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200';
-      default: return 'bg-muted text-muted-foreground';
-    }
-  };
-
   // Calculate invoice items based on type
   const invoiceItems = [
     {
@@ -88,54 +75,52 @@ export function RevenueInvoiceDetailView({
 
       {/* Invoice Document */}
       <Card className="p-8 bg-white">
-        {/* Header with Emblem and Authority Info */}
-        <div className="flex justify-between items-start mb-8">
-          <div className="flex items-start gap-4">
-            <img src={emblem} alt="CEPA Emblem" className="w-24 h-24 object-contain" />
-            <div>
-              <h1 className="text-lg font-bold text-foreground">
-                Conservation & Environment Protection Authority
-              </h1>
-              <div className="text-sm text-muted-foreground mt-2 space-y-1">
-                <p>Tower 1, Dynasty Twin Tower</p>
-                <p>Savannah Heights, Waigani</p>
-                <p>P.O. Box 6601/BOROKO, NCD</p>
-                <p>Papua New Guinea</p>
-              </div>
+        {/* Header - Emblem Left, CEPA Info Middle, Invoice Details Right */}
+        <div className="flex justify-between items-start mb-6 pb-4 border-b border-border">
+          {/* Left - Emblem */}
+          <div className="flex-shrink-0">
+            <img src={emblem} alt="CEPA Emblem" className="w-20 h-20 object-contain" />
+          </div>
+          
+          {/* Middle - Authority Info */}
+          <div className="flex-1 px-6">
+            <h1 className="text-lg font-bold text-foreground">
+              Conservation & Environment Protection Authority
+            </h1>
+            <div className="text-sm text-muted-foreground mt-2 space-y-0.5">
+              <p>Tower 1, Dynasty Twin Tower</p>
+              <p>Savannah Heights, Waigani</p>
+              <p>P.O. Box 6601/BOROKO, NCD</p>
+              <p>Papua New Guinea</p>
             </div>
           </div>
           
-          <div className="text-right space-y-2">
+          {/* Right - Invoice Details */}
+          <div className="text-right">
             <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
-              <span className="font-semibold text-muted-foreground">Invoice:</span>
+              <span className="font-semibold text-muted-foreground text-right">Invoice:</span>
               <span className="text-red-600 font-semibold">{invoice.invoice_number}</span>
               
-              <span className="font-semibold text-muted-foreground">Date:</span>
-              <span className="font-semibold">{format(new Date(invoice.created_at), 'MMM dd, yyyy')}</span>
+              <span className="font-semibold text-muted-foreground text-right">Date:</span>
+              <span className="font-semibold">{format(new Date(invoice.created_at), 'dd/MM/yyyy')}</span>
               
-              <span className="font-semibold text-muted-foreground">Due Date:</span>
-              <span className="font-semibold">{format(new Date(invoice.due_date), 'MMM dd, yyyy')}</span>
+              <span className="font-semibold text-muted-foreground text-right">Your Ref:</span>
+              <span className="font-semibold"></span>
               
-              <span className="font-semibold text-muted-foreground">Status:</span>
-              <Badge className={getStatusColor(invoice.status)}>
-                {invoice.status}
-              </Badge>
+              <span className="font-semibold text-muted-foreground text-right">Contact:</span>
+              <span className="font-semibold">Kavau Diagoro, Manager Revenue</span>
               
-              <span className="font-semibold text-muted-foreground">Payment:</span>
-              <Badge variant="outline" className="capitalize">
-                {invoice.payment_status?.replace('_', ' ') || 'pending'}
-              </Badge>
+              <span className="font-semibold text-muted-foreground text-right">Telephone:</span>
+              <span className="font-semibold">(675) 3014665/3014614</span>
               
-              <span className="font-semibold text-muted-foreground">Source:</span>
-              <Badge variant="secondary" className="capitalize text-xs">
-                {invoice.source_dashboard || 'revenue'}
-              </Badge>
+              <span className="font-semibold text-muted-foreground text-right">Email:</span>
+              <span className="font-semibold text-green-600">revenuemanager@cepa.gov.pg</span>
             </div>
           </div>
         </div>
 
         {/* Client Information */}
-        <div className="mb-8 p-4 border border-border">
+        <div className="mb-6 p-4 border border-border">
           <div className="font-semibold text-foreground mb-2">Client:</div>
           <div className="text-sm text-muted-foreground">
             <p className="font-semibold text-foreground">{invoice.entity?.name || 'N/A'}</p>
@@ -357,24 +342,6 @@ export function RevenueInvoiceDetailView({
             {invoice.assigned_officer.full_name || 'N/A'} ({invoice.assigned_officer.email})
           </div>
         )}
-
-        {/* Contact Information */}
-        <div className="mb-8 p-4 border border-border bg-muted/30">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-            <div>
-              <span className="font-semibold text-muted-foreground">Contact:</span>
-              <p className="text-foreground">Kavau Diagoro, Manager Revenue</p>
-            </div>
-            <div>
-              <span className="font-semibold text-muted-foreground">Telephone:</span>
-              <p className="text-foreground">(675) 3014665/3014614</p>
-            </div>
-            <div>
-              <span className="font-semibold text-muted-foreground">Email:</span>
-              <p className="text-foreground">revenuemanager@cepa.gov.pg</p>
-            </div>
-          </div>
-        </div>
 
         {/* Page Number */}
         <div className="text-right text-sm text-muted-foreground">
