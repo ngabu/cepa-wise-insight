@@ -58,6 +58,8 @@ const ProjectAndSpecificDetailsTab: React.FC<ProjectAndSpecificDetailsTabProps> 
             onEntityCreate={() => {
               console.log('Entity created successfully');
             }}
+            disabled={hasLinkedIntent}
+            hideAddButton={true}
           />
 
           {/* Existing Permit Selection */}
