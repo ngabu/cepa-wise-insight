@@ -54,19 +54,12 @@ const revenueNavigationItems: RevenueNavigationItem[] = [
   },
   { title: "Collection", value: "collection", icon: CreditCard },
   { title: "Outstanding", value: "outstanding", icon: AlertTriangle },
-  { title: "Analytics and Reporting", value: "analytics-reporting", icon: BarChart3 },
 ]
 
 const managementItems: RevenueNavigationItem[] = [
-  { 
-    title: "Staff Management", 
-    value: "staff-management", 
-    icon: Users,
-    subItems: [
-      { title: "Daily Operations", value: "daily-operations", icon: ClipboardList },
-    ]
-  },
+  { title: "Staff Management", value: "staff-management", icon: Users },
   { title: "Codes Management", value: "settings", icon: Database },
+  { title: "Analytics and Reporting", value: "analytics-reporting", icon: BarChart3 },
   { title: "User Guide", value: "user-guide", icon: BookOpen },
 ]
 
