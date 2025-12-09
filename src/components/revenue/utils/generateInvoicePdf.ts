@@ -153,10 +153,10 @@ export function generateInvoicePdf(invoice: InvoiceData): void {
     ? `${baseDescription} - ${associatedContext}`
     : baseDescription;
 
-  // Invoice Items Table - fit within A4 margins (210mm - 30mm margins = 180mm usable)
+  // Invoice Items Table - use full width between margins
   const usableWidth = pageWidth - 2 * margin; // ~180mm
-  const colWidths = [18, 22, 55, 30, 15, 30]; // Total: 170mm - fits within usable width
-  const tableWidth = colWidths.reduce((a, b) => a + b, 0);
+  const colWidths = [20, 25, 60, 30, 18, 27]; // Total: 180mm - matches usable width
+  const tableWidth = usableWidth;
   const tableStartX = margin;
   const rowHeight = 10;
   
