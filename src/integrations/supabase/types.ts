@@ -1906,6 +1906,7 @@ export type Database = {
       }
       invoices: {
         Row: {
+          accounts_verified: boolean | null
           activity_id: string | null
           amount: number
           assigned_officer_id: string | null
@@ -1925,11 +1926,13 @@ export type Database = {
           item_code: string | null
           item_description: string | null
           paid_date: string | null
+          payment_receipt: string | null
           payment_status: string | null
           permit_id: string | null
           source_dashboard: string | null
           status: string
           stripe_receipt_url: string | null
+          transaction_number: string | null
           updated_at: string
           user_id: string
           verification_notes: string | null
@@ -1938,6 +1941,7 @@ export type Database = {
           verified_by: string | null
         }
         Insert: {
+          accounts_verified?: boolean | null
           activity_id?: string | null
           amount: number
           assigned_officer_id?: string | null
@@ -1957,11 +1961,13 @@ export type Database = {
           item_code?: string | null
           item_description?: string | null
           paid_date?: string | null
+          payment_receipt?: string | null
           payment_status?: string | null
           permit_id?: string | null
           source_dashboard?: string | null
           status?: string
           stripe_receipt_url?: string | null
+          transaction_number?: string | null
           updated_at?: string
           user_id: string
           verification_notes?: string | null
@@ -1970,6 +1976,7 @@ export type Database = {
           verified_by?: string | null
         }
         Update: {
+          accounts_verified?: boolean | null
           activity_id?: string | null
           amount?: number
           assigned_officer_id?: string | null
@@ -1989,11 +1996,13 @@ export type Database = {
           item_code?: string | null
           item_description?: string | null
           paid_date?: string | null
+          payment_receipt?: string | null
           payment_status?: string | null
           permit_id?: string | null
           source_dashboard?: string | null
           status?: string
           stripe_receipt_url?: string | null
+          transaction_number?: string | null
           updated_at?: string
           user_id?: string
           verification_notes?: string | null

@@ -32,6 +32,10 @@ export interface Invoice {
   verification_notes?: string | null;
   cepa_receipt_path?: string | null;
   stripe_receipt_url?: string | null;
+  // New payment verification columns
+  payment_receipt?: string | null;
+  accounts_verified?: boolean | null;
+  transaction_number?: string | null;
   permit?: {
     title: string;
     permit_number: string | null;
