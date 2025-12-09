@@ -54,7 +54,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useMemo } from "react";
-import { format, subMonths, startOfMonth, endOfMonth, startOfYear, endOfYear, subYears } from "date-fns";
+import { format, subDays, subMonths, startOfMonth, endOfMonth, startOfYear, endOfYear, subYears } from "date-fns";
 import { exportReportToDocx } from "@/utils/exportReportToDocx";
 import { toast } from "sonner";
 
@@ -90,6 +90,14 @@ export function ExecutiveAnalyticsDashboard() {
   const dateFilters = useMemo(() => {
     const now = new Date();
     switch (dateRange) {
+      case "weekly":
+        return { start: subDays(now, 7), end: now };
+      case "monthly":
+        return { start: subDays(now, 30), end: now };
+      case "quarterly":
+        return { start: subMonths(now, 3), end: now };
+      case "yearly":
+        return { start: subYears(now, 1), end: now };
       case "mtd":
         return { start: startOfMonth(now), end: now };
       case "ytd":
@@ -747,9 +755,13 @@ export function ExecutiveAnalyticsDashboard() {
               <SelectValue placeholder="Select period" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="weekly">Last 7 Days</SelectItem>
+              <SelectItem value="monthly">Last 30 Days</SelectItem>
+              <SelectItem value="quarterly">Last Quarter</SelectItem>
+              <SelectItem value="yearly">Last Year</SelectItem>
               <SelectItem value="mtd">Month to Date</SelectItem>
               <SelectItem value="ytd">Year to Date</SelectItem>
-              <SelectItem value="last-year">Last Year</SelectItem>
+              <SelectItem value="last-year">Previous Year</SelectItem>
               <SelectItem value="all-time">All Time</SelectItem>
             </SelectContent>
           </Select>

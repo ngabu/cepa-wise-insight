@@ -33,20 +33,24 @@ import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format, differenceInDays } from "date-fns";
+import { useDateFilter, getTrendLabelsForPeriod, getDataBucketIndex, type DateFilterPeriod } from "@/hooks/useDateFilter";
 
 const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#8b5cf6', '#ef4444', '#06b6d4', '#ec4899'];
 
 const ComplianceAnalyticsReportsNew = () => {
   const { toast } = useToast();
-  const [selectedPeriod, setSelectedPeriod] = useState("monthly");
+  const [selectedPeriod, setSelectedPeriod] = useState<DateFilterPeriod>("monthly");
+  const dateRange = useDateFilter(selectedPeriod);
 
   // Fetch compliance assessments
   const { data: assessmentsData, isLoading: assessmentsLoading } = useQuery({
-    queryKey: ['compliance-assessments-analytics-new'],
+    queryKey: ['compliance-assessments-analytics-new', selectedPeriod],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('compliance_assessments')
-        .select('*');
+        .select('*')
+        .gte('created_at', dateRange.start.toISOString())
+        .lte('created_at', dateRange.end.toISOString());
       if (error) throw error;
       return data || [];
     }
@@ -54,11 +58,13 @@ const ComplianceAnalyticsReportsNew = () => {
 
   // Fetch inspections
   const { data: inspectionsData, isLoading: inspectionsLoading } = useQuery({
-    queryKey: ['compliance-inspections-analytics-new'],
+    queryKey: ['compliance-inspections-analytics-new', selectedPeriod],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('inspections')
-        .select('*');
+        .select('*')
+        .gte('created_at', dateRange.start.toISOString())
+        .lte('created_at', dateRange.end.toISOString());
       if (error) throw error;
       return data || [];
     }
@@ -66,11 +72,13 @@ const ComplianceAnalyticsReportsNew = () => {
 
   // Fetch compliance reports
   const { data: reportsData, isLoading: reportsLoading } = useQuery({
-    queryKey: ['compliance-reports-data-new'],
+    queryKey: ['compliance-reports-data-new', selectedPeriod],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('compliance_reports')
-        .select('*');
+        .select('*')
+        .gte('created_at', dateRange.start.toISOString())
+        .lte('created_at', dateRange.end.toISOString());
       if (error) throw error;
       return data || [];
     }
@@ -78,11 +86,13 @@ const ComplianceAnalyticsReportsNew = () => {
 
   // Fetch compliance tasks
   const { data: tasksData, isLoading: tasksLoading } = useQuery({
-    queryKey: ['compliance-tasks-analytics'],
+    queryKey: ['compliance-tasks-analytics', selectedPeriod],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('compliance_tasks')
-        .select('*');
+        .select('*')
+        .gte('created_at', dateRange.start.toISOString())
+        .lte('created_at', dateRange.end.toISOString());
       if (error) throw error;
       return data || [];
     }
@@ -141,38 +151,39 @@ const ComplianceAnalyticsReportsNew = () => {
     };
   }, [tasksData]);
 
-  // Monthly trends
-  const monthlyTrends = useMemo(() => {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const currentMonth = new Date().getMonth();
-    const last6Months = [];
+  // Activity trends based on selected period
+  const activityTrends = useMemo(() => {
+    const labels = getTrendLabelsForPeriod(selectedPeriod, dateRange);
     
-    for (let i = 5; i >= 0; i--) {
-      const monthIndex = (currentMonth - i + 12) % 12;
-      last6Months.push(months[monthIndex]);
-    }
-
-    return last6Months.map((month, idx) => {
-      const targetMonth = (currentMonth - 5 + idx + 12) % 12;
+    return labels.map((label, idx) => {
+      let assessments = 0;
+      let inspections = 0;
+      let reports = 0;
       
-      const assessments = assessmentsData?.filter(a => {
+      assessmentsData?.forEach(a => {
         const date = new Date(a.created_at);
-        return date.getMonth() === targetMonth;
-      }).length || 0;
+        if (getDataBucketIndex(date, selectedPeriod, dateRange) === idx) {
+          assessments++;
+        }
+      });
       
-      const inspections = inspectionsData?.filter(i => {
+      inspectionsData?.forEach(i => {
         const date = new Date(i.scheduled_date);
-        return date.getMonth() === targetMonth;
-      }).length || 0;
-
-      const reports = reportsData?.filter(r => {
+        if (getDataBucketIndex(date, selectedPeriod, dateRange) === idx) {
+          inspections++;
+        }
+      });
+      
+      reportsData?.forEach(r => {
         const date = new Date(r.created_at);
-        return date.getMonth() === targetMonth;
-      }).length || 0;
-
-      return { month, assessments, inspections, reports };
+        if (getDataBucketIndex(date, selectedPeriod, dateRange) === idx) {
+          reports++;
+        }
+      });
+      
+      return { period: label, assessments, inspections, reports };
     });
-  }, [assessmentsData, inspectionsData, reportsData]);
+  }, [assessmentsData, inspectionsData, reportsData, selectedPeriod, dateRange]);
 
   // Assessment status distribution
   const assessmentStatusData = useMemo(() => {
@@ -316,7 +327,7 @@ const ComplianceAnalyticsReportsNew = () => {
               <CardDescription className="text-sm">Environmental compliance monitoring and performance analytics</CardDescription>
             </div>
             <div className="flex flex-col sm:flex-row gap-2">
-              <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
+              <Select value={selectedPeriod} onValueChange={(value) => setSelectedPeriod(value as DateFilterPeriod)}>
                 <SelectTrigger className="w-full sm:w-[160px]">
                   <Calendar className="w-4 h-4 mr-2" />
                   <SelectValue placeholder="Period" />
@@ -326,6 +337,10 @@ const ComplianceAnalyticsReportsNew = () => {
                   <SelectItem value="monthly">Last 30 Days</SelectItem>
                   <SelectItem value="quarterly">Last Quarter</SelectItem>
                   <SelectItem value="yearly">Last Year</SelectItem>
+                  <SelectItem value="mtd">Month to Date</SelectItem>
+                  <SelectItem value="ytd">Year to Date</SelectItem>
+                  <SelectItem value="last-year">Previous Year</SelectItem>
+                  <SelectItem value="all-time">All Time</SelectItem>
                 </SelectContent>
               </Select>
               <Button variant="outline" size="sm">
@@ -428,9 +443,9 @@ const ComplianceAnalyticsReportsNew = () => {
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={250}>
-                  <AreaChart data={monthlyTrends}>
+                  <AreaChart data={activityTrends}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" fontSize={12} />
+                    <XAxis dataKey="period" fontSize={12} />
                     <YAxis fontSize={12} />
                     <Tooltip />
                     <Legend />
