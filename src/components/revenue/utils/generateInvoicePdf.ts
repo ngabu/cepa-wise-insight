@@ -38,7 +38,7 @@ export function generateInvoicePdf(invoice: InvoiceData): void {
 
   const pageWidth = doc.internal.pageSize.getWidth();
   const margin = 15;
-  let yPos = 20;
+  let yPos = 15;
 
   // Helper functions
   const addText = (text: string, x: number, y: number, options?: { fontSize?: number; fontStyle?: 'normal' | 'bold'; color?: [number, number, number]; align?: 'left' | 'center' | 'right' }) => {
@@ -59,65 +59,76 @@ export function generateInvoicePdf(invoice: InvoiceData): void {
     }
   };
 
-  // Header - Authority Name
-  addText('Conservation & Environment Protection Authority', pageWidth / 2, yPos, { 
-    fontSize: 14, 
-    fontStyle: 'bold', 
-    align: 'center' 
-  });
-  yPos += 6;
+  // Load and add PNG Emblem
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.src = '/images/png-emblem.png';
   
-  addText('Tower 1, Dynasty Twin Tower, Savannah Heights, Waigani', pageWidth / 2, yPos, { 
-    fontSize: 9, 
-    align: 'center' 
-  });
-  yPos += 4;
-  addText('P.O. Box 6601/BOROKO, NCD, Papua New Guinea', pageWidth / 2, yPos, { 
-    fontSize: 9, 
-    align: 'center' 
-  });
-  yPos += 10;
+  // Add emblem placeholder position
+  const emblemSize = 22;
+  const emblemX = margin;
+  const emblemY = yPos;
+  
+  // Try to add emblem - it will be added when image loads
+  try {
+    doc.addImage('/images/png-emblem.png', 'PNG', emblemX, emblemY, emblemSize, emblemSize);
+  } catch (e) {
+    // Emblem not available, continue without it
+  }
 
-  // Invoice Title
-  addText('TAX INVOICE', pageWidth / 2, yPos, { 
-    fontSize: 16, 
-    fontStyle: 'bold', 
-    align: 'center' 
+  // Header - Authority Name (positioned after emblem)
+  const headerX = margin + emblemSize + 8;
+  addText('Conservation & Environment', headerX, yPos + 6, { 
+    fontSize: 13, 
+    fontStyle: 'bold'
   });
-  yPos += 12;
+  addText('Protection Authority', headerX, yPos + 12, { 
+    fontSize: 13, 
+    fontStyle: 'bold'
+  });
+  
+  addText('Tower 1, Dynasty Twin Tower', headerX, yPos + 18, { fontSize: 9 });
+  addText('Savannah Heights, Waigani', headerX, yPos + 22, { fontSize: 9 });
+  addText('P.O. Box 6601/BOROKO, NCD', headerX, yPos + 26, { fontSize: 9 });
+  addText('Papua New Guinea', headerX, yPos + 30, { fontSize: 9 });
 
-  // Invoice Details - Right side
-  const rightColX = pageWidth - margin;
-  doc.setFontSize(9);
+  // Invoice Details - Right side (two-column layout: labels and values)
+  const labelX = pageWidth - margin - 70;
+  const valueX = pageWidth - margin;
   
-  addText('Invoice:', rightColX - 50, yPos, { fontSize: 9, fontStyle: 'bold' });
-  addText(invoice.invoice_number, rightColX, yPos, { fontSize: 9, fontStyle: 'bold', color: [200, 0, 0], align: 'right' });
-  yPos += 5;
+  addText('Invoice:', labelX, yPos + 4, { fontSize: 9 });
+  addText(invoice.invoice_number, valueX, yPos + 4, { fontSize: 9, fontStyle: 'bold', color: [200, 0, 0], align: 'right' });
   
-  addText('Date:', rightColX - 50, yPos, { fontSize: 9, fontStyle: 'bold' });
-  addText(format(new Date(invoice.created_at), 'dd/MM/yyyy'), rightColX, yPos, { fontSize: 9, align: 'right' });
-  yPos += 5;
+  addText('Date:', labelX, yPos + 10, { fontSize: 9 });
+  addText(format(new Date(invoice.created_at), 'dd/MM/yyyy'), valueX, yPos + 10, { fontSize: 9, align: 'right' });
   
-  addText('Contact:', rightColX - 50, yPos, { fontSize: 9, fontStyle: 'bold' });
-  addText('Kavau Diagoro, Manager Revenue', rightColX, yPos, { fontSize: 9, align: 'right' });
-  yPos += 5;
+  addText('Your Ref:', labelX, yPos + 16, { fontSize: 9 });
+  addText('', valueX, yPos + 16, { fontSize: 9, align: 'right' });
   
-  addText('Telephone:', rightColX - 50, yPos, { fontSize: 9, fontStyle: 'bold' });
-  addText('(675) 3014665/3014614', rightColX, yPos, { fontSize: 9, align: 'right' });
-  yPos += 5;
+  addText('Contact:', labelX, yPos + 22, { fontSize: 9 });
+  addText('Kavau Diagoro, Manager Revenue', valueX, yPos + 22, { fontSize: 9, align: 'right' });
   
-  addText('Email:', rightColX - 50, yPos, { fontSize: 9, fontStyle: 'bold' });
-  addText('revenuemanager@cepa.gov.pg', rightColX, yPos, { fontSize: 9, color: [0, 128, 0], align: 'right' });
-  yPos += 12;
+  addText('Telephone:', labelX, yPos + 28, { fontSize: 9 });
+  addText('(675) 3014665/3014614', valueX, yPos + 28, { fontSize: 9, align: 'right' });
+  
+  addText('Email:', labelX, yPos + 34, { fontSize: 9 });
+  addText('revenuemanager@cepa.gov.pg', valueX, yPos + 34, { fontSize: 9, color: [0, 128, 0], align: 'right' });
+
+  yPos += 42;
+
+  // Divider line
+  doc.setDrawColor(200, 200, 200);
+  doc.line(margin, yPos, pageWidth - margin, yPos);
+  yPos += 8;
 
   // Client Information Box
   doc.setDrawColor(200, 200, 200);
-  doc.rect(margin, yPos, pageWidth - 2 * margin, 20);
-  yPos += 5;
-  addText('Client:', margin + 3, yPos, { fontSize: 10, fontStyle: 'bold' });
+  doc.rect(margin, yPos, pageWidth - 2 * margin, 18);
   yPos += 6;
-  addText(invoice.entity?.name || 'N/A', margin + 3, yPos, { fontSize: 10 });
-  yPos += 18;
+  addText('Client:', margin + 4, yPos, { fontSize: 10, fontStyle: 'bold' });
+  yPos += 6;
+  addText(invoice.entity?.name || 'N/A', margin + 4, yPos, { fontSize: 10 });
+  yPos += 14;
 
   // Build description with associated context
   const getAssociatedDescription = () => {
@@ -143,59 +154,65 @@ export function generateInvoicePdf(invoice: InvoiceData): void {
     : baseDescription;
 
   // Invoice Items Table
-  const tableStartY = yPos;
-  const colWidths = [15, 25, 70, 30, 15, 30]; // Quantity, Item Code, Description, Unit Price, Disc, Total
-  const rowHeight = 8;
+  const colWidths = [22, 28, 60, 35, 18, 35]; // Adjusted widths: Quantity, Item Code, Description, Unit Price, Disc%, Total
+  const tableWidth = colWidths.reduce((a, b) => a + b, 0);
+  const tableStartX = margin;
+  const rowHeight = 10;
   
   // Table header
-  doc.setFillColor(240, 240, 240);
-  doc.rect(margin, yPos, pageWidth - 2 * margin, rowHeight, 'F');
-  doc.setDrawColor(200, 200, 200);
-  doc.rect(margin, yPos, pageWidth - 2 * margin, rowHeight);
+  doc.setFillColor(230, 230, 230);
+  doc.rect(tableStartX, yPos, tableWidth, rowHeight, 'F');
+  doc.setDrawColor(180, 180, 180);
+  doc.rect(tableStartX, yPos, tableWidth, rowHeight);
   
-  let colX = margin;
-  const headers = ['QTY', 'ITEM CODE', 'DESCRIPTION', 'UNIT PRICE', 'DISC%', 'TOTAL'];
+  let colX = tableStartX;
+  const headers = ['QUANTITY', 'ITEM CODE', 'DESCRIPTION', 'UNIT PRICE(ex. GST)', 'DISC %', 'TOTAL PRICE(ex. GST)'];
   headers.forEach((header, i) => {
     doc.rect(colX, yPos, colWidths[i], rowHeight);
-    addText(header, colX + 2, yPos + 5, { fontSize: 8, fontStyle: 'bold' });
+    const headerFontSize = i >= 3 ? 7 : 8; // Smaller font for price columns
+    addText(header, colX + colWidths[i] / 2, yPos + 6, { fontSize: headerFontSize, fontStyle: 'bold', align: 'center' });
     colX += colWidths[i];
   });
   yPos += rowHeight;
 
   // Table data row
-  colX = margin;
-  doc.rect(margin, yPos, pageWidth - 2 * margin, rowHeight * 3);
+  const dataRowHeight = rowHeight * 2.5;
+  doc.rect(tableStartX, yPos, tableWidth, dataRowHeight);
   
   // Draw column borders for the data row
-  let borderX = margin;
+  let borderX = tableStartX;
   colWidths.forEach(width => {
-    doc.rect(borderX, yPos, width, rowHeight * 3);
+    doc.rect(borderX, yPos, width, dataRowHeight);
     borderX += width;
   });
   
-  // Add data
-  addText('1', margin + 5, yPos + 5, { fontSize: 9 });
-  addText(invoice.item_code || 'PERMIT-FEE', margin + colWidths[0] + 2, yPos + 5, { fontSize: 8 });
+  // Add data - centered quantity
+  addText('1', tableStartX + colWidths[0] / 2, yPos + 8, { fontSize: 9, align: 'center' });
   
-  // Split description for multi-line
-  const descriptionLines = doc.splitTextToSize(fullDescription, colWidths[2] - 4);
-  let descY = yPos + 5;
+  // Item code
+  addText(invoice.item_code || 'F1', tableStartX + colWidths[0] + colWidths[1] / 2, yPos + 8, { fontSize: 9, align: 'center' });
+  
+  // Description - left aligned with padding
+  const descColX = tableStartX + colWidths[0] + colWidths[1];
+  const descriptionLines = doc.splitTextToSize(fullDescription, colWidths[2] - 6);
+  let descY = yPos + 8;
   descriptionLines.slice(0, 3).forEach((line: string) => {
-    addText(line, margin + colWidths[0] + colWidths[1] + 2, descY, { fontSize: 8 });
+    addText(line, descColX + 3, descY, { fontSize: 8 });
     descY += 4;
   });
   
-  const priceColX = margin + colWidths[0] + colWidths[1] + colWidths[2];
-  addText(`K${invoice.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}`, priceColX + colWidths[3] - 2, yPos + 5, { fontSize: 9, align: 'right' });
-  addText('0', priceColX + colWidths[3] + colWidths[4] - 2, yPos + 5, { fontSize: 9, align: 'right' });
-  addText(`K${invoice.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}`, priceColX + colWidths[3] + colWidths[4] + colWidths[5] - 2, yPos + 5, { fontSize: 9, align: 'right' });
+  // Price columns - right aligned
+  const priceColX = tableStartX + colWidths[0] + colWidths[1] + colWidths[2];
+  addText(`K${invoice.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}`, priceColX + colWidths[3] - 3, yPos + 8, { fontSize: 9, align: 'right' });
+  addText('0', priceColX + colWidths[3] + colWidths[4] / 2, yPos + 8, { fontSize: 9, align: 'center' });
+  addText(`K${invoice.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}`, priceColX + colWidths[3] + colWidths[4] + colWidths[5] - 3, yPos + 8, { fontSize: 9, align: 'right' });
   
-  yPos += rowHeight * 3;
+  yPos += dataRowHeight;
 
-  // Empty rows
+  // Empty rows (reduced)
   for (let i = 0; i < 2; i++) {
-    doc.rect(margin, yPos, pageWidth - 2 * margin, rowHeight);
-    borderX = margin;
+    doc.rect(tableStartX, yPos, tableWidth, rowHeight);
+    borderX = tableStartX;
     colWidths.forEach(width => {
       doc.rect(borderX, yPos, width, rowHeight);
       borderX += width;
@@ -203,11 +220,11 @@ export function generateInvoicePdf(invoice: InvoiceData): void {
     yPos += rowHeight;
   }
 
-  yPos += 5;
+  yPos += 8;
 
   // Totals section - Right aligned
-  const totalsX = pageWidth - margin - 80;
-  const totalsWidth = 80;
+  const totalsWidth = 85;
+  const totalsX = pageWidth - margin - totalsWidth;
   
   const totalsData = [
     { label: 'Subtotal:', value: `K${invoice.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}` },
@@ -220,8 +237,8 @@ export function generateInvoicePdf(invoice: InvoiceData): void {
 
   totalsData.forEach(item => {
     doc.rect(totalsX, yPos, totalsWidth, 7);
-    addText(item.label, totalsX + 2, yPos + 5, { fontSize: 9, fontStyle: item.bold ? 'bold' : 'normal' });
-    addText(item.value, totalsX + totalsWidth - 2, yPos + 5, { fontSize: 9, fontStyle: item.bold ? 'bold' : 'normal', align: 'right' });
+    addText(item.label, totalsX + 3, yPos + 5, { fontSize: 9, fontStyle: item.bold ? 'bold' : 'normal' });
+    addText(item.value, totalsX + totalsWidth - 3, yPos + 5, { fontSize: 9, fontStyle: item.bold ? 'bold' : 'normal', align: 'right' });
     yPos += 7;
   });
 
@@ -230,9 +247,9 @@ export function generateInvoicePdf(invoice: InvoiceData): void {
   // Payment Terms
   addText('PAYMENT TERMS:', margin, yPos, { fontSize: 10, fontStyle: 'bold' });
   yPos += 6;
-  addText('Cheque payable to:', margin + 10, yPos, { fontSize: 9 });
+  addText('Cheque payable to:', margin + 5, yPos, { fontSize: 9 });
   yPos += 5;
-  addText('CONSERVATION & ENVIRONMENT PROTECTION AUTHORITY', margin + 10, yPos, { fontSize: 10, fontStyle: 'bold' });
+  addText('CONSERVATION & ENVIRONMENT PROTECTION AUTHORITY', margin + 5, yPos, { fontSize: 10, fontStyle: 'bold' });
   yPos += 12;
 
   // Bank Accounts
@@ -245,17 +262,16 @@ export function generateInvoicePdf(invoice: InvoiceData): void {
 
   let bankX = margin;
   banks.forEach(bank => {
-    doc.rect(bankX, yPos, bankWidth, 35);
+    doc.rect(bankX, yPos, bankWidth, 32);
     addText(bank.name, bankX + bankWidth / 2, yPos + 6, { fontSize: 8, fontStyle: 'bold', align: 'center' });
-    addText('BANK: BANK SOUTH PACIFIC', bankX + 3, yPos + 13, { fontSize: 7 });
-    addText(`ACCOUNT: ${bank.account}`, bankX + 3, yPos + 18, { fontSize: 7 });
-    addText('BRANCH: PORT MORESBY', bankX + 3, yPos + 23, { fontSize: 7 });
-    addText(`BSB: ${bank.bsb}`, bankX + 3, yPos + 28, { fontSize: 7 });
-    addText('SWIFTCODE: BOSPPGPM', bankX + 3, yPos + 33, { fontSize: 7 });
+    addText('BANK: BANK SOUTH PACIFIC', bankX + 3, yPos + 12, { fontSize: 7 });
+    addText(`ACCOUNT: ${bank.account}`, bankX + 3, yPos + 17, { fontSize: 7 });
+    addText('BRANCH: PORT MORESBY', bankX + 3, yPos + 22, { fontSize: 7 });
+    addText(`BSB: ${bank.bsb}`, bankX + 3, yPos + 27, { fontSize: 7 });
     bankX += bankWidth + 5;
   });
 
-  yPos += 45;
+  yPos += 40;
 
   // Page number
   addText('Page 1 of 1', pageWidth - margin, yPos, { fontSize: 8, align: 'right' });
