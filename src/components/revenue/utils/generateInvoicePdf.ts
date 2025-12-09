@@ -153,8 +153,9 @@ export function generateInvoicePdf(invoice: InvoiceData): void {
     ? `${baseDescription} - ${associatedContext}`
     : baseDescription;
 
-  // Invoice Items Table
-  const colWidths = [22, 28, 60, 35, 18, 35]; // Adjusted widths: Quantity, Item Code, Description, Unit Price, Disc%, Total
+  // Invoice Items Table - fit within A4 margins (210mm - 30mm margins = 180mm usable)
+  const usableWidth = pageWidth - 2 * margin; // ~180mm
+  const colWidths = [18, 22, 55, 30, 15, 30]; // Total: 170mm - fits within usable width
   const tableWidth = colWidths.reduce((a, b) => a + b, 0);
   const tableStartX = margin;
   const rowHeight = 10;
@@ -166,11 +167,10 @@ export function generateInvoicePdf(invoice: InvoiceData): void {
   doc.rect(tableStartX, yPos, tableWidth, rowHeight);
   
   let colX = tableStartX;
-  const headers = ['QUANTITY', 'ITEM CODE', 'DESCRIPTION', 'UNIT PRICE(ex. GST)', 'DISC %', 'TOTAL PRICE(ex. GST)'];
+  const headers = ['QTY', 'ITEM CODE', 'DESCRIPTION', 'UNIT PRICE', 'DISC %', 'TOTAL PRICE'];
   headers.forEach((header, i) => {
     doc.rect(colX, yPos, colWidths[i], rowHeight);
-    const headerFontSize = i >= 3 ? 7 : 8; // Smaller font for price columns
-    addText(header, colX + colWidths[i] / 2, yPos + 6, { fontSize: headerFontSize, fontStyle: 'bold', align: 'center' });
+    addText(header, colX + colWidths[i] / 2, yPos + 6, { fontSize: 7, fontStyle: 'bold', align: 'center' });
     colX += colWidths[i];
   });
   yPos += rowHeight;
