@@ -123,7 +123,7 @@ export function ExecutiveAnalyticsDashboard() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('permit_applications')
-        .select('id, status, activity_level, estimated_cost_kina, created_at');
+        .select('id, status, activity_level, estimated_cost_kina, created_at, expiry_date, permit_type, fee_amount');
       if (error) throw error;
       return data || [];
     },
@@ -147,7 +147,28 @@ export function ExecutiveAnalyticsDashboard() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('fee_payments')
-        .select('id, total_fee, payment_status, created_at, payment_method')
+        .select('id, total_fee, payment_status, created_at, payment_method, permit_application_id')
+        .gte('created_at', dateFilters.start.toISOString())
+        .lte('created_at', dateFilters.end.toISOString());
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+  // Fetch fee payments with permit info for sector revenue
+  const { data: feePaymentsWithSector = [] } = useQuery({
+    queryKey: ['executive-revenue-sector', dateRange],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('fee_payments')
+        .select(`
+          id, 
+          total_fee, 
+          payment_status, 
+          created_at, 
+          permit_application_id
+        `)
+        .eq('payment_status', 'paid')
         .gte('created_at', dateFilters.start.toISOString())
         .lte('created_at', dateFilters.end.toISOString());
       if (error) throw error;
@@ -465,6 +486,122 @@ export function ExecutiveAnalyticsDashboard() {
     { metric: 'Inspection Rate', value: executiveKPIs.totalInspections > 0 ? Math.round((executiveKPIs.completedInspections / executiveKPIs.totalInspections) * 100) : 0, fullMark: 100 },
     { metric: 'Entity Activity', value: executiveKPIs.totalEntities > 0 ? Math.round((executiveKPIs.activeEntities / executiveKPIs.totalEntities) * 100) : 0, fullMark: 100 },
   ], [executiveKPIs]);
+
+  // Monthly revenue per sector data
+  const monthlyRevenueBySector = useMemo(() => {
+    // Create a map of permit_application_id to permit_type
+    const permitTypeMap = new Map<string, string>();
+    permitApplications.forEach(permit => {
+      permitTypeMap.set(permit.id, permit.permit_type || 'Other');
+    });
+
+    // Group by month and sector
+    const monthSectorMap = new Map<string, Map<string, number>>();
+    const allSectors = new Set<string>();
+
+    feePaymentsWithSector.forEach(payment => {
+      const month = format(new Date(payment.created_at), 'MMM yyyy');
+      const sector = payment.permit_application_id 
+        ? (permitTypeMap.get(payment.permit_application_id) || 'Other')
+        : 'Other';
+      const amount = Number(payment.total_fee || 0);
+
+      allSectors.add(sector);
+
+      if (!monthSectorMap.has(month)) {
+        monthSectorMap.set(month, new Map());
+      }
+      const sectorMap = monthSectorMap.get(month)!;
+      sectorMap.set(sector, (sectorMap.get(sector) || 0) + amount);
+    });
+
+    // Convert to array format for recharts
+    const months: any[] = [];
+    for (let i = 11; i >= 0; i--) {
+      const date = subMonths(new Date(), i);
+      const monthLabel = format(date, 'MMM yyyy');
+      const sectorData = monthSectorMap.get(monthLabel) || new Map();
+      
+      const monthData: any = { month: monthLabel };
+      allSectors.forEach(sector => {
+        monthData[sector] = sectorData.get(sector) || 0;
+      });
+      months.push(monthData);
+    }
+
+    return { data: months, sectors: Array.from(allSectors) };
+  }, [feePaymentsWithSector, permitApplications]);
+
+  // Revenue forecasting data based on permit renewals and annual fees
+  const revenueForecastData = useMemo(() => {
+    const now = new Date();
+    const forecastMonths: { month: string; renewalRevenue: number; annualFees: number; totalForecast: number; permitsDueForRenewal: number }[] = [];
+    
+    // Calculate average fee per permit for estimation
+    const avgFeePerPermit = allPermitApplications.length > 0
+      ? allPermitApplications.reduce((sum, p) => sum + Number(p.fee_amount || 5000), 0) / allPermitApplications.length
+      : 5000; // Default estimate
+    
+    // Get active permits
+    const activePermits = allPermitApplications.filter(p => 
+      ['approved', 'active', 'issued'].includes(p.status?.toLowerCase() || '')
+    );
+    
+    // Group by permit type for annual fee calculations
+    const permitTypeCount = new Map<string, number>();
+    activePermits.forEach(p => {
+      const type = p.permit_type || 'Other';
+      permitTypeCount.set(type, (permitTypeCount.get(type) || 0) + 1);
+    });
+    
+    // Calculate forecast for next 12 months
+    for (let i = 0; i < 12; i++) {
+      const forecastDate = new Date(now.getFullYear(), now.getMonth() + i, 1);
+      const monthLabel = format(forecastDate, 'MMM yyyy');
+      const monthStart = startOfMonth(forecastDate);
+      const monthEnd = endOfMonth(forecastDate);
+      
+      // Find permits expiring/due for renewal in this month
+      const permitsDueForRenewal = activePermits.filter(p => {
+        if (!p.expiry_date) {
+          // If no expiry date, estimate based on creation date (assume 1-year validity)
+          const createdDate = new Date(p.created_at);
+          const estimatedExpiry = new Date(createdDate.getFullYear() + 1, createdDate.getMonth(), createdDate.getDate());
+          return estimatedExpiry >= monthStart && estimatedExpiry <= monthEnd;
+        }
+        const expiryDate = new Date(p.expiry_date);
+        return expiryDate >= monthStart && expiryDate <= monthEnd;
+      });
+      
+      // Calculate renewal revenue (estimate based on permit fees)
+      const renewalRevenue = permitsDueForRenewal.reduce((sum, p) => 
+        sum + Number(p.fee_amount || avgFeePerPermit), 0
+      );
+      
+      // Calculate annual fees (spread across the year, higher in Q1 due to annual renewals)
+      const annualFeeMultiplier = (i < 3) ? 1.5 : (i < 6) ? 1.2 : 1.0; // Higher fees in first quarters
+      const annualFees = (activePermits.length * (avgFeePerPermit * 0.1)) * annualFeeMultiplier; // 10% of permit value as annual fee
+      
+      forecastMonths.push({
+        month: monthLabel,
+        renewalRevenue: Math.round(renewalRevenue),
+        annualFees: Math.round(annualFees),
+        totalForecast: Math.round(renewalRevenue + annualFees),
+        permitsDueForRenewal: permitsDueForRenewal.length,
+      });
+    }
+    
+    const totalForecastedRevenue = forecastMonths.reduce((sum, m) => sum + m.totalForecast, 0);
+    const totalRenewals = forecastMonths.reduce((sum, m) => sum + m.permitsDueForRenewal, 0);
+    
+    return {
+      months: forecastMonths,
+      totalForecastedRevenue,
+      totalRenewals,
+      activePermitCount: activePermits.length,
+      avgFeePerPermit: Math.round(avgFeePerPermit),
+    };
+  }, [allPermitApplications]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-PG', { style: 'currency', currency: 'PGK', maximumFractionDigits: 0 }).format(amount);
@@ -996,6 +1133,83 @@ export function ExecutiveAnalyticsDashboard() {
               </ResponsiveContainer>
             </CardContent>
           </Card>
+
+          {/* Monthly Revenue per Sector */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 className="w-5 h-5 text-primary" />
+                <span className="hidden sm:inline">Monthly Revenue per Sector</span>
+                <span className="sm:hidden">Revenue by Sector</span>
+              </CardTitle>
+              <CardDescription className="text-xs sm:text-sm">Revenue breakdown by permit type/sector over the past 12 months</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {monthlyRevenueBySector.sectors.length > 0 ? (
+                <>
+                  {/* Chart - hidden on very small screens, visible on sm and up */}
+                  <div className="hidden sm:block">
+                    <ResponsiveContainer width="100%" height={400}>
+                      <BarChart data={monthlyRevenueBySector.data}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="month" tick={{ fontSize: 10 }} angle={-45} textAnchor="end" height={60} />
+                        <YAxis tickFormatter={(value) => `K${(value / 1000).toFixed(0)}k`} tick={{ fontSize: 10 }} />
+                        <Tooltip 
+                          formatter={(value: number) => formatCurrency(value)}
+                          labelStyle={{ fontWeight: 'bold' }}
+                        />
+                        <Legend wrapperStyle={{ fontSize: '11px' }} />
+                        {monthlyRevenueBySector.sectors.slice(0, 8).map((sector, index) => (
+                          <Bar 
+                            key={sector} 
+                            dataKey={sector} 
+                            stackId="a"
+                            fill={SECTOR_COLORS[sector] || EXECUTIVE_COLORS[index % EXECUTIVE_COLORS.length]} 
+                            name={sector}
+                          />
+                        ))}
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+
+                  {/* Mobile-friendly table view */}
+                  <div className="sm:hidden space-y-3">
+                    <p className="text-xs text-muted-foreground mb-2">Showing latest month breakdown:</p>
+                    <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                      {monthlyRevenueBySector.sectors
+                        .map(sector => {
+                          const latestMonth = monthlyRevenueBySector.data[monthlyRevenueBySector.data.length - 1];
+                          const amount = latestMonth?.[sector] || 0;
+                          return { sector, amount };
+                        })
+                        .filter(item => item.amount > 0)
+                        .sort((a, b) => b.amount - a.amount)
+                        .map((item, index) => (
+                          <div 
+                            key={item.sector} 
+                            className="flex items-center justify-between p-3 rounded-lg bg-muted/50"
+                          >
+                            <div className="flex items-center gap-2">
+                              <div 
+                                className="w-3 h-3 rounded-full" 
+                                style={{ backgroundColor: SECTOR_COLORS[item.sector] || EXECUTIVE_COLORS[index % EXECUTIVE_COLORS.length] }}
+                              />
+                              <span className="text-sm font-medium truncate max-w-[150px]">{item.sector}</span>
+                            </div>
+                            <span className="text-sm font-bold">{formatCurrency(item.amount)}</span>
+                          </div>
+                        ))
+                      }
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="flex items-center justify-center h-[200px] text-muted-foreground">
+                  <p className="text-sm">No revenue data available for the selected period</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
 
         {/* Compliance & Enforcement Tab */}
@@ -1163,6 +1377,142 @@ export function ExecutiveAnalyticsDashboard() {
                   />
                 </ComposedChart>
               </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          {/* Revenue Generation Forecast */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <DollarSign className="w-5 h-5 text-green-600" />
+                <span className="hidden sm:inline">Revenue Generation Forecast - Renewals & Annual Fees</span>
+                <span className="sm:hidden">Revenue Forecast</span>
+              </CardTitle>
+              <CardDescription className="text-xs sm:text-sm">
+                Projected revenue from permit renewals and scheduled annual fees over the next 12 months
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {/* Forecast Summary Cards */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                <div className="p-3 sm:p-4 rounded-lg bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800">
+                  <p className="text-xs sm:text-sm text-green-600 dark:text-green-400 font-medium">Total Forecast</p>
+                  <p className="text-lg sm:text-2xl font-bold text-green-900 dark:text-green-100">
+                    {formatCurrency(revenueForecastData.totalForecastedRevenue)}
+                  </p>
+                </div>
+                <div className="p-3 sm:p-4 rounded-lg bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800">
+                  <p className="text-xs sm:text-sm text-blue-600 dark:text-blue-400 font-medium">Renewals Due</p>
+                  <p className="text-lg sm:text-2xl font-bold text-blue-900 dark:text-blue-100">
+                    {revenueForecastData.totalRenewals}
+                  </p>
+                </div>
+                <div className="p-3 sm:p-4 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800">
+                  <p className="text-xs sm:text-sm text-amber-600 dark:text-amber-400 font-medium">Active Permits</p>
+                  <p className="text-lg sm:text-2xl font-bold text-amber-900 dark:text-amber-100">
+                    {revenueForecastData.activePermitCount}
+                  </p>
+                </div>
+                <div className="p-3 sm:p-4 rounded-lg bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800">
+                  <p className="text-xs sm:text-sm text-purple-600 dark:text-purple-400 font-medium">Avg Fee/Permit</p>
+                  <p className="text-lg sm:text-2xl font-bold text-purple-900 dark:text-purple-100">
+                    {formatCurrency(revenueForecastData.avgFeePerPermit)}
+                  </p>
+                </div>
+              </div>
+
+              {/* Chart - hidden on very small screens */}
+              <div className="hidden sm:block">
+                <ResponsiveContainer width="100%" height={350}>
+                  <ComposedChart data={revenueForecastData.months}>
+                    <defs>
+                      <linearGradient id="colorRenewalForecast" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="hsl(142, 76%, 36%)" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="hsl(142, 76%, 36%)" stopOpacity={0.2}/>
+                      </linearGradient>
+                      <linearGradient id="colorAnnualFees" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="hsl(221, 83%, 53%)" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="hsl(221, 83%, 53%)" stopOpacity={0.2}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" tick={{ fontSize: 10 }} angle={-45} textAnchor="end" height={60} />
+                    <YAxis 
+                      yAxisId="left" 
+                      tickFormatter={(value) => `K${(value / 1000).toFixed(0)}k`} 
+                      tick={{ fontSize: 10 }} 
+                    />
+                    <YAxis 
+                      yAxisId="right" 
+                      orientation="right" 
+                      allowDecimals={false}
+                      tick={{ fontSize: 10 }}
+                    />
+                    <Tooltip 
+                      formatter={(value: number, name: string) => 
+                        name === 'Permits Due' ? value : formatCurrency(value)
+                      }
+                    />
+                    <Legend wrapperStyle={{ fontSize: '11px' }} />
+                    <Area 
+                      yAxisId="left"
+                      type="monotone" 
+                      dataKey="renewalRevenue" 
+                      stroke="hsl(142, 76%, 36%)" 
+                      fill="url(#colorRenewalForecast)" 
+                      name="Renewal Revenue"
+                      strokeWidth={2}
+                    />
+                    <Area 
+                      yAxisId="left"
+                      type="monotone" 
+                      dataKey="annualFees" 
+                      stroke="hsl(221, 83%, 53%)" 
+                      fill="url(#colorAnnualFees)" 
+                      name="Annual Fees"
+                      strokeWidth={2}
+                    />
+                    <Line 
+                      yAxisId="right" 
+                      type="monotone" 
+                      dataKey="permitsDueForRenewal" 
+                      stroke="hsl(45, 93%, 47%)" 
+                      strokeWidth={2}
+                      dot={{ fill: 'hsl(45, 93%, 47%)', strokeWidth: 2, r: 3 }}
+                      name="Permits Due"
+                    />
+                  </ComposedChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Mobile-friendly list view */}
+              <div className="sm:hidden space-y-3">
+                <p className="text-xs text-muted-foreground mb-2">Monthly forecast breakdown:</p>
+                <div className="space-y-2 max-h-[280px] overflow-y-auto">
+                  {revenueForecastData.months.slice(0, 6).map((item, index) => (
+                    <div 
+                      key={index} 
+                      className="flex items-center justify-between p-3 rounded-lg bg-muted/50"
+                    >
+                      <div>
+                        <p className="text-sm font-medium">{item.month}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {item.permitsDueForRenewal} permits due
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-bold text-green-600">{formatCurrency(item.totalForecast)}</p>
+                        <p className="text-xs text-muted-foreground">
+                          R: {formatCurrency(item.renewalRevenue)} | A: {formatCurrency(item.annualFees)}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-xs text-center text-muted-foreground mt-2">
+                  Showing first 6 months. View on desktop for full chart.
+                </p>
+              </div>
             </CardContent>
           </Card>
 

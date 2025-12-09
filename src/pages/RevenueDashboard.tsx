@@ -53,7 +53,6 @@ export default function RevenueDashboard() {
               <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 md:space-y-6">
                 <TabsContent value="dashboard" className="space-y-4 md:space-y-6">
                   <RevenueKPIs />
-                  <RevenueOfficerOperations />
                 </TabsContent>
 
                 <TabsContent value="listings-intents" className="space-y-4 md:space-y-6">
@@ -93,6 +92,10 @@ export default function RevenueDashboard() {
 
                 <TabsContent value="analytics-reporting" className="space-y-4 md:space-y-6">
                   <RevenueAnalyticsReports />
+                </TabsContent>
+
+                <TabsContent value="daily-operations" className="space-y-4 md:space-y-6">
+                  <RevenueOfficerOperations />
                 </TabsContent>
 
                 <TabsContent value="settings" className="space-y-4 md:space-y-6">

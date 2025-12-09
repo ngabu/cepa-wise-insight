@@ -24,7 +24,9 @@ import {
   Building2,
   FileText,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  Users,
+  ClipboardList
 } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
 import pngEmblem from "@/assets/png-emblem.png"
@@ -55,6 +57,14 @@ const revenueNavigationItems: RevenueNavigationItem[] = [
 ]
 
 const managementItems: RevenueNavigationItem[] = [
+  { 
+    title: "Staff Management", 
+    value: "staff-management", 
+    icon: Users,
+    subItems: [
+      { title: "Daily Operations", value: "daily-operations", icon: ClipboardList },
+    ]
+  },
   { title: "Codes Management", value: "settings", icon: Database },
 ]
 
@@ -193,17 +203,57 @@ export function RevenueSidebar({ activeTab, onTabChange }: RevenueSidebarProps) 
             <SidebarGroupContent>
               <SidebarMenu>
                 {managementItems.map((item) => (
-                  <SidebarMenuItem key={item.value}>
-                    <SidebarMenuButton asChild>
-                      <button
-                        onClick={() => handleTabChange(item.value)}
-                        className={`w-full ${getNavCls(activeTab === item.value)}`}
-                      >
-                        <item.icon className="w-5 h-5 shrink-0" />
-                        {!isCollapsed && <span className="ml-3 flex-1 text-left">{item.title}</span>}
-                      </button>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
+                  item.subItems ? (
+                    <Collapsible 
+                      key={item.value} 
+                      open={openSubMenus.includes(item.value)}
+                      onOpenChange={() => toggleSubMenu(item.value)}
+                    >
+                      <SidebarMenuItem>
+                        <CollapsibleTrigger asChild>
+                          <SidebarMenuButton className={`w-full ${getNavCls(activeTab.startsWith(item.value) || item.subItems.some(sub => activeTab === sub.value))}`}>
+                            <item.icon className="w-5 h-5 shrink-0" />
+                            {!isCollapsed && (
+                              <>
+                                <span className="ml-3 flex-1 text-left">{item.title}</span>
+                                {openSubMenus.includes(item.value) ? (
+                                  <ChevronDown className="w-4 h-4" />
+                                ) : (
+                                  <ChevronRight className="w-4 h-4" />
+                                )}
+                              </>
+                            )}
+                          </SidebarMenuButton>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent>
+                          <div className="ml-4 mt-1 space-y-1">
+                            {item.subItems.map((subItem) => (
+                              <SidebarMenuButton
+                                key={subItem.value}
+                                onClick={() => handleTabChange(subItem.value)}
+                                className={`w-full ${getNavCls(activeTab === subItem.value)}`}
+                              >
+                                <subItem.icon className="w-4 h-4 shrink-0" />
+                                {!isCollapsed && <span className="ml-3 flex-1 text-left">{subItem.title}</span>}
+                              </SidebarMenuButton>
+                            ))}
+                          </div>
+                        </CollapsibleContent>
+                      </SidebarMenuItem>
+                    </Collapsible>
+                  ) : (
+                    <SidebarMenuItem key={item.value}>
+                      <SidebarMenuButton asChild>
+                        <button
+                          onClick={() => handleTabChange(item.value)}
+                          className={`w-full ${getNavCls(activeTab === item.value)}`}
+                        >
+                          <item.icon className="w-5 h-5 shrink-0" />
+                          {!isCollapsed && <span className="ml-3 flex-1 text-left">{item.title}</span>}
+                        </button>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  )
                 ))}
               </SidebarMenu>
             </SidebarGroupContent>
