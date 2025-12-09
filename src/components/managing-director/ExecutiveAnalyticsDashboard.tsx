@@ -401,6 +401,80 @@ export function ExecutiveAnalyticsDashboard() {
       .sort((a, b) => b.activePermits - a.activePermits);
   }, [permitApplications]);
 
+  // Sectoral distribution data - shows active permits per sector/permit type
+  const sectoralDistribution = useMemo(() => {
+    const sectorMap = new Map<string, number>();
+    
+    // Filter for active permits only (approved, active, issued)
+    const activeStatuses = ['approved', 'active', 'issued'];
+    const activePermits = permitApplications.filter(app => 
+      activeStatuses.includes(app.status?.toLowerCase() || '')
+    );
+    
+    activePermits.forEach(app => {
+      const sector = app.permit_type || 'Other';
+      sectorMap.set(sector, (sectorMap.get(sector) || 0) + 1);
+    });
+    
+    const data = Array.from(sectorMap.entries())
+      .map(([sector, count]) => ({ sector, count }))
+      .sort((a, b) => b.count - a.count);
+    
+    const total = data.reduce((sum, item) => sum + item.count, 0);
+    
+    return { data, total };
+  }, [permitApplications]);
+
+  // Compliance reports per month data
+  const complianceReportsPerMonth = useMemo(() => {
+    const months: { month: string; reports: number }[] = [];
+    
+    for (let i = 11; i >= 0; i--) {
+      const date = subMonths(new Date(), i);
+      const monthStart = startOfMonth(date);
+      const monthEnd = endOfMonth(date);
+      const monthLabel = format(date, 'MMM yyyy');
+      
+      const monthReports = complianceReports.filter(r => {
+        const created = new Date(r.created_at);
+        return created >= monthStart && created <= monthEnd;
+      }).length;
+      
+      months.push({
+        month: monthLabel,
+        reports: monthReports,
+      });
+    }
+    
+    const total = months.reduce((sum, m) => sum + m.reports, 0);
+    return { months, total };
+  }, [complianceReports]);
+
+  // Yearly successful inspections data
+  const yearlySuccessfulInspections = useMemo(() => {
+    const currentYear = new Date().getFullYear();
+    const years: { year: number; completed: number; total: number; successRate: number }[] = [];
+    
+    for (let i = 2; i >= 0; i--) {
+      const year = currentYear - i;
+      const yearStart = new Date(year, 0, 1);
+      const yearEnd = new Date(year, 11, 31, 23, 59, 59);
+      
+      const yearInspections = inspections.filter(insp => {
+        const scheduledDate = new Date(insp.scheduled_date);
+        return scheduledDate >= yearStart && scheduledDate <= yearEnd;
+      });
+      
+      const completed = yearInspections.filter(i => i.status === 'completed').length;
+      const total = yearInspections.length;
+      const successRate = total > 0 ? Math.round((completed / total) * 100) : 0;
+      
+      years.push({ year, completed, total, successRate });
+    }
+    
+    return years;
+  }, [inspections]);
+
   // Monthly trends data
   const monthlyTrends = useMemo(() => {
     const months: { month: string; applications: number; approvals: number; revenue: number }[] = [];
@@ -625,10 +699,13 @@ export function ExecutiveAnalyticsDashboard() {
         investmentByLevel,
         investmentYear: investmentYearFilter,
         provincialData,
+        sectoralDistribution,
         permitTypeDistribution,
         statusDistribution,
         entityTypeDistribution,
         complianceTabData,
+        complianceReportsPerMonth,
+        yearlySuccessfulInspections,
         monthlyTrends,
       });
       
@@ -1037,8 +1114,8 @@ export function ExecutiveAnalyticsDashboard() {
 
         {/* Geographic Analysis Tab */}
         <TabsContent value="geographic" className="space-y-6 mt-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card className="lg:col-span-2">
+          <div className="grid grid-cols-1 gap-6">
+            <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <MapPin className="w-5 h-5 text-primary" />
@@ -1056,6 +1133,61 @@ export function ExecutiveAnalyticsDashboard() {
                     <Bar dataKey="activePermits" fill="hsl(var(--primary))" name="Active Permits" radius={[0, 4, 4, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            {/* Sectoral Distribution Card */}
+            <Card>
+              <CardHeader>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <Factory className="w-5 h-5 text-primary" />
+                      Sectoral Distribution of Active Permits
+                    </CardTitle>
+                    <CardDescription>Distribution of active permits across different sectors</CardDescription>
+                  </div>
+                  <Badge variant="secondary" className="text-lg px-4 py-1 self-start sm:self-auto">
+                    Total: {sectoralDistribution.total}
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Chart */}
+                  <div className="hidden sm:block">
+                    <ResponsiveContainer width="100%" height={350}>
+                      <BarChart data={sectoralDistribution.data.slice(0, 12)} layout="vertical">
+                        <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} />
+                        <XAxis type="number" allowDecimals={false} />
+                        <YAxis dataKey="sector" type="category" width={180} tick={{ fontSize: 11 }} />
+                        <Tooltip />
+                        <Bar dataKey="count" fill="hsl(var(--primary))" name="Active Permits" radius={[0, 4, 4, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                  
+                  {/* List view (works on mobile too) */}
+                  <div className="space-y-2 max-h-[350px] overflow-y-auto">
+                    <div className="grid grid-cols-3 gap-2 font-medium text-sm text-muted-foreground border-b pb-2 sticky top-0 bg-background">
+                      <span>Sector</span>
+                      <span className="text-right">Count</span>
+                      <span className="text-right">%</span>
+                    </div>
+                    {sectoralDistribution.data.map((item, index) => (
+                      <div key={index} className="grid grid-cols-3 gap-2 text-sm py-1.5 border-b border-border/50">
+                        <span className="truncate" title={item.sector}>{item.sector}</span>
+                        <span className="text-right font-medium">{item.count}</span>
+                        <span className="text-right text-muted-foreground">
+                          {sectoralDistribution.total > 0 
+                            ? `${((item.count / sectoralDistribution.total) * 100).toFixed(1)}%`
+                            : '0%'
+                          }
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -1262,45 +1394,109 @@ export function ExecutiveAnalyticsDashboard() {
             </Card>
           </div>
 
-          {/* Permits by Sector */}
+          {/* Compliance Reports per Month */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <PieChartIcon className="w-5 h-5 text-primary" />
-                Total Permits by Sector
-              </CardTitle>
-              <CardDescription>Distribution of permits across different sectors/permit types</CardDescription>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="w-5 h-5 text-primary" />
+                    Total Compliance Reports per Month
+                  </CardTitle>
+                  <CardDescription>Monthly distribution of compliance reports submitted</CardDescription>
+                </div>
+                <Badge variant="secondary" className="text-lg px-4 py-1 self-start sm:self-auto">
+                  Total: {complianceReportsPerMonth.total}
+                </Badge>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={complianceTabData.permitsBySector.slice(0, 10)} layout="vertical">
-                    <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} />
-                    <XAxis type="number" allowDecimals={false} />
-                    <YAxis dataKey="sector" type="category" width={180} tick={{ fontSize: 11 }} />
-                    <Tooltip />
-                    <Bar dataKey="count" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} name="Permits" />
-                  </BarChart>
-                </ResponsiveContainer>
+                {/* Chart - hidden on very small screens */}
+                <div className="hidden sm:block">
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={complianceReportsPerMonth.months}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="month" tick={{ fontSize: 10 }} angle={-45} textAnchor="end" height={60} />
+                      <YAxis allowDecimals={false} />
+                      <Tooltip />
+                      <Bar dataKey="reports" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} name="Reports" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+                
+                {/* List view */}
                 <div className="space-y-2 max-h-[300px] overflow-y-auto">
-                  <div className="grid grid-cols-3 gap-2 font-medium text-sm text-muted-foreground border-b pb-2">
-                    <span>Sector</span>
-                    <span className="text-right">Count</span>
-                    <span className="text-right">%</span>
+                  <div className="grid grid-cols-2 gap-2 font-medium text-sm text-muted-foreground border-b pb-2 sticky top-0 bg-background">
+                    <span>Month</span>
+                    <span className="text-right">Reports</span>
                   </div>
-                  {complianceTabData.permitsBySector.map((item, index) => (
-                    <div key={index} className="grid grid-cols-3 gap-2 text-sm py-1 border-b border-border/50">
-                      <span className="truncate">{item.sector}</span>
-                      <span className="text-right font-medium">{item.count}</span>
-                      <span className="text-right text-muted-foreground">
-                        {complianceTabData.totalPermits > 0 
-                          ? `${((item.count / complianceTabData.totalPermits) * 100).toFixed(1)}%`
-                          : '0%'
-                        }
-                      </span>
+                  {complianceReportsPerMonth.months.map((item, index) => (
+                    <div key={index} className="grid grid-cols-2 gap-2 text-sm py-1.5 border-b border-border/50">
+                      <span>{item.month}</span>
+                      <span className="text-right font-medium">{item.reports}</span>
                     </div>
                   ))}
                 </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Yearly Successful Inspections */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-green-500" />
+                Yearly Successful Inspections
+              </CardTitle>
+              <CardDescription>Completed inspections by year with success rates</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                {yearlySuccessfulInspections.map((yearData, index) => (
+                  <div 
+                    key={yearData.year}
+                    className={`p-4 rounded-lg border ${
+                      index === yearlySuccessfulInspections.length - 1 
+                        ? 'bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950/30 dark:to-green-900/20 border-green-200 dark:border-green-800' 
+                        : 'bg-muted/30'
+                    }`}
+                  >
+                    <p className="text-sm font-medium text-muted-foreground">{yearData.year}</p>
+                    <p className="text-3xl font-bold mt-1">{yearData.completed}</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      of {yearData.total} inspections ({yearData.successRate}% success rate)
+                    </p>
+                    <div className="mt-2 w-full bg-muted rounded-full h-2">
+                      <div 
+                        className="bg-green-500 h-2 rounded-full transition-all" 
+                        style={{ width: `${yearData.successRate}%` }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              {/* Detailed breakdown table */}
+              <div className="border rounded-lg overflow-hidden">
+                <div className="grid grid-cols-4 gap-2 font-medium text-sm bg-muted/50 p-3 border-b">
+                  <span>Year</span>
+                  <span className="text-right">Completed</span>
+                  <span className="text-right">Total</span>
+                  <span className="text-right">Success Rate</span>
+                </div>
+                {yearlySuccessfulInspections.map((yearData, index) => (
+                  <div key={index} className="grid grid-cols-4 gap-2 text-sm p-3 border-b last:border-b-0">
+                    <span className="font-medium">{yearData.year}</span>
+                    <span className="text-right text-green-600 dark:text-green-400 font-medium">{yearData.completed}</span>
+                    <span className="text-right">{yearData.total}</span>
+                    <span className="text-right">
+                      <Badge variant={yearData.successRate >= 80 ? 'default' : yearData.successRate >= 50 ? 'secondary' : 'destructive'}>
+                        {yearData.successRate}%
+                      </Badge>
+                    </span>
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>
