@@ -493,7 +493,7 @@ export function IntentRegistrationNew() {
                   Provide details about your intended preparatory work
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className={`space-y-6 ${entities.find(e => e.id === formData.entity_id)?.entity_type === 'company' ? 'max-h-[70vh] overflow-y-auto pr-2' : ''}`}>
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <Label htmlFor="entity_id">

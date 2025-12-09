@@ -1490,6 +1490,7 @@ export type Database = {
           permit_application_id: string | null
           permit_category: string | null
           province: string | null
+          report_path: string | null
           scheduled_date: string
           status: string
           total_travel_cost: number | null
@@ -1512,6 +1513,7 @@ export type Database = {
           permit_application_id?: string | null
           permit_category?: string | null
           province?: string | null
+          report_path?: string | null
           scheduled_date: string
           status?: string
           total_travel_cost?: number | null
@@ -1534,6 +1536,7 @@ export type Database = {
           permit_application_id?: string | null
           permit_category?: string | null
           province?: string | null
+          report_path?: string | null
           scheduled_date?: string
           status?: string
           total_travel_cost?: number | null
