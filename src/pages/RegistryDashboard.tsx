@@ -31,6 +31,7 @@ import { UnitNotificationsPanel } from "@/components/notifications/UnitNotificat
 import { useUnitNotifications } from "@/hooks/useUnitNotifications";
 import { supabase } from "@/integrations/supabase/client";
 import { RegistryDocumentManagement } from "@/components/registry/RegistryDocumentManagement";
+import { RegistryUserGuide } from "@/components/registry/RegistryUserGuide";
 
 const RegistryDashboard = () => {
   const { profile } = useAuth();
@@ -343,6 +344,7 @@ const RegistryDashboard = () => {
             {activeTab === 'team' && isManager && <TeamManagement />}
             {activeTab === 'profile' && <ProfileSettings readOnly />}
             {activeTab === 'settings' && <AppSettings />}
+            {activeTab === 'user-guide' && <RegistryUserGuide />}
           </main>
         </div>
       </div>
