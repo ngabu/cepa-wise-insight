@@ -277,28 +277,6 @@ export function RegistrySidebar({ activeTab, onTabChange }: RegistrySidebarProps
                     <SidebarMenuSubItem>
                       <SidebarMenuSubButton asChild>
                         <button
-                          onClick={() => onTabChange('permit-compliance')}
-                          className={`w-full ${getNavCls(activeTab === 'permit-compliance')}`}
-                        >
-                          <ShieldCheck className="w-4 h-4 shrink-0" />
-                          <span className="ml-2">Permit Compliance</span>
-                        </button>
-                      </SidebarMenuSubButton>
-                    </SidebarMenuSubItem>
-                    <SidebarMenuSubItem>
-                      <SidebarMenuSubButton asChild>
-                        <button
-                          onClick={() => onTabChange('permit-enforcement')}
-                          className={`w-full ${getNavCls(activeTab === 'permit-enforcement')}`}
-                        >
-                          <Gavel className="w-4 h-4 shrink-0" />
-                          <span className="ml-2">Permit Enforcement</span>
-                        </button>
-                      </SidebarMenuSubButton>
-                    </SidebarMenuSubItem>
-                    <SidebarMenuSubItem>
-                      <SidebarMenuSubButton asChild>
-                        <button
                           onClick={() => onTabChange('permit-renewal')}
                           className={`w-full ${getNavCls(activeTab === 'permit-renewal')}`}
                         >

@@ -12,7 +12,7 @@ import { AllocationDialog } from "@/components/shared/AllocationDialog";
 import { FileText, Clock, CheckCircle, Users, AlertCircle, Plus, UserCheck, ClipboardList, ArrowRight, FileCheck, XCircle, User, Bell } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { useRegistryStaff } from "@/components/registry/hooks/useRegistryStaff";
-import { TeamManagement } from "@/components/registry/TeamManagement";
+import { StaffManagement } from '@/components/shared/StaffManagement';
 import { ProfileSettings } from "@/components/public/ProfileSettings";
 import { AppSettings } from "@/components/public/AppSettings";
 import RegistryReports from "@/components/registry/RegistryReports";
@@ -342,7 +342,7 @@ const RegistryDashboard = () => {
             {activeTab === 'permit-transfer' && <PermitTransferReview />}
             {activeTab === 'notifications' && <UnitNotificationsPanel unit="registry" />}
             {activeTab === 'reports' && <RegistryAnalyticsReports />}
-            {activeTab === 'team' && isManager && <TeamManagement />}
+            {activeTab === 'team' && isManager && <StaffManagement unit="registry" />}
             {activeTab === 'profile' && <ProfileSettings readOnly />}
             {activeTab === 'settings' && <AppSettings />}
             {activeTab === 'user-guide' && <RegistryUserGuide />}

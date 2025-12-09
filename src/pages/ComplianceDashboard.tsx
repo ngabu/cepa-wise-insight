@@ -10,7 +10,7 @@ import { ProfileSettings } from "@/components/public/ProfileSettings";
 import { AppSettings } from "@/components/public/AppSettings";
 import ComplianceReports from "@/components/compliance/ComplianceReports";
 import ComplianceAnalyticsReportsNew from "@/components/compliance/ComplianceAnalyticsReportsNew";
-import { TeamManagement } from "@/components/compliance/TeamManagement";
+import { StaffManagement } from '@/components/shared/StaffManagement';
 import { IntentRegistrationComplianceReview } from "@/components/compliance/IntentRegistrationComplianceReview";
 import { PermitRenewalComplianceReview } from "@/components/compliance/PermitRenewalComplianceReview";
 import { PermitTransferComplianceReview } from "@/components/compliance/PermitTransferComplianceReview";
@@ -65,7 +65,7 @@ const ComplianceDashboardView = () => {
             {activeTab === 'inspections' && <InspectionsManagement />}
             {activeTab === 'compliance-reports' && <ComplianceReportingManagement />}
             {activeTab === 'permit-applications' && <ComplianceApplicationsList />}
-            {activeTab === 'team' && isManager && <TeamManagement />}
+            {activeTab === 'team' && isManager && <StaffManagement unit="compliance" />}
             {activeTab === 'reports' && <ComplianceReports />}
             {activeTab === 'analytics-reporting' && <ComplianceAnalyticsReportsNew />}
             {activeTab === 'profile' && <ProfileSettings readOnly />}
