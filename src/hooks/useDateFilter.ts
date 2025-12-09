@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { startOfMonth, startOfYear, subDays, subMonths, subYears, endOfYear, startOfQuarter, subQuarters } from 'date-fns';
 
-export type DateFilterPeriod = 'weekly' | 'monthly' | 'quarterly' | 'yearly' | 'mtd' | 'ytd' | 'last-year' | 'all-time';
+export type DateFilterPeriod = 'weekly' | 'monthly' | 'quarterly' | 'mtd' | 'ytd' | 'last-year' | 'all-time';
 
 // Helper to get trend data labels based on period
 export function getTrendLabelsForPeriod(period: DateFilterPeriod, dateRange: DateFilterRange): string[] {
@@ -31,21 +31,19 @@ export function getTrendLabelsForPeriod(period: DateFilterPeriod, dateRange: Dat
       }
       return labels;
     }
-    case 'yearly':
-    case 'ytd':
-    case 'last-year': {
-      // Show 12 months
+    case 'ytd': {
+      // Show months from start of year to now
       const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      if (period === 'last-year') {
-        return months;
-      }
-      // For ytd, show months from start of year to now
       const startMonth = start.getMonth();
       const endMonth = end.getMonth();
       for (let i = startMonth; i <= endMonth; i++) {
         labels.push(months[i]);
       }
       return labels.length > 0 ? labels : months;
+    }
+    case 'last-year': {
+      // Show all 12 months
+      return ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     }
     case 'mtd': {
       // Show weeks of current month
@@ -87,7 +85,6 @@ export function getDataBucketIndex(
       const monthDiff = (end.getFullYear() - itemDate.getFullYear()) * 12 + (end.getMonth() - itemDate.getMonth());
       return monthDiff >= 0 && monthDiff < 3 ? 2 - monthDiff : -1;
     }
-    case 'yearly':
     case 'ytd': {
       if (itemDate < start || itemDate > end) return -1;
       return itemDate.getMonth() - start.getMonth();
@@ -126,8 +123,6 @@ export function useDateFilter(period: DateFilterPeriod): DateFilterRange {
         return { start: subDays(now, 30), end: now };
       case 'quarterly':
         return { start: subMonths(now, 3), end: now };
-      case 'yearly':
-        return { start: subYears(now, 1), end: now };
       case 'mtd':
         return { start: startOfMonth(now), end: now };
       case 'ytd':

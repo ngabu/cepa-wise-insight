@@ -758,7 +758,6 @@ export function ExecutiveAnalyticsDashboard() {
               <SelectItem value="weekly">Last 7 Days</SelectItem>
               <SelectItem value="monthly">Last 30 Days</SelectItem>
               <SelectItem value="quarterly">Last Quarter</SelectItem>
-              <SelectItem value="yearly">Last Year</SelectItem>
               <SelectItem value="mtd">Month to Date</SelectItem>
               <SelectItem value="ytd">Year to Date</SelectItem>
               <SelectItem value="last-year">Previous Year</SelectItem>
