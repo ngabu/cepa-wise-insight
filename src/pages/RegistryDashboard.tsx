@@ -16,6 +16,7 @@ import { TeamManagement } from "@/components/registry/TeamManagement";
 import { ProfileSettings } from "@/components/public/ProfileSettings";
 import { AppSettings } from "@/components/public/AppSettings";
 import RegistryReports from "@/components/registry/RegistryReports";
+import RegistryAnalyticsReports from "@/components/registry/RegistryAnalyticsReports";
 import { ApprovedIntentsList } from "@/components/registry/ApprovedIntentsList";
 import { PermitApplicationReview } from "@/components/registry/PermitApplicationReview";
 import { PermitRenewalReview } from "@/components/registry/PermitRenewalReview";
@@ -340,7 +341,7 @@ const RegistryDashboard = () => {
             {activeTab === 'permit-surrender' && <PermitSurrenderReview />}
             {activeTab === 'permit-transfer' && <PermitTransferReview />}
             {activeTab === 'notifications' && <UnitNotificationsPanel unit="registry" />}
-            {activeTab === 'reports' && <RegistryReports />}
+            {activeTab === 'reports' && <RegistryAnalyticsReports />}
             {activeTab === 'team' && isManager && <TeamManagement />}
             {activeTab === 'profile' && <ProfileSettings readOnly />}
             {activeTab === 'settings' && <AppSettings />}

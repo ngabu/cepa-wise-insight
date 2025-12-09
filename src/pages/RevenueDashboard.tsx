@@ -7,7 +7,7 @@ import { OutstandingPaymentsManagement } from '@/components/revenue/OutstandingP
 import { RevenueOfficerOperations } from '@/components/revenue/RevenueOfficerOperations';
 import { RevenueItemCodesManagement } from '@/components/revenue/RevenueItemCodesManagement';
 import { RevenueReports } from '@/components/revenue/RevenueReports';
-import RevenueAnalyticsReports from '@/components/revenue/RevenueAnalyticsReports';
+import RevenueAnalyticsReportsNew from '@/components/revenue/RevenueAnalyticsReportsNew';
 import { RevenueKPIs } from '@/components/revenue/RevenueKPIs';
 import { RevenueEntitiesList } from '@/components/revenue/RevenueEntitiesList';
 import { RevenuePermitsList } from '@/components/revenue/RevenuePermitsList';
@@ -92,7 +92,7 @@ export default function RevenueDashboard() {
                 </TabsContent>
 
                 <TabsContent value="analytics-reporting" className="space-y-4 md:space-y-6">
-                  <RevenueAnalyticsReports />
+                  <RevenueAnalyticsReportsNew />
                 </TabsContent>
 
                 <TabsContent value="daily-operations" className="space-y-4 md:space-y-6">
