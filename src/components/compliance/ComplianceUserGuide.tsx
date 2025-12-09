@@ -76,7 +76,7 @@ export function ComplianceUserGuide() {
           </p>
         </div>
         <Badge variant="secondary" className="w-fit">
-          Version 1.0 | Last Updated: December 2024
+          Version 1.0 | Last Updated: December 2025
         </Badge>
       </div>
 

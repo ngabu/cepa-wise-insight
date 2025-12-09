@@ -57,7 +57,7 @@ const registryNavigationItems: RegistryNavigationItem[] = [
 
 const managementItems: RegistryNavigationItem[] = [
   { title: "Documents Management", value: "documents-management", icon: FolderOpen },
-  { title: "Team Management", value: "team", icon: Users, managerOnly: true },
+  { title: "Staff Management", value: "team", icon: Users, managerOnly: true },
   { title: "Analytics and Reporting", value: "reports", icon: BarChart3 },
   { title: "User Guide", value: "user-guide", icon: BookOpen },
 ]
