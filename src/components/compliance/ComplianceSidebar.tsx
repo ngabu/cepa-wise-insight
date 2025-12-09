@@ -35,7 +35,8 @@ import {
   FileX,
   ArrowRightLeft,
   ClipboardList,
-  Eye
+  Eye,
+  BookOpen
 } from "lucide-react"
 import { useState } from "react"
 import { useUnitNotifications } from "@/hooks/useUnitNotifications"
@@ -56,6 +57,7 @@ const complianceNavigationItems: ComplianceNavigationItem[] = [
 const endMenuItems: ComplianceNavigationItem[] = [
   { title: "Team Management", value: "team", icon: Users, managerOnly: true },
   { title: "Analytics and Reporting", value: "analytics-reporting", icon: BarChart3 },
+  { title: "User Guide", value: "user-guide", icon: BookOpen },
   { title: "Notifications", value: "notifications", icon: Bell },
 ]
 

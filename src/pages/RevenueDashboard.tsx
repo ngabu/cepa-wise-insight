@@ -12,6 +12,7 @@ import { RevenueKPIs } from '@/components/revenue/RevenueKPIs';
 import { RevenueEntitiesList } from '@/components/revenue/RevenueEntitiesList';
 import { RevenuePermitsList } from '@/components/revenue/RevenuePermitsList';
 import { RevenueIntentRegistrationsList } from '@/components/revenue/RevenueIntentRegistrationsList';
+import { RevenueUserGuide } from '@/components/revenue/RevenueUserGuide';
 import { ProfileSettings } from '@/components/public/ProfileSettings';
 import { AppSettings } from '@/components/public/AppSettings';
 import { useAuth } from '@/contexts/AuthContext';
@@ -108,6 +109,10 @@ export default function RevenueDashboard() {
 
                 <TabsContent value="app-settings" className="space-y-4 md:space-y-6">
                   <AppSettings />
+                </TabsContent>
+
+                <TabsContent value="user-guide" className="space-y-4 md:space-y-6">
+                  <RevenueUserGuide />
                 </TabsContent>
               </Tabs>
             </div>

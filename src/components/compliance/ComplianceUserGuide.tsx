@@ -7,20 +7,10 @@ import { Separator } from "@/components/ui/separator";
 import {
   LayoutDashboard,
   FileText,
-  Building,
-  ClipboardList,
-  CheckCircle,
-  GitMerge,
-  FileEdit,
-  ShieldCheck,
-  Gavel,
-  RotateCw,
-  FileX,
-  ArrowRightLeft,
-  FolderOpen,
+  Shield,
+  ClipboardCheck,
   Users,
   BarChart3,
-  Bell,
   User,
   Cog,
   ChevronRight,
@@ -31,7 +21,16 @@ import {
   FileCheck,
   AlertTriangle,
   Clock,
-  Search
+  Search,
+  Eye,
+  GitMerge,
+  FileEdit,
+  ShieldCheck,
+  Gavel,
+  RotateCw,
+  FileX,
+  ArrowRightLeft,
+  ClipboardList
 } from "lucide-react";
 
 interface Section {
@@ -43,16 +42,16 @@ interface Section {
 const sections: Section[] = [
   { id: "overview", title: "System Overview", icon: BookOpen },
   { id: "dashboard", title: "Dashboard", icon: LayoutDashboard },
-  { id: "listings", title: "Listings", icon: Building },
-  { id: "applications", title: "Applications Reviews", icon: FileText },
-  { id: "compliance", title: "Compliance Reports", icon: FileCheck },
+  { id: "assessments", title: "Technical Assessments", icon: FileText },
+  { id: "compliance", title: "Compliance Monitoring", icon: Shield },
+  { id: "inspections", title: "Inspections", icon: Eye },
   { id: "management", title: "Management Tools", icon: Users },
   { id: "account", title: "Account Settings", icon: User },
   { id: "workflows", title: "Key Workflows", icon: Workflow },
   { id: "faq", title: "FAQ & Support", icon: HelpCircle },
 ];
 
-export function RegistryUserGuide() {
+export function ComplianceUserGuide() {
   const [activeSection, setActiveSection] = useState("overview");
 
   const scrollToSection = (sectionId: string) => {
@@ -65,15 +64,15 @@ export function RegistryUserGuide() {
 
   return (
     <div className="relative">
-      {/* Header - Fixed at top */}
+      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-card-foreground flex items-center gap-3">
             <BookOpen className="w-8 h-8 text-primary" />
-            Registry Unit User Guide
+            Compliance Unit User Guide
           </h1>
           <p className="text-muted-foreground mt-1">
-            Comprehensive guide for Registry Managers and Officers
+            Comprehensive guide for Compliance Managers and Officers
           </p>
         </div>
         <Badge variant="secondary" className="w-fit">
@@ -102,7 +101,7 @@ export function RegistryUserGuide() {
       </div>
 
       <div className="flex gap-6">
-        {/* Table of Contents - Sticky Sidebar for Desktop */}
+        {/* Table of Contents - Sidebar for Desktop */}
         <div className="hidden lg:block w-64 flex-shrink-0">
           <div className="sticky top-0">
             <Card>
@@ -143,37 +142,37 @@ export function RegistryUserGuide() {
                 System Overview
               </CardTitle>
               <CardDescription>
-                Introduction to the CEPA E-Permit Registry Dashboard
+                Introduction to the CEPA Environment Technical Assessment System
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-card-foreground">
-                The <strong>PNG CEPA E-Permit Registry Dashboard</strong> is the central hub for managing environmental permit applications, entity registrations, and compliance monitoring. This system enables the Registry Unit to efficiently process and track all permit-related activities.
+                The <strong>PNG CEPA Environment Technical Assessment System</strong> enables structured technical assessments for environmental permits under the PNG Environment Act 2000. This system supports the Compliance Unit in monitoring environmental performance and enforcing permit conditions.
               </p>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                 <div className="p-4 rounded-lg bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800">
                   <h4 className="font-semibold text-blue-700 dark:text-blue-300 flex items-center gap-2">
                     <Target className="w-4 h-4" />
-                    For Registry Managers
+                    For Compliance Managers
                   </h4>
                   <ul className="mt-2 space-y-1 text-sm text-blue-600 dark:text-blue-400">
-                    <li>• Allocate assessments to officers</li>
+                    <li>• Assign assessments to officers</li>
                     <li>• Monitor team performance</li>
-                    <li>• Oversee all application reviews</li>
+                    <li>• Oversee inspection schedules</li>
                     <li>• Access analytics and reports</li>
                   </ul>
                 </div>
                 <div className="p-4 rounded-lg bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800">
                   <h4 className="font-semibold text-green-700 dark:text-green-300 flex items-center gap-2">
                     <Target className="w-4 h-4" />
-                    For Registry Officers
+                    For Compliance Officers
                   </h4>
                   <ul className="mt-2 space-y-1 text-sm text-green-600 dark:text-green-400">
-                    <li>• Review assigned applications</li>
-                    <li>• Process permit requests</li>
-                    <li>• Update application statuses</li>
-                    <li>• Generate compliance reports</li>
+                    <li>• Conduct technical assessments</li>
+                    <li>• Perform site inspections</li>
+                    <li>• Review compliance reports</li>
+                    <li>• Process enforcement actions</li>
                   </ul>
                 </div>
               </div>
@@ -188,124 +187,69 @@ export function RegistryUserGuide() {
                 Dashboard
               </CardTitle>
               <CardDescription>
-                Your central command center for registry operations
+                Your central command center for compliance operations
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-card-foreground">
-                The Dashboard provides a real-time overview of all registry activities through key performance indicators (KPIs) and recent activity feeds.
+                The Dashboard provides a real-time overview of all compliance activities through key performance indicators (KPIs) and assessment status summaries.
               </p>
               
               <h4 className="font-semibold text-card-foreground mt-4">KPI Cards</h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 <div className="flex items-start gap-3 p-3 rounded-lg border">
-                  <Users className="w-5 h-5 text-blue-500 mt-0.5" />
+                  <ClipboardCheck className="w-5 h-5 text-blue-500 mt-0.5" />
                   <div>
-                    <p className="font-medium text-sm">Total Entities</p>
-                    <p className="text-xs text-muted-foreground">All registered companies and individuals</p>
+                    <p className="font-medium text-sm">Pending Assessments</p>
+                    <p className="text-xs text-muted-foreground">Applications awaiting technical review</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3 p-3 rounded-lg border">
-                  <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
+                  <Eye className="w-5 h-5 text-green-500 mt-0.5" />
                   <div>
-                    <p className="font-medium text-sm">Active Permits</p>
-                    <p className="text-xs text-muted-foreground">Currently approved and valid permits</p>
+                    <p className="font-medium text-sm">Scheduled Inspections</p>
+                    <p className="text-xs text-muted-foreground">Upcoming site inspections</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3 p-3 rounded-lg border">
-                  <Clock className="w-5 h-5 text-amber-500 mt-0.5" />
+                  <AlertTriangle className="w-5 h-5 text-amber-500 mt-0.5" />
                   <div>
-                    <p className="font-medium text-sm">Pending Applications</p>
-                    <p className="text-xs text-muted-foreground">Applications awaiting review</p>
+                    <p className="font-medium text-sm">Non-Compliant</p>
+                    <p className="text-xs text-muted-foreground">Permits with compliance issues</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3 p-3 rounded-lg border">
-                  <FileText className="w-5 h-5 text-purple-500 mt-0.5" />
+                  <FileCheck className="w-5 h-5 text-purple-500 mt-0.5" />
                   <div>
-                    <p className="font-medium text-sm">Pending Payments</p>
-                    <p className="text-xs text-muted-foreground">Invoices awaiting payment confirmation</p>
+                    <p className="font-medium text-sm">Completed Reviews</p>
+                    <p className="text-xs text-muted-foreground">Assessments completed this month</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3 p-3 rounded-lg border">
-                  <AlertTriangle className="w-5 h-5 text-red-500 mt-0.5" />
+                  <Clock className="w-5 h-5 text-red-500 mt-0.5" />
                   <div>
-                    <p className="font-medium text-sm">Expiring Soon</p>
-                    <p className="text-xs text-muted-foreground">Permits expiring within 30 days</p>
+                    <p className="font-medium text-sm">Overdue Reports</p>
+                    <p className="text-xs text-muted-foreground">Compliance reports past deadline</p>
                   </div>
-                </div>
-              </div>
-
-              <h4 className="font-semibold text-card-foreground mt-4">Interactive Map</h4>
-              <p className="text-sm text-muted-foreground">
-                The dashboard includes an interactive GIS map showing approved permit locations across Papua New Guinea. Toggle layer visibility to view administrative boundaries and protected areas.
-              </p>
-            </CardContent>
-          </Card>
-
-          {/* Section 3: Listings */}
-          <Card id="listings">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Building className="w-5 h-5 text-primary" />
-                Listings
-              </CardTitle>
-              <CardDescription>
-                Manage entities, intents, and permits
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-card-foreground">
-                The Listings section provides access to three main data categories that form the foundation of the permit management system.
-              </p>
-
-              <div className="space-y-4 mt-4">
-                <div className="p-4 rounded-lg border">
-                  <h4 className="font-semibold flex items-center gap-2 text-card-foreground">
-                    <Building className="w-4 h-4 text-blue-500" />
-                    Entities
-                  </h4>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    View and manage all registered entities (companies and individuals) in the system. Search, filter, and access detailed entity profiles including associated permits and compliance history.
-                  </p>
-                </div>
-
-                <div className="p-4 rounded-lg border">
-                  <h4 className="font-semibold flex items-center gap-2 text-card-foreground">
-                    <ClipboardList className="w-4 h-4 text-amber-500" />
-                    Intents
-                  </h4>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Browse all intent registrations submitted by applicants. Track the status of environmental impact assessments and project proposals before they proceed to permit applications.
-                  </p>
-                </div>
-
-                <div className="p-4 rounded-lg border">
-                  <h4 className="font-semibold flex items-center gap-2 text-card-foreground">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                    Permits
-                  </h4>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Access the complete permit registry. View active, expired, suspended, and revoked permits. Each permit record includes full application history, conditions, and compliance status.
-                  </p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Section 4: Applications Reviews */}
-          <Card id="applications">
+          {/* Section 3: Technical Assessments */}
+          <Card id="assessments">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <FileText className="w-5 h-5 text-primary" />
-                Applications Reviews
+                Technical Assessments
               </CardTitle>
               <CardDescription>
-                Comprehensive application review workflows
+                Environmental permit application reviews
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-card-foreground">
-                The Applications Reviews section contains all review workflows for different types of permit-related applications. Each review type follows a structured assessment process.
+                The Assessments section contains all technical review workflows for different types of permit-related applications under the Environment Act 2000.
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
@@ -313,63 +257,49 @@ export function RegistryUserGuide() {
                   <ClipboardList className="w-5 h-5 text-blue-500 mt-0.5" />
                   <div>
                     <p className="font-medium text-sm">Intent Application Review</p>
-                    <p className="text-xs text-muted-foreground">Review initial project intent registrations and EIA requirements</p>
+                    <p className="text-xs text-muted-foreground">Review project intent and EIA requirements</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3 p-3 rounded-lg border hover:bg-accent/50 transition-colors">
                   <FileText className="w-5 h-5 text-green-500 mt-0.5" />
                   <div>
                     <p className="font-medium text-sm">Permit Application Review</p>
-                    <p className="text-xs text-muted-foreground">Process new environmental permit applications</p>
+                    <p className="text-xs text-muted-foreground">Conduct technical assessment of permit applications</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3 p-3 rounded-lg border hover:bg-accent/50 transition-colors">
                   <GitMerge className="w-5 h-5 text-purple-500 mt-0.5" />
                   <div>
                     <p className="font-medium text-sm">Permit Amalgamation</p>
-                    <p className="text-xs text-muted-foreground">Combine multiple permits into a single permit</p>
+                    <p className="text-xs text-muted-foreground">Review requests to combine permits</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3 p-3 rounded-lg border hover:bg-accent/50 transition-colors">
                   <FileEdit className="w-5 h-5 text-amber-500 mt-0.5" />
                   <div>
                     <p className="font-medium text-sm">Permit Amendments</p>
-                    <p className="text-xs text-muted-foreground">Review requests to modify existing permit conditions</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3 p-3 rounded-lg border hover:bg-accent/50 transition-colors">
-                  <ShieldCheck className="w-5 h-5 text-teal-500 mt-0.5" />
-                  <div>
-                    <p className="font-medium text-sm">Permit Compliance</p>
-                    <p className="text-xs text-muted-foreground">Review compliance monitoring reports and assessments</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3 p-3 rounded-lg border hover:bg-accent/50 transition-colors">
-                  <Gavel className="w-5 h-5 text-red-500 mt-0.5" />
-                  <div>
-                    <p className="font-medium text-sm">Permit Enforcement</p>
-                    <p className="text-xs text-muted-foreground">Handle enforcement actions and penalty proceedings</p>
+                    <p className="text-xs text-muted-foreground">Assess proposed permit condition changes</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3 p-3 rounded-lg border hover:bg-accent/50 transition-colors">
                   <RotateCw className="w-5 h-5 text-cyan-500 mt-0.5" />
                   <div>
                     <p className="font-medium text-sm">Permit Renewal</p>
-                    <p className="text-xs text-muted-foreground">Process permit renewal applications before expiry</p>
+                    <p className="text-xs text-muted-foreground">Review permit renewal applications</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3 p-3 rounded-lg border hover:bg-accent/50 transition-colors">
                   <FileX className="w-5 h-5 text-gray-500 mt-0.5" />
                   <div>
                     <p className="font-medium text-sm">Permit Surrender</p>
-                    <p className="text-xs text-muted-foreground">Handle voluntary permit surrender requests</p>
+                    <p className="text-xs text-muted-foreground">Process voluntary permit surrenders</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3 p-3 rounded-lg border hover:bg-accent/50 transition-colors">
                   <ArrowRightLeft className="w-5 h-5 text-indigo-500 mt-0.5" />
                   <div>
                     <p className="font-medium text-sm">Permit Transfer</p>
-                    <p className="text-xs text-muted-foreground">Process ownership transfer between entities</p>
+                    <p className="text-xs text-muted-foreground">Review permit ownership transfers</p>
                   </div>
                 </div>
               </div>
@@ -377,47 +307,91 @@ export function RegistryUserGuide() {
               <div className="p-4 rounded-lg bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 mt-4">
                 <h4 className="font-semibold text-amber-700 dark:text-amber-300 flex items-center gap-2">
                   <AlertTriangle className="w-4 h-4" />
-                  Review Process
+                  Assessment Process
                 </h4>
                 <p className="text-sm text-amber-600 dark:text-amber-400 mt-1">
-                  Each application review includes: document verification, fee calculation, assessment scoring, recommendation submission, and status updates. Always ensure all required documents are verified before approving any application.
+                  Each technical assessment includes: environmental impact evaluation, mitigation measures review, compliance scoring, technical recommendations, and status updates according to Environment Act 2000 requirements.
                 </p>
               </div>
             </CardContent>
           </Card>
 
-          {/* Section 5: Compliance Reports */}
+          {/* Section 4: Compliance Monitoring */}
           <Card id="compliance">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <FileCheck className="w-5 h-5 text-primary" />
-                Compliance Reports
+                <Shield className="w-5 h-5 text-primary" />
+                Compliance Monitoring
               </CardTitle>
               <CardDescription>
-                Monitor and track compliance reporting
+                Monitor permit holder compliance and reporting
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-card-foreground">
-                The Compliance Reports section allows you to view and manage compliance reports submitted by permit holders. Monitor environmental monitoring data, audit results, and compliance status across all active permits.
+                The Compliance section enables monitoring of permit holder performance and enforcement of permit conditions.
+              </p>
+
+              <div className="space-y-4 mt-4">
+                <div className="p-4 rounded-lg border">
+                  <h4 className="font-semibold flex items-center gap-2 text-card-foreground">
+                    <FileCheck className="w-4 h-4 text-green-500" />
+                    Compliance Reports
+                  </h4>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Review periodic compliance reports submitted by permit holders. Track environmental monitoring data and assess compliance status.
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-lg border">
+                  <h4 className="font-semibold flex items-center gap-2 text-card-foreground">
+                    <Gavel className="w-4 h-4 text-red-500" />
+                    Enforcement Actions
+                  </h4>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Process enforcement actions for non-compliant permit holders including warnings, penalties, and permit suspensions.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Section 5: Inspections */}
+          <Card id="inspections">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Eye className="w-5 h-5 text-primary" />
+                Inspections
+              </CardTitle>
+              <CardDescription>
+                Site inspection management and scheduling
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-card-foreground">
+                The Inspections section helps you manage site visits, schedule inspections, and document findings.
               </p>
               
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li className="flex items-center gap-2">
                   <ChevronRight className="w-4 h-4 text-primary" />
-                  View submitted compliance reports from permit holders
+                  Schedule and plan site inspections
                 </li>
                 <li className="flex items-center gap-2">
                   <ChevronRight className="w-4 h-4 text-primary" />
-                  Track report submission deadlines and overdue reports
+                  Record inspection findings and observations
                 </li>
                 <li className="flex items-center gap-2">
                   <ChevronRight className="w-4 h-4 text-primary" />
-                  Review environmental monitoring data and trends
+                  Upload photos and supporting documents
                 </li>
                 <li className="flex items-center gap-2">
                   <ChevronRight className="w-4 h-4 text-primary" />
-                  Flag non-compliant activities for enforcement review
+                  Generate inspection reports
+                </li>
+                <li className="flex items-center gap-2">
+                  <ChevronRight className="w-4 h-4 text-primary" />
+                  Track follow-up actions and remediation
                 </li>
               </ul>
             </CardContent>
@@ -438,22 +412,12 @@ export function RegistryUserGuide() {
               <div className="space-y-4">
                 <div className="p-4 rounded-lg border">
                   <h4 className="font-semibold flex items-center gap-2 text-card-foreground">
-                    <FolderOpen className="w-4 h-4 text-blue-500" />
-                    Documents Management
-                  </h4>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Centralized document repository for all permit-related files. Upload, organize, and retrieve documents with version control and audit trails.
-                  </p>
-                </div>
-
-                <div className="p-4 rounded-lg border">
-                  <h4 className="font-semibold flex items-center gap-2 text-card-foreground">
-                    <Users className="w-4 h-4 text-green-500" />
+                    <Users className="w-4 h-4 text-blue-500" />
                     Team Management
                     <Badge variant="outline" className="text-xs">Manager Only</Badge>
                   </h4>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Manage registry team members, assign roles, allocate workload, and monitor officer performance. Track application assignments and completion rates.
+                    Manage compliance team members, assign assessments, and monitor officer performance and workload.
                   </p>
                 </div>
 
@@ -463,17 +427,7 @@ export function RegistryUserGuide() {
                     Analytics and Reporting
                   </h4>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Generate comprehensive reports on registry operations. View processing times, approval rates, revenue collection, and workload distribution analytics.
-                  </p>
-                </div>
-
-                <div className="p-4 rounded-lg border">
-                  <h4 className="font-semibold flex items-center gap-2 text-card-foreground">
-                    <Bell className="w-4 h-4 text-amber-500" />
-                    Notifications
-                  </h4>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Stay updated with system notifications for new applications, pending reviews, approaching deadlines, and important alerts. Mark notifications as read or take immediate action.
+                    Generate comprehensive reports on compliance operations, inspection statistics, and enforcement metrics.
                   </p>
                 </div>
               </div>
@@ -499,7 +453,7 @@ export function RegistryUserGuide() {
                     Profile
                   </h4>
                   <p className="text-sm text-muted-foreground mt-1">
-                    View your personal information, contact details, and role assignments. Update your display preferences and contact information.
+                    View your personal information, contact details, and role assignments.
                   </p>
                 </div>
 
@@ -509,7 +463,7 @@ export function RegistryUserGuide() {
                     Settings
                   </h4>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Configure application settings including notification preferences, display options, and accessibility features.
+                    Configure application settings including notification preferences and display options.
                   </p>
                 </div>
               </div>
@@ -530,15 +484,14 @@ export function RegistryUserGuide() {
             <CardContent className="space-y-6">
               {/* Workflow 1 */}
               <div className="space-y-3">
-                <h4 className="font-semibold text-card-foreground">1. Reviewing a New Permit Application</h4>
+                <h4 className="font-semibold text-card-foreground">1. Conducting a Technical Assessment</h4>
                 <ol className="space-y-2 text-sm text-muted-foreground list-decimal list-inside">
-                  <li>Navigate to <strong>Applications Reviews → Permit Application Review</strong></li>
-                  <li>Select a pending application from the list</li>
-                  <li>Review all submitted documents and verify completeness</li>
-                  <li>Check fee calculations and payment status</li>
-                  <li>Complete the assessment form with scores and comments</li>
-                  <li>Submit your recommendation (Approve/Reject/Request Clarification)</li>
-                  <li>The application will be forwarded for final approval</li>
+                  <li>Navigate to <strong>Assessments → Permit Application Review</strong></li>
+                  <li>Select an assigned application from your queue</li>
+                  <li>Review all submitted documents and EIA reports</li>
+                  <li>Evaluate environmental impacts and mitigation measures</li>
+                  <li>Complete the technical assessment form</li>
+                  <li>Submit your recommendation with detailed findings</li>
                 </ol>
               </div>
 
@@ -546,15 +499,15 @@ export function RegistryUserGuide() {
 
               {/* Workflow 2 */}
               <div className="space-y-3">
-                <h4 className="font-semibold text-card-foreground">2. Processing an Intent Registration</h4>
+                <h4 className="font-semibold text-card-foreground">2. Scheduling and Conducting an Inspection</h4>
                 <ol className="space-y-2 text-sm text-muted-foreground list-decimal list-inside">
-                  <li>Go to <strong>Applications Reviews → Intent Application Review</strong></li>
-                  <li>Open the intent registration requiring review</li>
-                  <li>Verify project details and proposed location</li>
-                  <li>Review the Area of Interest (AOI) boundary on the map</li>
-                  <li>Determine EIA requirements based on activity classification</li>
-                  <li>Generate and send the registration invoice</li>
-                  <li>Upon payment confirmation, approve the intent</li>
+                  <li>Go to <strong>Compliance → Inspections</strong></li>
+                  <li>Click "Schedule New Inspection"</li>
+                  <li>Select the permit and site to inspect</li>
+                  <li>Set the inspection date and notify the permit holder</li>
+                  <li>Conduct the site visit and document findings</li>
+                  <li>Upload photos and evidence</li>
+                  <li>Generate and submit the inspection report</li>
                 </ol>
               </div>
 
@@ -562,15 +515,15 @@ export function RegistryUserGuide() {
 
               {/* Workflow 3 */}
               <div className="space-y-3">
-                <h4 className="font-semibold text-card-foreground">3. Allocating Work to Officers (Manager Only)</h4>
+                <h4 className="font-semibold text-card-foreground">3. Processing an Enforcement Action</h4>
                 <ol className="space-y-2 text-sm text-muted-foreground list-decimal list-inside">
-                  <li>Access <strong>Management → Team Management</strong></li>
-                  <li>Review current workload distribution</li>
-                  <li>Click "Allocate Assessment" button</li>
-                  <li>Select the application to assign</li>
-                  <li>Choose the officer based on expertise and availability</li>
-                  <li>Add any special instructions or deadline notes</li>
-                  <li>Confirm the allocation - officer will receive notification</li>
+                  <li>Access <strong>Compliance → Permit Enforcement</strong></li>
+                  <li>Review the non-compliance case details</li>
+                  <li>Assess the severity and history of violations</li>
+                  <li>Determine appropriate enforcement action</li>
+                  <li>Document findings and recommendations</li>
+                  <li>Submit for manager approval if required</li>
+                  <li>Issue enforcement notice to the permit holder</li>
                 </ol>
               </div>
             </CardContent>
@@ -590,30 +543,30 @@ export function RegistryUserGuide() {
             <CardContent className="space-y-4">
               <div className="space-y-4">
                 <div className="p-4 rounded-lg bg-muted/50">
-                  <h4 className="font-semibold text-card-foreground">Q: How do I reset my password?</h4>
+                  <h4 className="font-semibold text-card-foreground">Q: What is the difference between Level 1, 2, and 3 activities?</h4>
                   <p className="text-sm text-muted-foreground mt-1">
-                    A: Contact the System Administrator or use the "Forgot Password" option on the login page. You will receive a password reset link via email.
+                    A: Activity levels are determined by environmental impact. Level 1 has minimal impact, Level 2 moderate, and Level 3 significant impact requiring full EIA. Refer to the Environment Act 2000 Schedule for classifications.
                   </p>
                 </div>
 
                 <div className="p-4 rounded-lg bg-muted/50">
-                  <h4 className="font-semibold text-card-foreground">Q: Why can't I see certain menu items?</h4>
+                  <h4 className="font-semibold text-card-foreground">Q: How do I assign an assessment to another officer?</h4>
                   <p className="text-sm text-muted-foreground mt-1">
-                    A: Some features are restricted based on your role. Team Management is only visible to Registry Managers. Contact your supervisor if you need access to additional features.
+                    A: Only Compliance Managers can assign or reassign assessments. Use the Team Management section to allocate assessments based on officer workload and expertise.
                   </p>
                 </div>
 
                 <div className="p-4 rounded-lg bg-muted/50">
-                  <h4 className="font-semibold text-card-foreground">Q: How do I report a system issue?</h4>
+                  <h4 className="font-semibold text-card-foreground">Q: What happens after I submit my technical assessment?</h4>
                   <p className="text-sm text-muted-foreground mt-1">
-                    A: Document the issue with screenshots and steps to reproduce. Contact the IT Help Desk or System Administrator via the internal support channel.
+                    A: Your assessment is forwarded to the Compliance Manager for review, then proceeds through the approval workflow including Registry review and Director decision.
                   </p>
                 </div>
 
                 <div className="p-4 rounded-lg bg-muted/50">
-                  <h4 className="font-semibold text-card-foreground">Q: Can I access the system outside the office?</h4>
+                  <h4 className="font-semibold text-card-foreground">Q: How do I report an environmental emergency?</h4>
                   <p className="text-sm text-muted-foreground mt-1">
-                    A: Yes, the system is accessible via web browser from any location with internet access. Ensure you are using a secure connection and following CEPA's remote access policies.
+                    A: Contact your supervisor immediately and use the emergency reporting protocol. Document all details including location, nature of incident, and immediate actions taken.
                   </p>
                 </div>
               </div>
@@ -624,7 +577,7 @@ export function RegistryUserGuide() {
                   Need More Help?
                 </h4>
                 <p className="text-sm text-muted-foreground mt-1">
-                  For additional support, contact the CEPA IT Help Desk or your Registry Unit Manager. System documentation and training materials are available on the internal knowledge base.
+                  For additional support, contact the CEPA IT Help Desk or your Compliance Unit Manager. System documentation and training materials are available on the internal knowledge base.
                 </p>
               </div>
             </CardContent>

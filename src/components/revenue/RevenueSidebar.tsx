@@ -10,7 +10,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { 
+import {
   Activity, 
   CreditCard, 
   AlertTriangle, 
@@ -26,7 +26,8 @@ import {
   ChevronDown,
   ChevronRight,
   Users,
-  ClipboardList
+  ClipboardList,
+  BookOpen
 } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
 import pngEmblem from "@/assets/png-emblem.png"
@@ -66,6 +67,7 @@ const managementItems: RevenueNavigationItem[] = [
     ]
   },
   { title: "Codes Management", value: "settings", icon: Database },
+  { title: "User Guide", value: "user-guide", icon: BookOpen },
 ]
 
 const accountItems: RevenueNavigationItem[] = [

@@ -8,19 +8,11 @@ import {
   LayoutDashboard,
   FileText,
   Building,
-  ClipboardList,
-  CheckCircle,
-  GitMerge,
-  FileEdit,
-  ShieldCheck,
-  Gavel,
-  RotateCw,
-  FileX,
-  ArrowRightLeft,
-  FolderOpen,
+  CreditCard,
+  AlertTriangle,
+  DollarSign,
   Users,
   BarChart3,
-  Bell,
   User,
   Cog,
   ChevronRight,
@@ -29,9 +21,12 @@ import {
   Workflow,
   HelpCircle,
   FileCheck,
-  AlertTriangle,
   Clock,
-  Search
+  Search,
+  Receipt,
+  Banknote,
+  TrendingUp,
+  ClipboardList
 } from "lucide-react";
 
 interface Section {
@@ -44,15 +39,15 @@ const sections: Section[] = [
   { id: "overview", title: "System Overview", icon: BookOpen },
   { id: "dashboard", title: "Dashboard", icon: LayoutDashboard },
   { id: "listings", title: "Listings", icon: Building },
-  { id: "applications", title: "Applications Reviews", icon: FileText },
-  { id: "compliance", title: "Compliance Reports", icon: FileCheck },
+  { id: "collection", title: "Revenue Collection", icon: CreditCard },
+  { id: "outstanding", title: "Outstanding Payments", icon: AlertTriangle },
   { id: "management", title: "Management Tools", icon: Users },
   { id: "account", title: "Account Settings", icon: User },
   { id: "workflows", title: "Key Workflows", icon: Workflow },
   { id: "faq", title: "FAQ & Support", icon: HelpCircle },
 ];
 
-export function RegistryUserGuide() {
+export function RevenueUserGuide() {
   const [activeSection, setActiveSection] = useState("overview");
 
   const scrollToSection = (sectionId: string) => {
@@ -65,15 +60,15 @@ export function RegistryUserGuide() {
 
   return (
     <div className="relative">
-      {/* Header - Fixed at top */}
+      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-card-foreground flex items-center gap-3">
             <BookOpen className="w-8 h-8 text-primary" />
-            Registry Unit User Guide
+            Revenue Unit User Guide
           </h1>
           <p className="text-muted-foreground mt-1">
-            Comprehensive guide for Registry Managers and Officers
+            Comprehensive guide for Revenue Managers and Officers
           </p>
         </div>
         <Badge variant="secondary" className="w-fit">
@@ -102,7 +97,7 @@ export function RegistryUserGuide() {
       </div>
 
       <div className="flex gap-6">
-        {/* Table of Contents - Sticky Sidebar for Desktop */}
+        {/* Table of Contents - Sidebar for Desktop */}
         <div className="hidden lg:block w-64 flex-shrink-0">
           <div className="sticky top-0">
             <Card>
@@ -143,37 +138,37 @@ export function RegistryUserGuide() {
                 System Overview
               </CardTitle>
               <CardDescription>
-                Introduction to the CEPA E-Permit Registry Dashboard
+                Introduction to the CEPA E-Permit Revenue Dashboard
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-card-foreground">
-                The <strong>PNG CEPA E-Permit Registry Dashboard</strong> is the central hub for managing environmental permit applications, entity registrations, and compliance monitoring. This system enables the Registry Unit to efficiently process and track all permit-related activities.
+                The <strong>PNG CEPA E-Permit Revenue Dashboard</strong> is the central hub for managing environmental permit fees, invoice generation, payment verification, and revenue tracking. This system enables the Revenue Unit to efficiently collect and manage all permit-related payments.
               </p>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                 <div className="p-4 rounded-lg bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800">
                   <h4 className="font-semibold text-blue-700 dark:text-blue-300 flex items-center gap-2">
                     <Target className="w-4 h-4" />
-                    For Registry Managers
+                    For Revenue Managers
                   </h4>
                   <ul className="mt-2 space-y-1 text-sm text-blue-600 dark:text-blue-400">
-                    <li>• Allocate assessments to officers</li>
-                    <li>• Monitor team performance</li>
-                    <li>• Oversee all application reviews</li>
-                    <li>• Access analytics and reports</li>
+                    <li>• Oversee revenue collection operations</li>
+                    <li>• Monitor team performance metrics</li>
+                    <li>• Verify payment confirmations</li>
+                    <li>• Access analytics and financial reports</li>
                   </ul>
                 </div>
                 <div className="p-4 rounded-lg bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800">
                   <h4 className="font-semibold text-green-700 dark:text-green-300 flex items-center gap-2">
                     <Target className="w-4 h-4" />
-                    For Registry Officers
+                    For Revenue Officers
                   </h4>
                   <ul className="mt-2 space-y-1 text-sm text-green-600 dark:text-green-400">
-                    <li>• Review assigned applications</li>
-                    <li>• Process permit requests</li>
-                    <li>• Update application statuses</li>
-                    <li>• Generate compliance reports</li>
+                    <li>• Generate invoices for applications</li>
+                    <li>• Process payment receipts</li>
+                    <li>• Follow up on outstanding payments</li>
+                    <li>• Update payment records</li>
                   </ul>
                 </div>
               </div>
@@ -188,57 +183,52 @@ export function RegistryUserGuide() {
                 Dashboard
               </CardTitle>
               <CardDescription>
-                Your central command center for registry operations
+                Your central command center for revenue operations
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-card-foreground">
-                The Dashboard provides a real-time overview of all registry activities through key performance indicators (KPIs) and recent activity feeds.
+                The Dashboard provides a real-time overview of all revenue activities through key performance indicators (KPIs) and financial summaries.
               </p>
               
               <h4 className="font-semibold text-card-foreground mt-4">KPI Cards</h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 <div className="flex items-start gap-3 p-3 rounded-lg border">
-                  <Users className="w-5 h-5 text-blue-500 mt-0.5" />
+                  <DollarSign className="w-5 h-5 text-green-500 mt-0.5" />
                   <div>
-                    <p className="font-medium text-sm">Total Entities</p>
-                    <p className="text-xs text-muted-foreground">All registered companies and individuals</p>
+                    <p className="font-medium text-sm">Total Revenue</p>
+                    <p className="text-xs text-muted-foreground">Total collected revenue for the period</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3 p-3 rounded-lg border">
-                  <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
+                  <Receipt className="w-5 h-5 text-blue-500 mt-0.5" />
                   <div>
-                    <p className="font-medium text-sm">Active Permits</p>
-                    <p className="text-xs text-muted-foreground">Currently approved and valid permits</p>
+                    <p className="font-medium text-sm">Pending Invoices</p>
+                    <p className="text-xs text-muted-foreground">Invoices awaiting payment</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3 p-3 rounded-lg border">
-                  <Clock className="w-5 h-5 text-amber-500 mt-0.5" />
+                  <AlertTriangle className="w-5 h-5 text-amber-500 mt-0.5" />
                   <div>
-                    <p className="font-medium text-sm">Pending Applications</p>
-                    <p className="text-xs text-muted-foreground">Applications awaiting review</p>
+                    <p className="font-medium text-sm">Overdue Payments</p>
+                    <p className="text-xs text-muted-foreground">Payments past their due date</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3 p-3 rounded-lg border">
-                  <FileText className="w-5 h-5 text-purple-500 mt-0.5" />
+                  <Banknote className="w-5 h-5 text-purple-500 mt-0.5" />
                   <div>
-                    <p className="font-medium text-sm">Pending Payments</p>
-                    <p className="text-xs text-muted-foreground">Invoices awaiting payment confirmation</p>
+                    <p className="font-medium text-sm">Today's Collections</p>
+                    <p className="text-xs text-muted-foreground">Payments received today</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3 p-3 rounded-lg border">
-                  <AlertTriangle className="w-5 h-5 text-red-500 mt-0.5" />
+                  <TrendingUp className="w-5 h-5 text-teal-500 mt-0.5" />
                   <div>
-                    <p className="font-medium text-sm">Expiring Soon</p>
-                    <p className="text-xs text-muted-foreground">Permits expiring within 30 days</p>
+                    <p className="font-medium text-sm">Monthly Target</p>
+                    <p className="text-xs text-muted-foreground">Progress towards revenue targets</p>
                   </div>
                 </div>
               </div>
-
-              <h4 className="font-semibold text-card-foreground mt-4">Interactive Map</h4>
-              <p className="text-sm text-muted-foreground">
-                The dashboard includes an interactive GIS map showing approved permit locations across Papua New Guinea. Toggle layer visibility to view administrative boundaries and protected areas.
-              </p>
             </CardContent>
           </Card>
 
@@ -250,126 +240,77 @@ export function RegistryUserGuide() {
                 Listings
               </CardTitle>
               <CardDescription>
-                Manage entities, intents, and permits
+                View entities, intents, and permits for revenue management
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-card-foreground">
-                The Listings section provides access to three main data categories that form the foundation of the permit management system.
+                The Listings section provides access to financial information for all registered entities, intent registrations, and permits.
               </p>
 
               <div className="space-y-4 mt-4">
+                <div className="p-4 rounded-lg border">
+                  <h4 className="font-semibold flex items-center gap-2 text-card-foreground">
+                    <FileText className="w-4 h-4 text-amber-500" />
+                    Intents
+                  </h4>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    View all intent registrations with their associated fees, payment status, and invoice history.
+                  </p>
+                </div>
+
                 <div className="p-4 rounded-lg border">
                   <h4 className="font-semibold flex items-center gap-2 text-card-foreground">
                     <Building className="w-4 h-4 text-blue-500" />
                     Entities
                   </h4>
                   <p className="text-sm text-muted-foreground mt-1">
-                    View and manage all registered entities (companies and individuals) in the system. Search, filter, and access detailed entity profiles including associated permits and compliance history.
+                    Access entity financial profiles including payment history, outstanding balances, and account status.
                   </p>
                 </div>
 
                 <div className="p-4 rounded-lg border">
                   <h4 className="font-semibold flex items-center gap-2 text-card-foreground">
-                    <ClipboardList className="w-4 h-4 text-amber-500" />
-                    Intents
-                  </h4>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Browse all intent registrations submitted by applicants. Track the status of environmental impact assessments and project proposals before they proceed to permit applications.
-                  </p>
-                </div>
-
-                <div className="p-4 rounded-lg border">
-                  <h4 className="font-semibold flex items-center gap-2 text-card-foreground">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
+                    <FileCheck className="w-4 h-4 text-green-500" />
                     Permits
                   </h4>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Access the complete permit registry. View active, expired, suspended, and revoked permits. Each permit record includes full application history, conditions, and compliance status.
+                    View permit fee structures, annual fees, and renewal payment schedules.
                   </p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Section 4: Applications Reviews */}
-          <Card id="applications">
+          {/* Section 4: Revenue Collection */}
+          <Card id="collection">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <FileText className="w-5 h-5 text-primary" />
-                Applications Reviews
+                <CreditCard className="w-5 h-5 text-primary" />
+                Revenue Collection
               </CardTitle>
               <CardDescription>
-                Comprehensive application review workflows
+                Invoice management and payment verification
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-card-foreground">
-                The Applications Reviews section contains all review workflows for different types of permit-related applications. Each review type follows a structured assessment process.
+                The Collection section handles all invoice generation, payment processing, and verification activities.
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
                 <div className="flex items-start gap-3 p-3 rounded-lg border hover:bg-accent/50 transition-colors">
-                  <ClipboardList className="w-5 h-5 text-blue-500 mt-0.5" />
+                  <Receipt className="w-5 h-5 text-blue-500 mt-0.5" />
                   <div>
-                    <p className="font-medium text-sm">Intent Application Review</p>
-                    <p className="text-xs text-muted-foreground">Review initial project intent registrations and EIA requirements</p>
+                    <p className="font-medium text-sm">Invoice Management</p>
+                    <p className="text-xs text-muted-foreground">Create, view, and manage invoices for all permit-related fees</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3 p-3 rounded-lg border hover:bg-accent/50 transition-colors">
-                  <FileText className="w-5 h-5 text-green-500 mt-0.5" />
+                  <FileCheck className="w-5 h-5 text-green-500 mt-0.5" />
                   <div>
-                    <p className="font-medium text-sm">Permit Application Review</p>
-                    <p className="text-xs text-muted-foreground">Process new environmental permit applications</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3 p-3 rounded-lg border hover:bg-accent/50 transition-colors">
-                  <GitMerge className="w-5 h-5 text-purple-500 mt-0.5" />
-                  <div>
-                    <p className="font-medium text-sm">Permit Amalgamation</p>
-                    <p className="text-xs text-muted-foreground">Combine multiple permits into a single permit</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3 p-3 rounded-lg border hover:bg-accent/50 transition-colors">
-                  <FileEdit className="w-5 h-5 text-amber-500 mt-0.5" />
-                  <div>
-                    <p className="font-medium text-sm">Permit Amendments</p>
-                    <p className="text-xs text-muted-foreground">Review requests to modify existing permit conditions</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3 p-3 rounded-lg border hover:bg-accent/50 transition-colors">
-                  <ShieldCheck className="w-5 h-5 text-teal-500 mt-0.5" />
-                  <div>
-                    <p className="font-medium text-sm">Permit Compliance</p>
-                    <p className="text-xs text-muted-foreground">Review compliance monitoring reports and assessments</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3 p-3 rounded-lg border hover:bg-accent/50 transition-colors">
-                  <Gavel className="w-5 h-5 text-red-500 mt-0.5" />
-                  <div>
-                    <p className="font-medium text-sm">Permit Enforcement</p>
-                    <p className="text-xs text-muted-foreground">Handle enforcement actions and penalty proceedings</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3 p-3 rounded-lg border hover:bg-accent/50 transition-colors">
-                  <RotateCw className="w-5 h-5 text-cyan-500 mt-0.5" />
-                  <div>
-                    <p className="font-medium text-sm">Permit Renewal</p>
-                    <p className="text-xs text-muted-foreground">Process permit renewal applications before expiry</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3 p-3 rounded-lg border hover:bg-accent/50 transition-colors">
-                  <FileX className="w-5 h-5 text-gray-500 mt-0.5" />
-                  <div>
-                    <p className="font-medium text-sm">Permit Surrender</p>
-                    <p className="text-xs text-muted-foreground">Handle voluntary permit surrender requests</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3 p-3 rounded-lg border hover:bg-accent/50 transition-colors">
-                  <ArrowRightLeft className="w-5 h-5 text-indigo-500 mt-0.5" />
-                  <div>
-                    <p className="font-medium text-sm">Permit Transfer</p>
-                    <p className="text-xs text-muted-foreground">Process ownership transfer between entities</p>
+                    <p className="font-medium text-sm">Payment Verification</p>
+                    <p className="text-xs text-muted-foreground">Verify payment receipts and update payment status</p>
                   </div>
                 </div>
               </div>
@@ -377,47 +318,47 @@ export function RegistryUserGuide() {
               <div className="p-4 rounded-lg bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 mt-4">
                 <h4 className="font-semibold text-amber-700 dark:text-amber-300 flex items-center gap-2">
                   <AlertTriangle className="w-4 h-4" />
-                  Review Process
+                  Payment Verification Process
                 </h4>
                 <p className="text-sm text-amber-600 dark:text-amber-400 mt-1">
-                  Each application review includes: document verification, fee calculation, assessment scoring, recommendation submission, and status updates. Always ensure all required documents are verified before approving any application.
+                  Always verify payment receipts against bank statements before confirming payments. Ensure the receipt number, amount, and date match before updating the payment status.
                 </p>
               </div>
             </CardContent>
           </Card>
 
-          {/* Section 5: Compliance Reports */}
-          <Card id="compliance">
+          {/* Section 5: Outstanding Payments */}
+          <Card id="outstanding">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <FileCheck className="w-5 h-5 text-primary" />
-                Compliance Reports
+                <AlertTriangle className="w-5 h-5 text-primary" />
+                Outstanding Payments
               </CardTitle>
               <CardDescription>
-                Monitor and track compliance reporting
+                Track and follow up on overdue payments
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-card-foreground">
-                The Compliance Reports section allows you to view and manage compliance reports submitted by permit holders. Monitor environmental monitoring data, audit results, and compliance status across all active permits.
+                The Outstanding Payments section helps you monitor and manage overdue invoices, schedule follow-ups, and track collection efforts.
               </p>
               
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li className="flex items-center gap-2">
                   <ChevronRight className="w-4 h-4 text-primary" />
-                  View submitted compliance reports from permit holders
+                  View all overdue invoices with aging analysis
                 </li>
                 <li className="flex items-center gap-2">
                   <ChevronRight className="w-4 h-4 text-primary" />
-                  Track report submission deadlines and overdue reports
+                  Schedule and track follow-up actions
                 </li>
                 <li className="flex items-center gap-2">
                   <ChevronRight className="w-4 h-4 text-primary" />
-                  Review environmental monitoring data and trends
+                  Send payment reminders to entities
                 </li>
                 <li className="flex items-center gap-2">
                   <ChevronRight className="w-4 h-4 text-primary" />
-                  Flag non-compliant activities for enforcement review
+                  Escalate persistent non-payment cases
                 </li>
               </ul>
             </CardContent>
@@ -438,22 +379,21 @@ export function RegistryUserGuide() {
               <div className="space-y-4">
                 <div className="p-4 rounded-lg border">
                   <h4 className="font-semibold flex items-center gap-2 text-card-foreground">
-                    <FolderOpen className="w-4 h-4 text-blue-500" />
-                    Documents Management
+                    <ClipboardList className="w-4 h-4 text-blue-500" />
+                    Daily Operations
                   </h4>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Centralized document repository for all permit-related files. Upload, organize, and retrieve documents with version control and audit trails.
+                    Track daily revenue activities, staff workload, and operational metrics for the revenue unit.
                   </p>
                 </div>
 
                 <div className="p-4 rounded-lg border">
                   <h4 className="font-semibold flex items-center gap-2 text-card-foreground">
-                    <Users className="w-4 h-4 text-green-500" />
-                    Team Management
-                    <Badge variant="outline" className="text-xs">Manager Only</Badge>
+                    <Cog className="w-4 h-4 text-gray-500" />
+                    Codes Management
                   </h4>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Manage registry team members, assign roles, allocate workload, and monitor officer performance. Track application assignments and completion rates.
+                    Manage revenue item codes, fee categories, and pricing structures used across the system.
                   </p>
                 </div>
 
@@ -463,17 +403,7 @@ export function RegistryUserGuide() {
                     Analytics and Reporting
                   </h4>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Generate comprehensive reports on registry operations. View processing times, approval rates, revenue collection, and workload distribution analytics.
-                  </p>
-                </div>
-
-                <div className="p-4 rounded-lg border">
-                  <h4 className="font-semibold flex items-center gap-2 text-card-foreground">
-                    <Bell className="w-4 h-4 text-amber-500" />
-                    Notifications
-                  </h4>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Stay updated with system notifications for new applications, pending reviews, approaching deadlines, and important alerts. Mark notifications as read or take immediate action.
+                    Generate comprehensive financial reports, revenue analytics, and collection performance metrics.
                   </p>
                 </div>
               </div>
@@ -499,7 +429,7 @@ export function RegistryUserGuide() {
                     Profile
                   </h4>
                   <p className="text-sm text-muted-foreground mt-1">
-                    View your personal information, contact details, and role assignments. Update your display preferences and contact information.
+                    View your personal information, contact details, and role assignments.
                   </p>
                 </div>
 
@@ -509,7 +439,7 @@ export function RegistryUserGuide() {
                     Settings
                   </h4>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Configure application settings including notification preferences, display options, and accessibility features.
+                    Configure application settings including notification preferences and display options.
                   </p>
                 </div>
               </div>
@@ -530,15 +460,14 @@ export function RegistryUserGuide() {
             <CardContent className="space-y-6">
               {/* Workflow 1 */}
               <div className="space-y-3">
-                <h4 className="font-semibold text-card-foreground">1. Reviewing a New Permit Application</h4>
+                <h4 className="font-semibold text-card-foreground">1. Generating an Invoice</h4>
                 <ol className="space-y-2 text-sm text-muted-foreground list-decimal list-inside">
-                  <li>Navigate to <strong>Applications Reviews → Permit Application Review</strong></li>
-                  <li>Select a pending application from the list</li>
-                  <li>Review all submitted documents and verify completeness</li>
-                  <li>Check fee calculations and payment status</li>
-                  <li>Complete the assessment form with scores and comments</li>
-                  <li>Submit your recommendation (Approve/Reject/Request Clarification)</li>
-                  <li>The application will be forwarded for final approval</li>
+                  <li>Navigate to <strong>Collection → Invoice Management</strong></li>
+                  <li>Click "Generate New Invoice"</li>
+                  <li>Select the entity and application type</li>
+                  <li>Review the calculated fees and add any additional items</li>
+                  <li>Generate and save the invoice</li>
+                  <li>Send the invoice to the applicant</li>
                 </ol>
               </div>
 
@@ -546,15 +475,15 @@ export function RegistryUserGuide() {
 
               {/* Workflow 2 */}
               <div className="space-y-3">
-                <h4 className="font-semibold text-card-foreground">2. Processing an Intent Registration</h4>
+                <h4 className="font-semibold text-card-foreground">2. Verifying a Payment</h4>
                 <ol className="space-y-2 text-sm text-muted-foreground list-decimal list-inside">
-                  <li>Go to <strong>Applications Reviews → Intent Application Review</strong></li>
-                  <li>Open the intent registration requiring review</li>
-                  <li>Verify project details and proposed location</li>
-                  <li>Review the Area of Interest (AOI) boundary on the map</li>
-                  <li>Determine EIA requirements based on activity classification</li>
-                  <li>Generate and send the registration invoice</li>
-                  <li>Upon payment confirmation, approve the intent</li>
+                  <li>Go to <strong>Collection → Payment Verification</strong></li>
+                  <li>Locate the pending payment by invoice number</li>
+                  <li>Review the submitted payment receipt</li>
+                  <li>Cross-reference with bank statement</li>
+                  <li>Confirm payment details match (amount, date, reference)</li>
+                  <li>Update payment status to "Verified"</li>
+                  <li>The system will automatically update the application status</li>
                 </ol>
               </div>
 
@@ -562,15 +491,15 @@ export function RegistryUserGuide() {
 
               {/* Workflow 3 */}
               <div className="space-y-3">
-                <h4 className="font-semibold text-card-foreground">3. Allocating Work to Officers (Manager Only)</h4>
+                <h4 className="font-semibold text-card-foreground">3. Following Up on Outstanding Payments</h4>
                 <ol className="space-y-2 text-sm text-muted-foreground list-decimal list-inside">
-                  <li>Access <strong>Management → Team Management</strong></li>
-                  <li>Review current workload distribution</li>
-                  <li>Click "Allocate Assessment" button</li>
-                  <li>Select the application to assign</li>
-                  <li>Choose the officer based on expertise and availability</li>
-                  <li>Add any special instructions or deadline notes</li>
-                  <li>Confirm the allocation - officer will receive notification</li>
+                  <li>Access <strong>Outstanding Payments</strong></li>
+                  <li>Filter by aging period (30, 60, 90+ days)</li>
+                  <li>Review entity contact information</li>
+                  <li>Send payment reminder via email or phone</li>
+                  <li>Record follow-up action and notes</li>
+                  <li>Schedule next follow-up date if needed</li>
+                  <li>Escalate to manager if no response after multiple attempts</li>
                 </ol>
               </div>
             </CardContent>
@@ -590,30 +519,30 @@ export function RegistryUserGuide() {
             <CardContent className="space-y-4">
               <div className="space-y-4">
                 <div className="p-4 rounded-lg bg-muted/50">
-                  <h4 className="font-semibold text-card-foreground">Q: How do I reset my password?</h4>
+                  <h4 className="font-semibold text-card-foreground">Q: What payment methods are accepted?</h4>
                   <p className="text-sm text-muted-foreground mt-1">
-                    A: Contact the System Administrator or use the "Forgot Password" option on the login page. You will receive a password reset link via email.
+                    A: CEPA accepts bank transfers, cheques, and electronic payments. Cash payments must be deposited to the official CEPA bank account.
                   </p>
                 </div>
 
                 <div className="p-4 rounded-lg bg-muted/50">
-                  <h4 className="font-semibold text-card-foreground">Q: Why can't I see certain menu items?</h4>
+                  <h4 className="font-semibold text-card-foreground">Q: How do I correct an invoice error?</h4>
                   <p className="text-sm text-muted-foreground mt-1">
-                    A: Some features are restricted based on your role. Team Management is only visible to Registry Managers. Contact your supervisor if you need access to additional features.
+                    A: Void the incorrect invoice and generate a new one with the correct details. Document the reason for voiding in the system notes.
                   </p>
                 </div>
 
                 <div className="p-4 rounded-lg bg-muted/50">
-                  <h4 className="font-semibold text-card-foreground">Q: How do I report a system issue?</h4>
+                  <h4 className="font-semibold text-card-foreground">Q: What is the payment verification timeline?</h4>
                   <p className="text-sm text-muted-foreground mt-1">
-                    A: Document the issue with screenshots and steps to reproduce. Contact the IT Help Desk or System Administrator via the internal support channel.
+                    A: Payments should be verified within 24-48 hours of receipt submission. Bank reconciliation is done daily.
                   </p>
                 </div>
 
                 <div className="p-4 rounded-lg bg-muted/50">
-                  <h4 className="font-semibold text-card-foreground">Q: Can I access the system outside the office?</h4>
+                  <h4 className="font-semibold text-card-foreground">Q: How are late payment penalties calculated?</h4>
                   <p className="text-sm text-muted-foreground mt-1">
-                    A: Yes, the system is accessible via web browser from any location with internet access. Ensure you are using a secure connection and following CEPA's remote access policies.
+                    A: Late payment penalties are calculated according to CEPA fee regulations. Contact your manager for specific penalty rates.
                   </p>
                 </div>
               </div>
@@ -624,7 +553,7 @@ export function RegistryUserGuide() {
                   Need More Help?
                 </h4>
                 <p className="text-sm text-muted-foreground mt-1">
-                  For additional support, contact the CEPA IT Help Desk or your Registry Unit Manager. System documentation and training materials are available on the internal knowledge base.
+                  For additional support, contact the CEPA IT Help Desk or your Revenue Unit Manager. System documentation and training materials are available on the internal knowledge base.
                 </p>
               </div>
             </CardContent>

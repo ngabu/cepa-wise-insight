@@ -158,7 +158,7 @@ const RegistryDashboard = () => {
             </div>
           </header>
 
-          <main className="flex-1 p-4 md:p-6 overflow-auto">
+          <main className="flex-1 p-4 md:p-6 overflow-auto" id="registry-main-content">
             {activeTab === 'dashboard' && (
               <div className="space-y-4 md:space-y-6">
                 {/* Dashboard KPI Cards */}
