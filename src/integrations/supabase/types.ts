@@ -1922,6 +1922,8 @@ export type Database = {
           intent_registration_id: string | null
           invoice_number: string
           invoice_type: string | null
+          item_code: string | null
+          item_description: string | null
           paid_date: string | null
           payment_status: string | null
           permit_id: string | null
@@ -1952,6 +1954,8 @@ export type Database = {
           intent_registration_id?: string | null
           invoice_number: string
           invoice_type?: string | null
+          item_code?: string | null
+          item_description?: string | null
           paid_date?: string | null
           payment_status?: string | null
           permit_id?: string | null
@@ -1982,6 +1986,8 @@ export type Database = {
           intent_registration_id?: string | null
           invoice_number?: string
           invoice_type?: string | null
+          item_code?: string | null
+          item_description?: string | null
           paid_date?: string | null
           payment_status?: string | null
           permit_id?: string | null

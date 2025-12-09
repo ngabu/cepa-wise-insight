@@ -1,11 +1,18 @@
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Download, Printer } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 
 import { format } from 'date-fns';
 import emblem from '@/assets/png-emblem.png';
 import { Invoice } from './types';
+
+interface RevenueItemCode {
+  id: string;
+  item_number: string;
+  item_name: string;
+  item_description: string | null;
+}
 
 interface RevenueInvoiceDetailViewProps {
   invoice: Invoice & {
@@ -22,31 +29,64 @@ interface RevenueInvoiceDetailViewProps {
     verification_status?: string;
     verification_notes?: string;
     invoice_type?: string;
+    item_code?: string | null;
+    item_description?: string | null;
   };
   onBack: () => void;
+  itemCodes?: RevenueItemCode[];
 }
 
 export function RevenueInvoiceDetailView({ 
   invoice, 
-  onBack
+  onBack,
+  itemCodes = []
 }: RevenueInvoiceDetailViewProps) {
+
+  // Use saved item_code and item_description, or fall back to matching from itemCodes
+  const savedItemCode = invoice.item_code;
+  const savedItemDescription = invoice.item_description;
+
+  // Find matching item code for the invoice type (fallback for older invoices)
+  const matchingItemCode = itemCodes.find(code => {
+    const invoiceType = invoice.invoice_type?.toLowerCase() || '';
+    const itemName = code.item_name.toLowerCase();
+    if (invoiceType === 'inspection_fee' && itemName.includes('inspection')) return true;
+    if (invoiceType === 'permit_fee' && (itemName.includes('permit') && itemName.includes('annual'))) return true;
+    if (invoiceType === 'application_fee' && itemName.includes('application')) return true;
+    if (invoiceType === 'intent_fee' && itemName.includes('intent')) return true;
+    return false;
+  });
+
+  // Build the associated context string for description
+  const getAssociatedDescription = () => {
+    if (invoice.intent_registration) {
+      return `for Associated Intent Registration\n${invoice.entity?.name || ''} ${invoice.intent_registration.activity_description}`;
+    }
+    if (invoice.permit) {
+      return `for Associated Permit\n${invoice.entity?.name || ''} ${invoice.permit.title}`;
+    }
+    if (invoice.inspection) {
+      return `for Associated Inspection\n${invoice.entity?.name || ''} ${invoice.inspection.inspection_type}`;
+    }
+    return '';
+  };
+
+  const associatedContext = getAssociatedDescription();
+
+  // Calculate invoice items based on type with proper item codes
+  const baseDescription = savedItemDescription || matchingItemCode?.item_name || (invoice.invoice_type === 'inspection_fee' 
+    ? `Inspection Fee - ${invoice.inspection?.inspection_type || 'Field Inspection'}` 
+    : invoice.permit?.title || 'Permit Application Fee');
   
-  const handlePrint = () => {
-    window.print();
-  };
+  const fullDescription = associatedContext 
+    ? `${baseDescription} - ${associatedContext}`
+    : baseDescription;
 
-  const handleDownload = () => {
-    console.log('Download invoice');
-  };
-
-  // Calculate invoice items based on type
   const invoiceItems = [
     {
       quantity: 1,
-      itemCode: invoice.invoice_type === 'inspection_fee' ? 'INSP-FEE' : 'PERMIT-FEE',
-      description: invoice.invoice_type === 'inspection_fee' 
-        ? `Inspection Fee - ${invoice.inspection?.inspection_type || 'Field Inspection'}` 
-        : invoice.permit?.title || 'Permit Application Fee',
+      itemCode: savedItemCode || matchingItemCode?.item_number || (invoice.invoice_type === 'inspection_fee' ? 'INSP-FEE' : 'PERMIT-FEE'),
+      description: fullDescription,
       unitPrice: invoice.amount,
       disc: 0,
       totalPrice: invoice.amount
@@ -61,16 +101,6 @@ export function RevenueInvoiceDetailView({
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Invoices
         </Button>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={handleDownload}>
-            <Download className="w-4 h-4 mr-2" />
-            Download
-          </Button>
-          <Button variant="outline" onClick={handlePrint}>
-            <Printer className="w-4 h-4 mr-2" />
-            Print
-          </Button>
-        </div>
       </div>
 
       {/* Invoice Document */}
@@ -122,51 +152,11 @@ export function RevenueInvoiceDetailView({
         {/* Client Information */}
         <div className="mb-6 p-4 border border-border">
           <div className="font-semibold text-foreground mb-2">Client:</div>
-          <div className="text-sm text-muted-foreground">
+          <div className="text-sm">
             <p className="font-semibold text-foreground">{invoice.entity?.name || 'N/A'}</p>
-            <p className="capitalize">{invoice.entity?.entity_type || 'Individual'}</p>
           </div>
         </div>
 
-        {/* Associated Records */}
-        {(invoice.permit || invoice.inspection || invoice.intent_registration) && (
-          <div className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-4">
-            {invoice.permit && (
-              <div className="p-4 border border-border rounded-lg bg-muted/30">
-                <div className="font-semibold text-foreground mb-2">Associated Permit</div>
-                <p className="font-medium">{invoice.permit.title}</p>
-                <p className="text-sm text-muted-foreground">
-                  {invoice.permit.permit_number && `${invoice.permit.permit_number} • `}
-                  {invoice.permit.permit_type}
-                </p>
-              </div>
-            )}
-            
-            {invoice.inspection && (
-              <div className="p-4 border border-border rounded-lg bg-muted/30">
-                <div className="font-semibold text-foreground mb-2">Associated Inspection</div>
-                <p className="font-medium">{invoice.inspection.inspection_type}</p>
-                <p className="text-sm text-muted-foreground">
-                  {invoice.inspection.province && `${invoice.inspection.province} • `}
-                  {invoice.inspection.number_of_days} day(s)
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Scheduled: {format(new Date(invoice.inspection.scheduled_date), 'MMM dd, yyyy')}
-                </p>
-              </div>
-            )}
-
-            {invoice.intent_registration && (
-              <div className="p-4 border border-border rounded-lg bg-muted/30">
-                <div className="font-semibold text-foreground mb-2">Associated Intent Registration</div>
-                <p className="font-medium line-clamp-2">{invoice.intent_registration.activity_description}</p>
-                <Badge variant="outline" className="mt-1 capitalize">
-                  {invoice.intent_registration.status}
-                </Badge>
-              </div>
-            )}
-          </div>
-        )}
 
         {/* Invoice Items Table */}
         <div className="mb-8">
@@ -186,7 +176,7 @@ export function RevenueInvoiceDetailView({
                 <tr key={index}>
                   <td className="border border-border p-2 text-center">{item.quantity}</td>
                   <td className="border border-border p-2">{item.itemCode}</td>
-                  <td className="border border-border p-2">{item.description}</td>
+                  <td className="border border-border p-2 whitespace-pre-line">{item.description}</td>
                   <td className="border border-border p-2 text-right">
                     K{item.unitPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                   </td>

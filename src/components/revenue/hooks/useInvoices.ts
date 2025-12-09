@@ -23,6 +23,8 @@ export interface Invoice {
   intent_registration_id?: string | null;
   document_path?: string | null;
   source_dashboard?: string | null;
+  item_code?: string | null;
+  item_description?: string | null;
   // Verification fields
   verification_status?: string | null;
   verified_by?: string | null;
@@ -208,15 +210,17 @@ export function useInvoices() {
     }
     
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('invoices')
         .update({ 
           status: 'suspended',
           updated_at: new Date().toISOString()
         })
-        .eq('id', invoiceId);
+        .eq('id', invoiceId)
+        .select();
 
       if (error) {
+        console.error('Suspend invoice error:', error);
         // Parse Supabase error and return user-friendly message
         let userMessage = 'Unable to suspend this invoice. ';
         if (error.code === '42501' || error.message?.includes('permission')) {
@@ -226,19 +230,71 @@ export function useInvoices() {
         } else if (error.code === 'PGRST116') {
           userMessage += 'Invoice not found or has already been modified.';
         } else {
-          userMessage += 'Please try again or contact support if the issue persists.';
+          userMessage += error.message || 'Please try again or contact support if the issue persists.';
         }
         return { success: false, error: userMessage };
+      }
+
+      // Check if any rows were actually updated
+      if (!data || data.length === 0) {
+        return { success: false, error: 'No invoice was updated. This may be due to insufficient permissions.' };
       }
 
       // Refresh the invoices list
       fetchInvoices();
       return { success: true };
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error suspending invoice:', error);
       return { 
         success: false, 
-        error: 'An unexpected error occurred while suspending the invoice. Please try again or contact support.' 
+        error: error?.message || 'An unexpected error occurred while suspending the invoice. Please try again or contact support.' 
+      };
+    }
+  };
+
+  const reactivateInvoice = async (invoiceId: string, sourceDashboard?: string) => {
+    // Only allow reactivation if the invoice was created on the revenue dashboard
+    if (sourceDashboard && sourceDashboard !== 'revenue') {
+      const dashboardName = sourceDashboard.charAt(0).toUpperCase() + sourceDashboard.slice(1);
+      return { 
+        success: false, 
+        error: `This invoice was created on the ${dashboardName} Dashboard and cannot be reactivated from the Revenue Dashboard. Please contact the ${dashboardName} team to manage this invoice.` 
+      };
+    }
+    
+    try {
+      const { data, error } = await supabase
+        .from('invoices')
+        .update({ 
+          status: 'pending',
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', invoiceId)
+        .select();
+
+      if (error) {
+        console.error('Reactivate invoice error:', error);
+        let userMessage = 'Unable to reactivate this invoice. ';
+        if (error.code === '42501' || error.message?.includes('permission')) {
+          userMessage += 'You do not have permission to reactivate this invoice.';
+        } else {
+          userMessage += error.message || 'Please try again or contact support if the issue persists.';
+        }
+        return { success: false, error: userMessage };
+      }
+
+      if (!data || data.length === 0) {
+        return { success: false, error: 'No invoice was updated. This may be due to insufficient permissions.' };
+      }
+
+      // Refresh the invoices list
+      fetchInvoices();
+      return { success: true };
+    } catch (error: any) {
+      console.error('Error reactivating invoice:', error);
+      return { 
+        success: false, 
+        error: error?.message || 'An unexpected error occurred while reactivating the invoice. Please try again or contact support.' 
       };
     }
   };
@@ -302,6 +358,48 @@ export function useInvoices() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile?.staff_unit, profile?.user_type]);
 
+  const deleteInvoice = async (invoiceId: string, sourceDashboard?: string) => {
+    // Only allow deletion if the invoice was created on the revenue dashboard
+    if (sourceDashboard && sourceDashboard !== 'revenue') {
+      const dashboardName = sourceDashboard.charAt(0).toUpperCase() + sourceDashboard.slice(1);
+      return { 
+        success: false, 
+        error: `This invoice was created on the ${dashboardName} Dashboard and cannot be deleted from the Revenue Dashboard. Please contact the ${dashboardName} team to manage this invoice.` 
+      };
+    }
+    
+    try {
+      const { error } = await supabase
+        .from('invoices')
+        .delete()
+        .eq('id', invoiceId);
+
+      if (error) {
+        let userMessage = 'Unable to delete this invoice. ';
+        if (error.code === '42501' || error.message?.includes('permission')) {
+          userMessage += 'You do not have permission to delete this invoice.';
+        } else if (error.code === '23503' || error.message?.includes('foreign key')) {
+          userMessage += 'This invoice has related records that prevent deletion.';
+        } else if (error.code === 'PGRST116') {
+          userMessage += 'Invoice not found or has already been deleted.';
+        } else {
+          userMessage += 'Please try again or contact support if the issue persists.';
+        }
+        return { success: false, error: userMessage };
+      }
+
+      // Refresh the invoices list
+      fetchInvoices();
+      return { success: true };
+    } catch (error) {
+      console.error('Error deleting invoice:', error);
+      return { 
+        success: false, 
+        error: 'An unexpected error occurred while deleting the invoice. Please try again or contact support.' 
+      };
+    }
+  };
+
   return { 
     invoices, 
     loading, 
@@ -309,6 +407,8 @@ export function useInvoices() {
     updateInvoicePaymentStatus, 
     scheduleFollowUp,
     suspendInvoice,
+    reactivateInvoice,
+    deleteInvoice,
     refetch: fetchInvoices 
   };
 }
