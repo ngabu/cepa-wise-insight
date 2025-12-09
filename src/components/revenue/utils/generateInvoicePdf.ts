@@ -246,32 +246,11 @@ export function generateInvoicePdf(invoice: InvoiceData): void {
 
   // Payment Terms
   addText('PAYMENT TERMS:', margin, yPos, { fontSize: 10, fontStyle: 'bold' });
-  yPos += 6;
-  addText('Cheque payable to:', margin + 5, yPos, { fontSize: 9 });
+  yPos += 8;
+  addText('All payments must be processed via the CEPA e-Permit Portal through the', margin + 5, yPos, { fontSize: 9 });
   yPos += 5;
-  addText('CONSERVATION & ENVIRONMENT PROTECTION AUTHORITY', margin + 5, yPos, { fontSize: 10, fontStyle: 'bold' });
+  addText('respective client\'s dashboard.', margin + 5, yPos, { fontSize: 9 });
   yPos += 12;
-
-  // Bank Accounts
-  const bankWidth = (pageWidth - 2 * margin - 10) / 3;
-  const banks = [
-    { name: 'RECURRENT ACCOUNT', account: '7003101749', bsb: '088-294' },
-    { name: 'OPERATIONAL ACCOUNT', account: '7003101905', bsb: '088-294' },
-    { name: 'DOF-CEPA REVENUE', account: '7012975319', bsb: '088-294' }
-  ];
-
-  let bankX = margin;
-  banks.forEach(bank => {
-    doc.rect(bankX, yPos, bankWidth, 32);
-    addText(bank.name, bankX + bankWidth / 2, yPos + 6, { fontSize: 8, fontStyle: 'bold', align: 'center' });
-    addText('BANK: BANK SOUTH PACIFIC', bankX + 3, yPos + 12, { fontSize: 7 });
-    addText(`ACCOUNT: ${bank.account}`, bankX + 3, yPos + 17, { fontSize: 7 });
-    addText('BRANCH: PORT MORESBY', bankX + 3, yPos + 22, { fontSize: 7 });
-    addText(`BSB: ${bank.bsb}`, bankX + 3, yPos + 27, { fontSize: 7 });
-    bankX += bankWidth + 5;
-  });
-
-  yPos += 40;
 
   // Page number
   addText('Page 1 of 1', pageWidth - margin, yPos, { fontSize: 8, align: 'right' });
