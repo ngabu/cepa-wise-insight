@@ -8,6 +8,7 @@ import { useEffect, useState } from "react"
 
 interface IntentRegistration {
   id: string
+  project_title: string | null
   activity_description: string
   activity_level: string
   project_site_address: string | null
@@ -29,6 +30,7 @@ export function IntentsListReadOnly() {
           .from('intent_registrations')
           .select(`
             id,
+            project_title,
             activity_description,
             activity_level,
             project_site_address,

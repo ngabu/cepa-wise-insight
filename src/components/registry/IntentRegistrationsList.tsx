@@ -24,6 +24,7 @@ interface IntentRegistration {
   user_id: string;
   entity_id: string;
   activity_level: string;
+  project_title: string | null;
   activity_description: string;
   preparatory_work_description: string;
   commencement_date: string;
