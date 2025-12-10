@@ -31,6 +31,7 @@ export function IntentRegistrationNew() {
   const [formData, setFormData] = useState({
     entity_id: '',
     activity_level: '',
+    project_title: '',
     activity_description: '',
     preparatory_work_description: '',
     commencement_date: '',
@@ -110,6 +111,7 @@ export function IntentRegistrationNew() {
       const draft = await saveDraft({
         entity_id: formData.entity_id || null,
         activity_level: formData.activity_level || null,
+        project_title: formData.project_title || null,
         activity_description: formData.activity_description || null,
         preparatory_work_description: formData.preparatory_work_description || null,
         commencement_date: formData.commencement_date || null,
@@ -147,6 +149,7 @@ export function IntentRegistrationNew() {
       setFormData({
         entity_id: draft.entity_id || '',
         activity_level: draft.activity_level || '',
+        project_title: (draft as any).project_title || '',
         activity_description: draft.activity_description || '',
         preparatory_work_description: draft.preparatory_work_description || '',
         commencement_date: draft.commencement_date || '',
@@ -228,6 +231,7 @@ export function IntentRegistrationNew() {
           user_id: user?.id,
           entity_id: formData.entity_id,
           activity_level: formData.activity_level,
+          project_title: formData.project_title || null,
           activity_description: formData.activity_description,
           preparatory_work_description: formData.preparatory_work_description,
           commencement_date: formData.commencement_date,
@@ -293,6 +297,7 @@ export function IntentRegistrationNew() {
       setFormData({
         entity_id: '',
         activity_level: '',
+        project_title: '',
         activity_description: '',
         preparatory_work_description: '',
         commencement_date: '',
@@ -689,6 +694,28 @@ export function IntentRegistrationNew() {
 
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
+                    <Label htmlFor="project_title">Project Title *</Label>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <HelpCircle className="w-4 h-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p>Provide a concise and descriptive title for your project.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                  <Input
+                    id="project_title"
+                    value={formData.project_title}
+                    onChange={(e) => setFormData({ ...formData, project_title: e.target.value })}
+                    placeholder="Enter a descriptive title for your project"
+                    required
+                    className="bg-glass/50"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
                     <Label htmlFor="activity_description">Project Description *</Label>
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -1077,6 +1104,7 @@ export function IntentRegistrationNew() {
                       setFormData({
                         entity_id: '',
                         activity_level: '',
+                        project_title: '',
                         activity_description: '',
                         preparatory_work_description: '',
                         commencement_date: '',

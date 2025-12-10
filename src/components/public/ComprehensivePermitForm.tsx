@@ -264,6 +264,8 @@ export function ComprehensivePermitForm({ permitId, onSuccess, onCancel, isStand
         
         setFormData(prev => ({
           ...prev,
+          // Application Title from intent's project_title
+          applicationTitle: (selectedIntent as any).project_title || prev.applicationTitle,
           // Project Description from intent
           projectDescription: selectedIntent.activity_description || prev.projectDescription,
           // Classification fields from intent
