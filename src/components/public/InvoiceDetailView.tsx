@@ -32,6 +32,7 @@ export function InvoiceDetailView({ invoice, onBack, onPayment }: InvoiceDetailP
   const paidToDate = invoice.status === 'paid' || invoice.payment_status === 'paid' ? invoice.amount : 0;
   const receiptUrl = invoice.stripe_receipt_url || invoice.cepa_receipt_path;
   const invoiceStatus = invoice.payment_status || invoice.status;
+  const isSuspended = invoice.status === 'suspended' || invoice.payment_status === 'suspended';
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -39,6 +40,7 @@ export function InvoiceDetailView({ invoice, onBack, onPayment }: InvoiceDetailP
       case 'pending': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
       case 'unpaid': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
       case 'overdue': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+      case 'suspended': return 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200';
       default: return 'bg-muted text-muted-foreground';
     }
   };
@@ -136,6 +138,18 @@ export function InvoiceDetailView({ invoice, onBack, onPayment }: InvoiceDetailP
 
   return (
     <div className="space-y-4">
+      {/* Suspended Notice */}
+      {isSuspended && (
+        <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 print:hidden">
+          <div className="flex items-center gap-2">
+            <Badge className="bg-orange-100 text-orange-800">Suspended</Badge>
+            <span className="text-sm text-orange-700">
+              This invoice has been suspended. Payment is not available at this time. Please contact CEPA Revenue for assistance.
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* Action Buttons */}
       <div className="flex justify-between items-center print:hidden">
         <Button variant="outline" onClick={onBack}>
@@ -151,7 +165,7 @@ export function InvoiceDetailView({ invoice, onBack, onPayment }: InvoiceDetailP
             <Printer className="w-4 h-4 mr-2" />
             Print
           </Button>
-          {invoiceStatus !== 'paid' && balanceDue > 0 && (
+          {invoiceStatus !== 'paid' && balanceDue > 0 && !isSuspended && (
             <Button 
               onClick={handleStripePayment} 
               className="bg-gradient-to-r from-forest-600 to-nature-600"
@@ -163,6 +177,16 @@ export function InvoiceDetailView({ invoice, onBack, onPayment }: InvoiceDetailP
                 <CreditCard className="w-4 h-4 mr-2" />
               )}
               {isProcessing ? 'Processing...' : 'Online Payment'}
+            </Button>
+          )}
+          {isSuspended && (
+            <Button 
+              disabled
+              variant="outline"
+              className="opacity-50 cursor-not-allowed"
+            >
+              <CreditCard className="w-4 h-4 mr-2" />
+              Payment Suspended
             </Button>
           )}
           {invoiceStatus === 'paid' && receiptUrl && (
