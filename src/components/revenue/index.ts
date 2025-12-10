@@ -9,6 +9,7 @@ export { RevenueInvoiceDetailView } from './RevenueInvoiceDetailView';
 // Existing Components
 export { InvoicesList } from './InvoicesList';
 export { RevenueKPIs } from './RevenueKPIs';
+export { RevenueFeeMap } from './RevenueFeeMap';
 export { OutstandingPaymentsCard } from './OutstandingPaymentsCard';
 export { InvoiceDetailDialog } from './InvoiceDetailDialog';
 export { InvoiceInformation } from './InvoiceInformation';

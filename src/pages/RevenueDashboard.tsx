@@ -10,6 +10,7 @@ import { RevenueItemCodesManagement } from '@/components/revenue/RevenueItemCode
 import { RevenueReports } from '@/components/revenue/RevenueReports';
 import RevenueAnalyticsReportsNew from '@/components/revenue/RevenueAnalyticsReportsNew';
 import { RevenueKPIs } from '@/components/revenue/RevenueKPIs';
+import { RevenueFeeMap } from '@/components/revenue/RevenueFeeMap';
 import { RevenueEntitiesList } from '@/components/revenue/RevenueEntitiesList';
 import { RevenuePermitsList } from '@/components/revenue/RevenuePermitsList';
 import { RevenueIntentRegistrationsList } from '@/components/revenue/RevenueIntentRegistrationsList';
@@ -55,6 +56,7 @@ export default function RevenueDashboard() {
               <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 md:space-y-6">
                 <TabsContent value="dashboard" className="space-y-4 md:space-y-6">
                   <RevenueKPIs />
+                  <RevenueFeeMap />
                 </TabsContent>
 
                 <TabsContent value="listings-intents" className="space-y-4 md:space-y-6">
