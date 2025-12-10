@@ -191,6 +191,42 @@ export function useDocuments(permitId?: string, intentRegistrationId?: string) {
     }
   };
 
+  // Upload document to warehouse with optional category
+  const uploadDocumentToWarehouse = async (file: File, category?: string) => {
+    try {
+      const { data: user } = await supabase.auth.getUser();
+      if (!user.user) throw new Error('Not authenticated');
+
+      const fileName = `${Date.now()}-${Math.random()}.${file.name.split('.').pop()}`;
+      const filePath = `${user.user.id}/warehouse/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('documents')
+        .upload(filePath, file, { cacheControl: '3600', upsert: false });
+      if (uploadError) throw uploadError;
+
+      const { data: docData, error: docError } = await supabase
+        .from('documents')
+        .insert({
+          filename: file.name,
+          file_path: filePath,
+          file_size: file.size,
+          mime_type: file.type,
+          user_id: user.user.id,
+          document_type: category || undefined
+        })
+        .select()
+        .single();
+
+      if (docError) throw docError;
+      return docData as DocumentInfo & { document_type?: string };
+    } catch (error) {
+      console.error('Error uploading document to warehouse:', error);
+      toast({ title: 'Error', description: 'Failed to upload document', variant: 'destructive' });
+      throw error;
+    }
+  };
+
   // Fetch user's unlinked draft documents for this flow
   const fetchUserDraftDocuments = async (documentType: string = 'intent_draft') => {
     try {
@@ -261,6 +297,7 @@ export function useDocuments(permitId?: string, intentRegistrationId?: string) {
     loading,
     uploadDocument,
     uploadDraftDocument,
+    uploadDocumentToWarehouse,
     deleteDocument,
     deleteDocumentRecordOnly,
     refreshDocuments: loadDocuments,

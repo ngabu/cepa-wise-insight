@@ -82,6 +82,7 @@ export function useIntentRegistrations(userId?: string) {
 
           return {
             ...intent,
+            project_title: intent.project_title || null,
             official_feedback_attachments: intent.official_feedback_attachments 
               ? (Array.isArray(intent.official_feedback_attachments) 
                 ? intent.official_feedback_attachments 

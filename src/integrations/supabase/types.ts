@@ -3667,6 +3667,7 @@ export type Database = {
           created_at: string
           departments_approached: string
           district: string
+          docusign_envelope_id: string
           entity_id: string
           estimated_cost_kina: number
           existing_permit_id: string
@@ -3680,6 +3681,7 @@ export type Database = {
           project_boundary: Json
           project_site_address: string
           project_site_description: string
+          project_title: string
           province: string
           review_notes: string
           reviewed_at: string
@@ -3687,6 +3689,7 @@ export type Database = {
           reviewer_email: string
           reviewer_first_name: string
           reviewer_last_name: string
+          signed_document_path: string
           site_ownership_details: string
           status: string
           total_area_sqkm: number

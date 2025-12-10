@@ -14,8 +14,9 @@ import { format, addMonths, addQuarters, differenceInDays } from 'date-fns';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useDocuments } from '@/hooks/useDocuments';
+
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { DocumentWarehousePicker } from '@/components/shared/DocumentWarehousePicker';
 
 export function ComplianceReportSubmissionsView() {
   const { user } = useAuth();
@@ -27,9 +28,10 @@ export function ComplianceReportSubmissionsView() {
   const [reportType, setReportType] = useState("");
   const [reportPeriod, setReportPeriod] = useState("");
   const [executiveSummary, setExecutiveSummary] = useState("");
-  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const [warehouseFiles, setWarehouseFiles] = useState<any[]>([]);
+  const [isWarehousePickerOpen, setIsWarehousePickerOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { uploadDocument } = useDocuments();
+  
 
   // Get user's entities
   const { data: entities } = useQuery({
@@ -137,15 +139,24 @@ export function ComplianceReportSubmissionsView() {
     };
   }) || [];
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const newFiles = Array.from(e.target.files);
-      setUploadedFiles(prev => [...prev, ...newFiles]);
-    }
+  const removeWarehouseFile = (docId: string) => {
+    setWarehouseFiles(prev => prev.filter(f => f.id !== docId));
   };
 
-  const removeFile = (index: number) => {
-    setUploadedFiles(prev => prev.filter((_, i) => i !== index));
+  const handleWarehouseSelect = (documents: any[]) => {
+    setWarehouseFiles(prev => {
+      const existingIds = prev.map(f => f.id);
+      const newDocs = documents.filter(d => !existingIds.includes(d.id));
+      return [...prev, ...newDocs];
+    });
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
   const handleSubmitComplianceReport = async () => {
@@ -169,10 +180,6 @@ export function ComplianceReportSubmissionsView() {
       
       if (error) throw error;
 
-      // Upload each file
-      for (const file of uploadedFiles) {
-        await uploadDocument(file, selectedSchedule.permitNumber);
-      }
 
       toast.success("Your compliance report has been submitted successfully");
       queryClient.invalidateQueries({ queryKey: ['user-compliance-reports-detailed'] });
@@ -183,7 +190,7 @@ export function ComplianceReportSubmissionsView() {
       setReportType("");
       setReportPeriod("");
       setExecutiveSummary("");
-      setUploadedFiles([]);
+      setWarehouseFiles([]);
     } catch (error: any) {
       toast.error("Failed to submit compliance report: " + error.message);
     } finally {
@@ -584,42 +591,48 @@ export function ComplianceReportSubmissionsView() {
             </div>
 
             {/* File Upload Section */}
-            <div className="space-y-2">
-              <Label>Upload Compliance Documents *</Label>
-              <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
-                <Upload className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                <p className="text-sm text-muted-foreground mb-2">
-                  Upload completed report template, monitoring data, laboratory results, photos, and supporting evidence
-                </p>
-                <input
-                  type="file"
-                  multiple
-                  onChange={handleFileChange}
-                  className="hidden"
-                  id="file-upload"
-                  accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
-                />
-                <Label htmlFor="file-upload">
-                  <Button variant="outline" type="button" asChild>
-                    <span>
-                      <FileText className="w-4 h-4 mr-2" />
-                      Choose Files
-                    </span>
+            <div className="space-y-3">
+              <Label>Attach Compliance Documents *</Label>
+              
+              {/* Single Upload Button - Opens Warehouse */}
+              <div className="border-2 border-dashed border-primary/30 rounded-lg p-6 bg-primary/5">
+                <div className="flex flex-col items-center text-center gap-3">
+                  <Upload className="h-10 w-10 text-primary" />
+                  <div>
+                    <p className="font-medium text-foreground">Upload Compliance Documents</p>
+                    <p className="text-sm text-muted-foreground">
+                      Select from your document warehouse or upload new files
+                    </p>
+                  </div>
+                  <Button 
+                    variant="default" 
+                    type="button" 
+                    onClick={() => setIsWarehousePickerOpen(true)}
+                  >
+                    <Upload className="w-4 h-4 mr-2" />
+                    Upload Documents
                   </Button>
-                </Label>
+                </div>
               </div>
               
-              {/* Display uploaded files */}
-              {uploadedFiles.length > 0 && (
-                <div className="mt-4 space-y-2">
-                  <Label className="text-sm font-medium">Selected Files:</Label>
-                  {uploadedFiles.map((file, index) => (
-                    <div key={index} className="flex items-center justify-between p-2 bg-muted rounded">
-                      <span className="text-sm truncate flex-1">{file.name}</span>
+              {/* Display attached files */}
+              {warehouseFiles.length > 0 && (
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-primary" />
+                    Attached Documents ({warehouseFiles.length}):
+                  </Label>
+                  {warehouseFiles.map((file) => (
+                    <div key={file.id} className="flex items-center justify-between p-2 bg-primary/10 border border-primary/20 rounded">
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <FileText className="w-4 h-4 text-primary flex-shrink-0" />
+                        <span className="text-sm truncate">{file.filename}</span>
+                        <span className="text-xs text-muted-foreground">({formatFileSize(file.file_size)})</span>
+                      </div>
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => removeFile(index)}
+                        onClick={() => removeWarehouseFile(file.id)}
                         type="button"
                       >
                         <X className="h-4 w-4" />
@@ -667,7 +680,7 @@ export function ComplianceReportSubmissionsView() {
             <div className="flex gap-3 pt-4">
               <Button 
                 onClick={handleSubmitComplianceReport} 
-                disabled={isSubmitting || uploadedFiles.length === 0 || !reportType || !reportPeriod}
+                disabled={isSubmitting || warehouseFiles.length === 0 || !reportType || !reportPeriod}
                 className="flex-1"
               >
                 {isSubmitting ? "Submitting..." : "Submit Report"}
@@ -684,6 +697,16 @@ export function ComplianceReportSubmissionsView() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Document Warehouse Picker */}
+      <DocumentWarehousePicker
+        open={isWarehousePickerOpen}
+        onOpenChange={setIsWarehousePickerOpen}
+        onSelect={handleWarehouseSelect}
+        multiSelect={true}
+        title="Select Compliance Documents"
+        description="Choose documents from your Document Warehouse to attach to this compliance report."
+      />
     </div>
   );
 }

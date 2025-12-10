@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Upload, FileText, X, Loader2, CheckCircle, Info, Replace } from 'lucide-react';
 import { useDocuments } from '@/hooks/useDocuments';
+import { DocumentWarehousePicker } from '@/components/shared/DocumentWarehousePicker';
 
 interface DocumentsTabProps {
   formData: any;
@@ -57,7 +58,8 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({
 }) => {
   const { documents, loading, uploadDocument, deleteDocument } = useDocuments(permitId);
   const [uploadingType, setUploadingType] = useState<string | null>(null);
-  
+  const [isWarehousePickerOpen, setIsWarehousePickerOpen] = useState(false);
+  const [activeDocumentType, setActiveDocumentType] = useState<string | null>(null);
   // Get document types based on activity level
   const DOCUMENT_TYPES = getDocumentTypesForLevel(activityLevel || formData.activity_level);
 
@@ -167,6 +169,47 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({
     }
   };
 
+  // Handle selecting document from warehouse
+  const handleWarehouseSelect = async (documents: any[], documentTypeId: string) => {
+    if (documents.length === 0) return;
+    
+    const doc = documents[0]; // Take the first selected document
+    
+    setUploadingType(documentTypeId);
+    try {
+      // Remove existing document if replacing
+      const existing = getUploadedDocument(documentTypeId);
+      if (existing?.fromDatabase && existing.id) {
+        await deleteDocument(existing.id);
+      }
+
+      // Store the warehouse document reference
+      const newUploads = {
+        ...(formData.document_uploads || {}),
+        [documentTypeId]: {
+          id: doc.id,
+          name: doc.filename,
+          size: doc.file_size,
+          type: doc.mime_type,
+          fromDatabase: true,
+          fromWarehouse: true,
+          file_path: doc.file_path,
+        },
+      };
+      handleInputChange('document_uploads', newUploads);
+    } catch (error) {
+      console.error('Failed to attach warehouse document:', error);
+    } finally {
+      setUploadingType(null);
+      setActiveDocumentType(null);
+    }
+  };
+
+  const openWarehousePicker = (documentTypeId: string) => {
+    setActiveDocumentType(documentTypeId);
+    setIsWarehousePickerOpen(true);
+  };
+
   const allMandatoryUploaded = DOCUMENT_TYPES.filter(d => d.isMandatory).every(
     docType => getUploadedDocument(docType.id) !== null
   );
@@ -265,27 +308,14 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <input
-                          type="file"
-                          accept=".pdf,.doc,.docx"
-                          onChange={(e) => handleDocumentUpload(e, docType.id)}
-                          className="hidden"
-                          id={`replace-${docType.id}`}
-                          disabled={isUploading}
-                        />
                         <Button
                           variant="outline"
                           size="sm"
-                          asChild
+                          onClick={() => openWarehousePicker(docType.id)}
                           disabled={isUploading}
                         >
-                          <label
-                            htmlFor={`replace-${docType.id}`}
-                            className="cursor-pointer"
-                          >
-                            <Replace className="w-4 h-4 mr-2" />
-                            Replace
-                          </label>
+                          <Replace className="w-4 h-4 mr-2" />
+                          Replace
                         </Button>
                         <Button
                           variant="ghost"
@@ -300,37 +330,23 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({
                     </div>
                   ) : (
                     <div className="ml-9">
-                      <input
-                        type="file"
-                        accept=".pdf,.doc,.docx"
-                        onChange={(e) => handleDocumentUpload(e, docType.id)}
-                        className="hidden"
-                        id={`upload-${docType.id}`}
-                        disabled={isUploading}
-                      />
                       <Button
-                        variant="outline"
+                        variant="default"
                         size="default"
-                        asChild
+                        onClick={() => openWarehousePicker(docType.id)}
                         disabled={isUploading}
-                        className="w-full sm:w-auto"
                       >
-                        <label
-                          htmlFor={`upload-${docType.id}`}
-                          className="cursor-pointer flex items-center justify-center"
-                        >
-                          {isUploading ? (
-                            <>
-                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                              Uploading...
-                            </>
-                          ) : (
-                            <>
-                              <Upload className="w-4 h-4 mr-2" />
-                              Upload Document
-                            </>
-                          )}
-                        </label>
+                        {isUploading ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Uploading...
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="w-4 h-4 mr-2" />
+                            Upload Document
+                          </>
+                        )}
                       </Button>
                     </div>
                   )}
@@ -353,6 +369,21 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({
           </ul>
         </div>
       </CardContent>
+
+      {/* Document Warehouse Picker */}
+      <DocumentWarehousePicker
+        open={isWarehousePickerOpen}
+        onOpenChange={setIsWarehousePickerOpen}
+        onSelect={(docs) => {
+          if (activeDocumentType) {
+            handleWarehouseSelect(docs, activeDocumentType);
+          }
+        }}
+        multiSelect={false}
+        title="Select Document from Warehouse"
+        description="Choose a document from your Document Management to attach as the required document."
+        acceptedTypes={['.pdf', '.doc', '.docx']}
+      />
     </Card>
   );
 };
