@@ -248,6 +248,12 @@ export function IntentRegistrationReadOnlyView({ intent, showFeedbackWithBlueHea
               <p className="print-field-value">{prescribedActivityDescription}</p>
             </div>
           )}
+          {intent.project_title && (
+            <div className="print-field mt-2">
+              <p className="print-field-label">Project Title</p>
+              <p className="print-field-value font-medium">{intent.project_title}</p>
+            </div>
+          )}
           <div className="print-field mt-2">
             <p className="print-field-label">Project Description</p>
             <p className="print-field-value whitespace-pre-wrap">{intent.activity_description}</p>
@@ -438,6 +444,15 @@ export function IntentRegistrationReadOnlyView({ intent, showFeedbackWithBlueHea
                   <Label className="text-muted-foreground">Prescribed Activity</Label>
                   <div className="p-3 bg-primary/10 rounded-lg">
                     <p className="text-sm">{prescribedActivityDescription}</p>
+                  </div>
+                </div>
+              )}
+
+              {intent.project_title && (
+                <div className="space-y-2">
+                  <Label className="text-muted-foreground">Project Title</Label>
+                  <div className="p-3 bg-primary/10 rounded-lg">
+                    <p className="text-sm font-medium">{intent.project_title}</p>
                   </div>
                 </div>
               )}
