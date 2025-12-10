@@ -1,12 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Calendar, Upload, Users, AlertCircle, FileText, HelpCircle } from 'lucide-react';
+import { Calendar, Upload, Users, AlertCircle, FileText, HelpCircle, X, Loader2 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { supabase } from '@/integrations/supabase/client';
+import { DocumentWarehousePicker } from '@/components/shared/DocumentWarehousePicker';
 
 interface PublicConsultationStepProps {
   data: any;
@@ -16,80 +17,38 @@ interface PublicConsultationStepProps {
 
 export function PublicConsultationStep({ data, onChange, hasLinkedIntent = false }: PublicConsultationStepProps) {
   const isPublicConsultationRequired = ['Level 2', 'Level 3'].includes(data.activity_level);
+  const [isWarehousePickerOpen, setIsWarehousePickerOpen] = useState(false);
+  const [isRemoving, setIsRemoving] = useState<string | null>(null);
   
   // Styles for intent-populated fields
   const intentFieldStyles = hasLinkedIntent ? "bg-amber-50 cursor-not-allowed" : "";
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(event.target.files || []);
+  const handleWarehouseSelect = (documents: any[]) => {
+    if (documents.length === 0) return;
     
-    try {
-      const { data: userData } = await supabase.auth.getUser();
-      if (!userData.user) {
-        console.error('User not authenticated');
-        return;
-      }
-
-      const uploadedFileData = [];
-      
-      for (const file of files) {
-        const fileName = `${Date.now()}-${Math.random()}.${file.name.split('.').pop()}`;
-        const filePath = `${userData.user.id}/consultation-documents/${fileName}`;
-        
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from('documents')
-          .upload(filePath, file, {
-            cacheControl: '3600',
-            upsert: false
-          });
-
-        if (uploadError) {
-          console.error('Upload error:', uploadError);
-          continue;
-        }
-
-        const { data: docData, error: docError } = await supabase
-          .from('documents')
-          .insert({
-            filename: file.name,
-            file_path: filePath,
-            file_size: file.size,
-            mime_type: file.type,
-            user_id: userData.user.id,
-            document_type: 'public_consultation'
-          })
-          .select()
-          .single();
-
-        if (docError) {
-          console.error('Database save error:', docError);
-          continue;
-        }
-
-        uploadedFileData.push({
-          id: docData.id,
-          name: file.name,
-          size: file.size,
-          type: file.type,
-          file_path: filePath,
-          document_id: docData.id
-        });
-      }
-      
-      const existingFiles = data.public_consultation_proof || [];
-      onChange({ 
-        public_consultation_proof: [...existingFiles, ...uploadedFileData] 
-      });
-    } catch (error) {
-      console.error('Error uploading consultation files:', error);
-    }
+    const newFiles = documents.map(doc => ({
+      id: doc.id,
+      name: doc.filename,
+      size: doc.file_size,
+      type: doc.mime_type,
+      file_path: doc.file_path,
+      document_id: doc.id,
+      fromWarehouse: true,
+    }));
+    
+    const existingFiles = data.public_consultation_proof || [];
+    onChange({ 
+      public_consultation_proof: [...existingFiles, ...newFiles] 
+    });
   };
 
   const removeFile = async (fileId: string) => {
     try {
+      setIsRemoving(fileId);
       const fileToRemove = (data.public_consultation_proof || []).find((file: any) => file.id === fileId);
       
-      if (fileToRemove?.file_path) {
+      // Only delete from storage if it was directly uploaded (not from warehouse)
+      if (fileToRemove?.file_path && !fileToRemove?.fromWarehouse) {
         await supabase.storage
           .from('documents')
           .remove([fileToRemove.file_path]);
@@ -104,6 +63,8 @@ export function PublicConsultationStep({ data, onChange, hasLinkedIntent = false
       onChange({ public_consultation_proof: updatedFiles });
     } catch (error) {
       console.error('Error removing consultation file:', error);
+    } finally {
+      setIsRemoving(null);
     }
   };
 
@@ -316,21 +277,14 @@ export function PublicConsultationStep({ data, onChange, hasLinkedIntent = false
                     <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
                       <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
                       <p className="text-sm text-muted-foreground mb-2">
-                        Click to upload consultation documents
+                        Select documents from your warehouse or upload new files
                       </p>
-                      <input
-                        type="file"
-                        multiple
-                        accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
-                        onChange={handleFileUpload}
-                        className="hidden"
-                        id="consultation-upload"
-                      />
                       <Button 
                         type="button" 
-                        variant="outline"
-                        onClick={() => document.getElementById('consultation-upload')?.click()}
+                        variant="default"
+                        onClick={() => setIsWarehousePickerOpen(true)}
                       >
+                        <Upload className="w-4 h-4 mr-2" />
                         Choose Files
                       </Button>
                     </div>
@@ -341,14 +295,21 @@ export function PublicConsultationStep({ data, onChange, hasLinkedIntent = false
                       <Label>Uploaded Documents</Label>
                       <div className="space-y-2">
                         {data.public_consultation_proof.map((file: any) => (
-                          <div key={file.id} className="flex items-center justify-between p-3 bg-muted/50 border border-border rounded-lg">
+                          <div key={file.id} className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-900 rounded-lg">
                             <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 bg-primary/10 rounded flex items-center justify-center">
-                                <Upload className="w-4 h-4 text-primary" />
+                              <div className="w-8 h-8 bg-green-100 dark:bg-green-900/50 rounded flex items-center justify-center">
+                                <FileText className="w-4 h-4 text-green-600" />
                               </div>
                               <div>
-                                <p className="text-sm font-medium">{file.name}</p>
-                                <p className="text-xs text-muted-foreground">{formatFileSize(file.size)}</p>
+                                <p className="text-sm font-medium text-green-900 dark:text-green-100">{file.name}</p>
+                                <p className="text-xs text-green-700 dark:text-green-300">
+                                  {formatFileSize(file.size)}
+                                  {file.fromWarehouse && (
+                                    <span className="ml-2 px-2 py-0.5 bg-green-600/20 text-green-700 dark:text-green-300 rounded">
+                                      From Warehouse
+                                    </span>
+                                  )}
+                                </p>
                               </div>
                             </div>
                             <Button
@@ -356,9 +317,14 @@ export function PublicConsultationStep({ data, onChange, hasLinkedIntent = false
                               variant="ghost"
                               size="sm"
                               onClick={() => removeFile(file.id)}
+                              disabled={isRemoving === file.id}
                               className="text-destructive hover:text-destructive"
                             >
-                              Remove
+                              {isRemoving === file.id ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <X className="w-4 h-4" />
+                              )}
                             </Button>
                           </div>
                         ))}
@@ -382,6 +348,17 @@ export function PublicConsultationStep({ data, onChange, hasLinkedIntent = false
             )}
           </CardContent>
         </Card>
+
+        {/* Document Warehouse Picker */}
+        <DocumentWarehousePicker
+          open={isWarehousePickerOpen}
+          onOpenChange={setIsWarehousePickerOpen}
+          onSelect={handleWarehouseSelect}
+          multiSelect={true}
+          title="Select Consultation Evidence Documents"
+          description="Choose documents from your Document Management to attach as public consultation evidence."
+          acceptedTypes={['.pdf', '.doc', '.docx', '.png', '.jpg', '.jpeg']}
+        />
       </div>
     </TooltipProvider>
   );

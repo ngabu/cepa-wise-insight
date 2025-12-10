@@ -1,33 +1,111 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { CheckCircle, AlertTriangle, FileText, User, MapPin, DollarSign, Download, Printer, ClipboardCheck, List, Activity, Users } from 'lucide-react';
+import { CheckCircle, AlertTriangle, FileText, User, MapPin, DollarSign, Download, Printer, ClipboardCheck, List, Activity, Users, Mail, Phone } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { useIndustrialSectors } from '@/hooks/useIndustrialSectors';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ReviewSubmitStepProps {
   data: any;
   onChange: (data: any) => void;
 }
 
+interface EntityInfo {
+  email: string | null;
+  phone: string | null;
+  contact_person_email: string | null;
+  contact_person_phone: number | null;
+}
+
 export function ReviewSubmitStep({ data, onChange }: ReviewSubmitStepProps) {
   const { industrialSectors } = useIndustrialSectors();
   const selectedSector = industrialSectors.find(s => s.id === data.industrial_sector_id);
+  const [entityInfo, setEntityInfo] = useState<EntityInfo | null>(null);
+
+  // Fetch entity email and phone when entity_id changes
+  useEffect(() => {
+    const fetchEntityInfo = async () => {
+      if (data.entity_id) {
+        const { data: entity, error } = await supabase
+          .from('entities')
+          .select('email, phone, contact_person_email, contact_person_phone')
+          .eq('id', data.entity_id)
+          .single();
+        
+        if (!error && entity) {
+          setEntityInfo(entity);
+        }
+      }
+    };
+    fetchEntityInfo();
+  }, [data.entity_id]);
+
+  // Collect all documents from various sources
+  const getAllDocuments = () => {
+    const documents: { name: string; source: string; type?: string }[] = [];
+    
+    // Documents from uploaded_files (general uploads)
+    if (data.uploadedFiles && Array.isArray(data.uploadedFiles)) {
+      data.uploadedFiles.forEach((file: any) => {
+        documents.push({
+          name: file.name || file.filename || 'Unnamed Document',
+          source: 'General Uploads',
+          type: file.type || file.mime_type
+        });
+      });
+    }
+
+    // Documents from document_uploads (Documents tab - categorized)
+    if (data.document_uploads && typeof data.document_uploads === 'object') {
+      Object.entries(data.document_uploads).forEach(([docType, file]: [string, any]) => {
+        if (file) {
+          const docTypeName = docType
+            .replace(/_/g, ' ')
+            .replace(/\b\w/g, l => l.toUpperCase());
+          documents.push({
+            name: file.name || file.filename || docTypeName,
+            source: 'Required Documents',
+            type: docTypeName
+          });
+        }
+      });
+    }
+
+    // Documents from public_consultation_proof (Consultation tab)
+    if (data.public_consultation_proof && Array.isArray(data.public_consultation_proof)) {
+      data.public_consultation_proof.forEach((file: any) => {
+        documents.push({
+          name: file.name || file.filename || 'Consultation Document',
+          source: 'Public Consultation',
+          type: 'Consultation Evidence'
+        });
+      });
+    }
+
+    return documents;
+  };
+
+  const allDocuments = getAllDocuments();
+  
+  // Entity contact verification
+  const entityEmail = entityInfo?.email || entityInfo?.contact_person_email || null;
+  const entityPhone = entityInfo?.phone || (entityInfo?.contact_person_phone ? String(entityInfo.contact_person_phone) : null);
 
   const checkMandatoryFields = () => {
-    const mandatory = {
+    const mandatory: Record<string, { field: string; label: string; value: any }[]> = {
       'Basic Information': [
         { field: 'applicationTitle', label: 'Application Title', value: data.applicationTitle },
         { field: 'entity_name', label: 'Entity', value: data.entity_name || data.organizationName },
-        { field: 'applicantEmail', label: 'Email Address', value: data.applicantEmail },
-        { field: 'applicantPhone', label: 'Phone Number', value: data.applicantPhone }
+        { field: 'entityEmail', label: 'Entity Email Address', value: entityEmail },
+        { field: 'entityPhone', label: 'Entity Phone Number', value: entityPhone }
       ],
       'Activity Classification': [
         { field: 'activity_level', label: 'Activity Level', value: data.activity_level },
-        { field: 'permit_type_specific', label: 'Permit Type', value: data.permit_type_specific }
+        { field: 'permit_type', label: 'Permit Type', value: data.permit_type }
       ],
       'Project Details': [
         { field: 'projectDescription', label: 'Project Description', value: data.projectDescription },
@@ -35,6 +113,9 @@ export function ReviewSubmitStep({ data, onChange }: ReviewSubmitStepProps) {
       ],
       'Location': [
         { field: 'projectLocation', label: 'Project Location', value: data.projectLocation }
+      ],
+      'Documents': [
+        { field: 'documents', label: 'Required Documents', value: allDocuments.length > 0 }
       ]
     };
 
@@ -68,7 +149,6 @@ export function ReviewSubmitStep({ data, onChange }: ReviewSubmitStepProps) {
   };
 
   const handleDownload = () => {
-    // Create a printable HTML version
     const printWindow = window.open('', '_blank');
     if (printWindow) {
       const content = document.getElementById('application-summary')?.innerHTML || '';
@@ -127,6 +207,22 @@ export function ReviewSubmitStep({ data, onChange }: ReviewSubmitStepProps) {
         </div>
       </div>
     );
+  };
+
+  // Handle legal declaration changes with timestamp
+  const handleLegalDeclarationChange = (checked: boolean) => {
+    onChange({ 
+      legal_declaration_accepted: checked,
+      legal_declaration_accepted_at: checked ? new Date().toISOString() : null
+    });
+  };
+
+  // Handle compliance commitment changes with timestamp
+  const handleComplianceCommitmentChange = (checked: boolean) => {
+    onChange({ 
+      compliance_commitment: checked,
+      compliance_commitment_accepted_at: checked ? new Date().toISOString() : null
+    });
   };
 
   return (
@@ -207,34 +303,35 @@ export function ReviewSubmitStep({ data, onChange }: ReviewSubmitStepProps) {
                 );
               })}
 
-              {/* Documents Section */}
+              {/* Documents List Section */}
               <div className="space-y-2 p-3 bg-muted/30 rounded-lg border border-border/50">
                 <div className="flex items-center justify-between">
                   <h4 className="font-medium flex items-center gap-2">
-                    {data.uploaded_files && data.uploaded_files.length > 0 ? (
+                    {allDocuments.length > 0 ? (
                       <div className="w-4 h-4 rounded-full bg-green-600 flex items-center justify-center">
                         <CheckCircle className="w-3 h-3 text-white" />
                       </div>
                     ) : (
                       <div className="w-4 h-4 rounded-full border-2 border-amber-500 bg-amber-100" />
                     )}
-                    Documents
+                    All Attached Documents
                   </h4>
-                  <Badge variant={data.uploaded_files?.length > 0 ? "default" : "secondary"} className="text-xs">
-                    {data.uploaded_files?.length || 0} uploaded
+                  <Badge variant={allDocuments.length > 0 ? "default" : "secondary"} className="text-xs">
+                    {allDocuments.length} document(s)
                   </Badge>
                 </div>
                 <div className="ml-6 space-y-1.5">
-                  {data.uploaded_files && data.uploaded_files.length > 0 ? (
-                    data.uploaded_files.map((file: any, index: number) => (
+                  {allDocuments.length > 0 ? (
+                    allDocuments.map((doc, index) => (
                       <div key={index} className="flex items-center gap-3 text-sm">
                         <div className="w-4 h-4 rounded-full border-2 flex items-center justify-center border-green-600 bg-green-600">
                           <div className="w-2 h-2 rounded-full bg-white" />
                         </div>
-                        <span className="text-foreground">
-                          {file.name || file.filename || `Document ${index + 1}`}
-                        </span>
-                        <CheckCircle className="w-3 h-3 text-green-600 ml-auto" />
+                        <div className="flex-1">
+                          <span className="text-foreground">{doc.name}</span>
+                          <span className="text-xs text-muted-foreground ml-2">({doc.source})</span>
+                        </div>
+                        <CheckCircle className="w-3 h-3 text-green-600" />
                       </div>
                     ))
                   ) : (
@@ -290,13 +387,23 @@ export function ReviewSubmitStep({ data, onChange }: ReviewSubmitStepProps) {
                 <span className="text-muted-foreground">Entity:</span>
                 <p className="font-medium text-orange-600">{data.entity_name || data.organizationName || 'Not specified'}</p>
               </div>
-              <div>
-                <span className="text-muted-foreground">Email:</span>
-                <p className="font-medium text-orange-600">{data.applicantEmail || 'Not specified'}</p>
+              <div className="flex items-start gap-2">
+                <Mail className="w-4 h-4 text-muted-foreground mt-0.5" />
+                <div>
+                  <span className="text-muted-foreground">Entity Email:</span>
+                  <p className={`font-medium ${entityEmail ? 'text-orange-600' : 'text-destructive'}`}>
+                    {entityEmail || 'Not configured in entity profile'}
+                  </p>
+                </div>
               </div>
-              <div>
-                <span className="text-muted-foreground">Phone:</span>
-                <p className="font-medium text-orange-600">{data.applicantPhone || 'Not specified'}</p>
+              <div className="flex items-start gap-2">
+                <Phone className="w-4 h-4 text-muted-foreground mt-0.5" />
+                <div>
+                  <span className="text-muted-foreground">Entity Phone:</span>
+                  <p className={`font-medium ${entityPhone ? 'text-orange-600' : 'text-destructive'}`}>
+                    {entityPhone || 'Not configured in entity profile'}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -319,7 +426,9 @@ export function ReviewSubmitStep({ data, onChange }: ReviewSubmitStepProps) {
                 </div>
                 <div>
                   <span className="text-muted-foreground">Permit Type:</span>
-                  <p className="font-medium text-orange-600">{data.permit_type || 'Not specified'}</p>
+                  <p className={`font-medium ${data.permit_type ? 'text-orange-600' : 'text-destructive'}`}>
+                    {data.permit_type || 'Not selected - Please select in Classification tab'}
+                  </p>
                 </div>
                 <div>
                   <span className="text-muted-foreground">Industrial Sector:</span>
@@ -381,99 +490,21 @@ export function ReviewSubmitStep({ data, onChange }: ReviewSubmitStepProps) {
                 )}
               </div>
               
-              {/* Always show core project fields */}
               <div>
                 <span className="text-muted-foreground">Project Description:</span>
-                <p className="font-medium text-orange-600 whitespace-pre-wrap">
-                  {data.projectDescription || data.description || 'Not provided'}
-                </p>
+                <p className="font-medium text-orange-600">{data.projectDescription || 'Not specified'}</p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <span className="text-muted-foreground">Start Date:</span>
-                  <p className="font-medium text-orange-600">{data.projectStartDate || data.commencement_date || 'Not specified'}</p>
-                </div>
-                <div>
-                  <span className="text-muted-foreground">End Date:</span>
-                  <p className="font-medium text-orange-600">{data.projectEndDate || data.completion_date || 'Not specified'}</p>
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Permit Period:</span>
-                  <p className="font-medium text-orange-600">{data.permit_period || 'Not specified'}</p>
-                </div>
-              </div>
-
-
-              {/* Optional fields - only show if filled */}
-              {(data.operational_details || data.operational_capacity || data.operating_hours) && (
-                <div className="pt-3 border-t">
-                  <h5 className="font-medium mb-2">Operational Information</h5>
-                  <div className="space-y-2">
-                    {data.operational_details && (
-                      <div>
-                        <span className="text-muted-foreground">Operational Details:</span>
-                        <p className="font-medium text-orange-600">{data.operational_details}</p>
-                      </div>
-                    )}
-                    {data.operational_capacity && (
-                      <div>
-                        <span className="text-muted-foreground">Operational Capacity:</span>
-                        <p className="font-medium text-orange-600">{data.operational_capacity}</p>
-                      </div>
-                    )}
-                    {data.operating_hours && (
-                      <div>
-                        <span className="text-muted-foreground">Operating Hours:</span>
-                        <p className="font-medium text-orange-600">{data.operating_hours}</p>
-                      </div>
-                    )}
+              {(data.projectStartDate || data.projectEndDate) && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <span className="text-muted-foreground">Start Date:</span>
+                    <p className="font-medium text-orange-600">{data.projectStartDate || 'Not specified'}</p>
                   </div>
-                </div>
-              )}
-
-              {data.estimated_cost_kina && data.estimated_cost_kina > 0 && (
-                <div className="pt-3 border-t">
-                  <span className="text-muted-foreground">Estimated Project Cost:</span>
-                  <p className="font-medium text-lg text-orange-600">{formatCurrency(data.estimated_cost_kina)}</p>
-                </div>
-              )}
-
-
-              {/* Compliance and Approvals */}
-              {(data.existing_permits_details || data.government_agreements_details || data.required_approvals) && (
-                <div className="pt-3 border-t">
-                  <h5 className="font-medium mb-2">Compliance & Approvals</h5>
-                  {data.existing_permits_details && (
-                    <div className="mb-2">
-                      <span className="text-muted-foreground">Existing Permits:</span>
-                      <p className="font-medium text-orange-600">{data.existing_permits_details}</p>
-                    </div>
-                  )}
-                  {data.government_agreements_details && (
-                    <div className="mb-2">
-                      <span className="text-muted-foreground">Government Agreements:</span>
-                      <p className="font-medium text-orange-600">{data.government_agreements_details}</p>
-                    </div>
-                  )}
-                  {data.required_approvals && (
-                    <div className="mb-2">
-                      <span className="text-muted-foreground">Required Approvals:</span>
-                      <p className="font-medium text-orange-600">{data.required_approvals}</p>
-                    </div>
-                  )}
-                  {data.consulted_departments && (
-                    <div className="mb-2">
-                      <span className="text-muted-foreground">Consulted Departments:</span>
-                      <p className="font-medium text-orange-600">{data.consulted_departments}</p>
-                    </div>
-                  )}
-                  {data.landowner_negotiation_status && (
-                    <div>
-                      <span className="text-muted-foreground">Landowner Negotiation Status:</span>
-                      <p className="font-medium text-orange-600">{data.landowner_negotiation_status}</p>
-                    </div>
-                  )}
+                  <div>
+                    <span className="text-muted-foreground">End Date:</span>
+                    <p className="font-medium text-orange-600">{data.projectEndDate || 'Not specified'}</p>
+                  </div>
                 </div>
               )}
 
@@ -515,18 +546,19 @@ export function ReviewSubmitStep({ data, onChange }: ReviewSubmitStepProps) {
           {/* Permit Specific Fields */}
           {renderPermitSpecificFields()}
 
-          {/* Uploaded Documents Summary */}
-          {data.uploaded_files && data.uploaded_files.length > 0 && (
+          {/* All Documents Summary */}
+          {allDocuments.length > 0 && (
             <div>
               <h4 className="font-medium flex items-center gap-2 mb-3">
                 <FileText className="w-4 h-4" />
-                Uploaded Documents
+                Attached Documents ({allDocuments.length})
               </h4>
-              <div className="space-y-1 text-sm">
-                {data.uploaded_files.map((file: any, index: number) => (
-                  <div key={index} className="flex items-center gap-2">
+              <div className="space-y-2 text-sm">
+                {allDocuments.map((doc, index) => (
+                  <div key={index} className="flex items-center gap-2 p-2 bg-muted/30 rounded">
                     <CheckCircle className="w-3 h-3 text-green-600" />
-                    <span className="text-orange-600">{file.name || file.filename || `Document ${index + 1}`}</span>
+                    <span className="text-orange-600 flex-1">{doc.name}</span>
+                    <Badge variant="outline" className="text-xs">{doc.source}</Badge>
                   </div>
                 ))}
               </div>
@@ -582,7 +614,7 @@ export function ReviewSubmitStep({ data, onChange }: ReviewSubmitStepProps) {
             <Checkbox
               id="legal_declaration"
               checked={data.legal_declaration_accepted || false}
-              onCheckedChange={(checked) => onChange({ legal_declaration_accepted: checked })}
+              onCheckedChange={handleLegalDeclarationChange}
               className="mt-1"
             />
             <div className="space-y-1">
@@ -592,6 +624,11 @@ export function ReviewSubmitStep({ data, onChange }: ReviewSubmitStepProps) {
               <p className="text-xs text-muted-foreground">
                 I understand that providing false information is an offense under the Environment Act 2000
               </p>
+              {data.legal_declaration_accepted && data.legal_declaration_accepted_at && (
+                <p className="text-xs text-green-600">
+                  Accepted on: {new Date(data.legal_declaration_accepted_at).toLocaleString()}
+                </p>
+              )}
             </div>
           </div>
 
@@ -599,7 +636,7 @@ export function ReviewSubmitStep({ data, onChange }: ReviewSubmitStepProps) {
             <Checkbox
               id="compliance_commitment"
               checked={data.compliance_commitment || false}
-              onCheckedChange={(checked) => onChange({ compliance_commitment: checked })}
+              onCheckedChange={handleComplianceCommitmentChange}
               className="mt-1"
             />
             <div className="space-y-1">
@@ -609,6 +646,11 @@ export function ReviewSubmitStep({ data, onChange }: ReviewSubmitStepProps) {
               <p className="text-xs text-muted-foreground">
                 This includes environmental monitoring, reporting requirements, and mitigation measures
               </p>
+              {data.compliance_commitment && data.compliance_commitment_accepted_at && (
+                <p className="text-xs text-green-600">
+                  Accepted on: {new Date(data.compliance_commitment_accepted_at).toLocaleString()}
+                </p>
+              )}
             </div>
           </div>
         </CardContent>

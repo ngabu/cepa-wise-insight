@@ -181,7 +181,7 @@ export function RevenueFeeMap() {
   useEffect(() => {
     if (!mapContainer.current || map.current) return;
 
-    mapboxgl.accessToken = 'pk.eyJ1IjoibG92YWJsZS1zdGFuZG9uZSIsImEiOiJjbHVwcmh3N3MwdGNtMnByeHg5MTdzeXdzIn0.d3dOj93xnwgDqHiSF2W1Dw';
+    mapboxgl.accessToken = 'pk.eyJ1IjoiZ2FidW5vcm1hbiIsImEiOiJjbWJ0emU0cGEwOHR1MmtxdXh2d2wzOTV5In0.RUVMHkS-KaJ6CGWUiB3s4w';
     
     map.current = new mapboxgl.Map({
       container: mapContainer.current,

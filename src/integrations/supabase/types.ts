@@ -2284,6 +2284,7 @@ export type Database = {
           completion_date: string | null
           compliance_checks: Json | null
           compliance_commitment: boolean | null
+          compliance_commitment_accepted_at: string | null
           consultation_period_end: string | null
           consultation_period_start: string | null
           consulted_departments: string | null
@@ -2322,6 +2323,7 @@ export type Database = {
           land_clearing_details: Json | null
           landowner_negotiation_status: string | null
           legal_declaration_accepted: boolean | null
+          legal_declaration_accepted_at: string | null
           mandatory_fields_complete: boolean | null
           marine_dumping_details: Json | null
           mining_chemical_details: Json | null
@@ -2388,6 +2390,7 @@ export type Database = {
           completion_date?: string | null
           compliance_checks?: Json | null
           compliance_commitment?: boolean | null
+          compliance_commitment_accepted_at?: string | null
           consultation_period_end?: string | null
           consultation_period_start?: string | null
           consulted_departments?: string | null
@@ -2426,6 +2429,7 @@ export type Database = {
           land_clearing_details?: Json | null
           landowner_negotiation_status?: string | null
           legal_declaration_accepted?: boolean | null
+          legal_declaration_accepted_at?: string | null
           mandatory_fields_complete?: boolean | null
           marine_dumping_details?: Json | null
           mining_chemical_details?: Json | null
@@ -2492,6 +2496,7 @@ export type Database = {
           completion_date?: string | null
           compliance_checks?: Json | null
           compliance_commitment?: boolean | null
+          compliance_commitment_accepted_at?: string | null
           consultation_period_end?: string | null
           consultation_period_start?: string | null
           consulted_departments?: string | null
@@ -2530,6 +2535,7 @@ export type Database = {
           land_clearing_details?: Json | null
           landowner_negotiation_status?: string | null
           legal_declaration_accepted?: boolean | null
+          legal_declaration_accepted_at?: string | null
           mandatory_fields_complete?: boolean | null
           marine_dumping_details?: Json | null
           mining_chemical_details?: Json | null

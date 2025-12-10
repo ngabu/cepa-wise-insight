@@ -127,7 +127,9 @@ export function ComprehensivePermitForm({ permitId, onSuccess, onCancel, isStand
     eia_required: false,
     eis_required: false,
     legal_declaration_accepted: false,
+    legal_declaration_accepted_at: null,
     compliance_commitment: false,
+    compliance_commitment_accepted_at: null,
     payment_status: 'pending',
     mandatory_fields_complete: false,
     complianceChecks: {
@@ -217,7 +219,9 @@ export function ComprehensivePermitForm({ permitId, onSuccess, onCancel, isStand
               eia_required: data.eia_required || false,
               eis_required: data.eis_required || false,
               legal_declaration_accepted: data.legal_declaration_accepted || false,
+              legal_declaration_accepted_at: data.legal_declaration_accepted_at || null,
               compliance_commitment: data.compliance_commitment || false,
+              compliance_commitment_accepted_at: data.compliance_commitment_accepted_at || null,
               payment_status: data.payment_status || 'pending',
               mandatory_fields_complete: data.mandatory_fields_complete || false,
               complianceChecks: (typeof data.compliance_checks === 'object' && data.compliance_checks && 
@@ -385,7 +389,9 @@ export function ComprehensivePermitForm({ permitId, onSuccess, onCancel, isStand
         consultation_period_start: updatedFormData.consultation_period_start || null,
         consultation_period_end: updatedFormData.consultation_period_end || null,
         legal_declaration_accepted: updatedFormData.legal_declaration_accepted,
+        legal_declaration_accepted_at: updatedFormData.legal_declaration_accepted_at || null,
         compliance_commitment: updatedFormData.compliance_commitment,
+        compliance_commitment_accepted_at: updatedFormData.compliance_commitment_accepted_at || null,
         payment_status: updatedFormData.payment_status,
         mandatory_fields_complete: updatedFormData.mandatory_fields_complete,
         commencement_date: updatedFormData.projectStartDate || null,
@@ -487,7 +493,9 @@ export function ComprehensivePermitForm({ permitId, onSuccess, onCancel, isStand
         consultation_period_end: formData.consultation_period_end || null,
         // PNG Environment Act 2000 fields - Legal Compliance
         legal_declaration_accepted: formData.legal_declaration_accepted,
+        legal_declaration_accepted_at: formData.legal_declaration_accepted_at || null,
         compliance_commitment: formData.compliance_commitment,
+        compliance_commitment_accepted_at: formData.compliance_commitment_accepted_at || null,
         payment_status: formData.payment_status,
         mandatory_fields_complete: formData.mandatory_fields_complete,
         // Date fields - ensure null for empty dates
