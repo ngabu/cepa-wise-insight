@@ -144,6 +144,14 @@ export function InvoiceManagement() {
     });
   };
 
+  // Get the effective status - suspended/cancelled status takes priority over payment_status
+  const getEffectiveStatus = (invoice: Invoice) => {
+    if (invoice.status === 'suspended' || invoice.status === 'cancelled') {
+      return invoice.status;
+    }
+    return invoice.payment_status || invoice.status;
+  };
+
   const filteredInvoices = useMemo(() => {
     return invoices.filter(invoice => {
       const matchesSearch = 
@@ -151,7 +159,7 @@ export function InvoiceManagement() {
         invoice.entity?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         invoice.item_description?.toLowerCase().includes(searchTerm.toLowerCase());
       
-      const invoiceStatus = invoice.payment_status || invoice.status;
+      const invoiceStatus = getEffectiveStatus(invoice);
       const matchesStatus = statusFilter === 'all' || invoiceStatus === statusFilter;
       
       return matchesSearch && matchesStatus;
@@ -223,6 +231,8 @@ export function InvoiceManagement() {
                 <SelectItem value="partial">Partial Payment</SelectItem>
                 <SelectItem value="paid">Paid</SelectItem>
                 <SelectItem value="overdue">Overdue</SelectItem>
+                <SelectItem value="suspended">Suspended</SelectItem>
+                <SelectItem value="cancelled">Cancelled</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -254,7 +264,7 @@ export function InvoiceManagement() {
             </TableHeader>
             <TableBody>
               {filteredInvoices.map((invoice) => {
-                const invoiceStatus = invoice.payment_status || invoice.status;
+                const invoiceStatus = getEffectiveStatus(invoice);
                 const receiptUrl = invoice.stripe_receipt_url || invoice.cepa_receipt_path;
                 
                 return (

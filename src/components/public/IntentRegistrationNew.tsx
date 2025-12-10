@@ -678,6 +678,7 @@ export function IntentRegistrationNew() {
                       {activities
                         ?.filter(activity => {
                           const levelMap: { [key: string]: number } = {
+                            'Level 1': 1,
                             'Level 2': 2,
                             'Level 3': 3
                           };

@@ -448,14 +448,12 @@ export function IntentRegistrationReadOnlyView({ intent, showFeedbackWithBlueHea
                 </div>
               )}
 
-              {intent.project_title && (
-                <div className="space-y-2">
-                  <Label className="text-muted-foreground">Project Title</Label>
-                  <div className="p-3 bg-primary/10 rounded-lg">
-                    <p className="text-sm font-medium">{intent.project_title}</p>
-                  </div>
+              <div className="space-y-2">
+                <Label className="text-muted-foreground">Project Title</Label>
+                <div className="p-3 bg-primary/10 rounded-lg">
+                  <p className="text-sm font-medium">{intent.project_title || 'Not provided'}</p>
                 </div>
-              )}
+              </div>
 
               <div className="space-y-2">
                 <Label className="text-muted-foreground">Project Description</Label>

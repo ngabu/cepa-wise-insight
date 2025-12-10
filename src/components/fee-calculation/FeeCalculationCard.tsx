@@ -124,15 +124,6 @@ export const FeeCalculationCard: React.FC<FeeCalculationCardProps> = ({
           </div>
         </div>
 
-        <div className="space-y-2">
-          <div className="flex items-center gap-2 text-sm">
-            <FileText className="w-4 h-4 text-muted-foreground" />
-            <span className="text-muted-foreground">Required Form:</span>
-          </div>
-          <div className="pl-6 space-y-1">
-            <div className="text-sm">• {fees.administrationForm || 'Form 2'}</div>
-          </div>
-        </div>
 
         {fees.isEstimated && (
           <div className="text-xs text-muted-foreground p-3 bg-orange-50 border border-orange-200 rounded-lg">
