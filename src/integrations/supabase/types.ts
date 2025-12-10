@@ -1585,6 +1585,7 @@ export type Database = {
           project_boundary: Json | null
           project_site_address: string | null
           project_site_description: string | null
+          project_title: string | null
           province: string | null
           site_ownership_details: string | null
           total_area_sqkm: number | null
@@ -1615,6 +1616,7 @@ export type Database = {
           project_boundary?: Json | null
           project_site_address?: string | null
           project_site_description?: string | null
+          project_title?: string | null
           province?: string | null
           site_ownership_details?: string | null
           total_area_sqkm?: number | null
@@ -1645,6 +1647,7 @@ export type Database = {
           project_boundary?: Json | null
           project_site_address?: string | null
           project_site_description?: string | null
+          project_title?: string | null
           province?: string | null
           site_ownership_details?: string | null
           total_area_sqkm?: number | null
@@ -1735,6 +1738,7 @@ export type Database = {
           project_boundary: Json | null
           project_site_address: string | null
           project_site_description: string | null
+          project_title: string | null
           province: string | null
           registry_assigned_at: string | null
           registry_officer_id: string | null
@@ -1790,6 +1794,7 @@ export type Database = {
           project_boundary?: Json | null
           project_site_address?: string | null
           project_site_description?: string | null
+          project_title?: string | null
           province?: string | null
           registry_assigned_at?: string | null
           registry_officer_id?: string | null
@@ -1845,6 +1850,7 @@ export type Database = {
           project_boundary?: Json | null
           project_site_address?: string | null
           project_site_description?: string | null
+          project_title?: string | null
           province?: string | null
           registry_assigned_at?: string | null
           registry_officer_id?: string | null

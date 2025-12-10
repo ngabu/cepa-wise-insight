@@ -7,6 +7,7 @@ export interface IntentDraft {
   user_id: string;
   entity_id: string | null;
   activity_level: string | null;
+  project_title: string | null;
   activity_description: string | null;
   preparatory_work_description: string | null;
   commencement_date: string | null;
